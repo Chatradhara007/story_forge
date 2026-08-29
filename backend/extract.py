@@ -8,7 +8,7 @@ client = OpenAI(
     api_key=os.environ["NVIDIA_API_KEY"],
 )
 
-MODEL = "meta/llama-3.1-70b-instruct"  
+MODEL = "meta/llama-3.1-70b-instruct"  # swap here if you want to try a different NIM model
 
 EXTRACTION_TOOL = {
     "type": "function",

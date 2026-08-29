@@ -1,4 +1,4 @@
-# StoryForge AI — Step 1: Extraction Skeleton
+# StoryForge AI — Steps 1 & 2: Extraction + Story Memory
 
 ## Folder layout
 
@@ -7,30 +7,50 @@ storyforge/
 ├── .gitignore
 ├── README.md
 └── backend/
-    ├── .env.example      # copy to .env and fill in your key
+    ├── .env.example      # copy to .env and fill in your keys
     ├── requirements.txt
+    ├── schema.sql        # run this in Supabase's SQL editor once
     ├── models.py         # Fact / ExtractionResult schema
     ├── extract.py        # NVIDIA NIM extraction logic
-    └── main.py           # FastAPI app + /extract endpoint
+    ├── storage.py         # embeddings + Postgres persistence + semantic search
+    └── main.py           # FastAPI app + all endpoints
 ```
 
 ## Setup
 
+### 1. Supabase project
+1. Go to https://supabase.com, create a free project.
+2. Open **SQL Editor** in the left sidebar, paste the contents of `schema.sql`, click **Run**. This enables pgvector and creates the `facts` table.
+3. Go to **Project Settings > Database > Connection string**, copy the URI (use the direct connection, port 5432 — not the pooler, for this simple setup). It looks like:
+   `postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres`
+
+### 2. Backend
 ```bash
 cd storyforge/backend
 python -m venv venv
 source venv/bin/activate      # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env          # then edit .env and paste your NVIDIA NIM API key
+cp .env.example .env          # edit .env: paste your NVIDIA_API_KEY and SUPABASE_DB_URL
 uvicorn main:app --reload
 ```
 
 Get an NVIDIA NIM API key at https://build.nvidia.com (click "Get API Key" on any model page).
 
+## Endpoints
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /extract` | Extract facts only, don't store — use for testing extraction |
+| `POST /chapters` | Extract facts AND persist to story memory — use this for real ingestion |
+| `GET /facts/{entity}` | Everything currently known about a named entity |
+| `GET /search?q=...` | Semantic search across all stored facts |
+| `GET /health` | Sanity check |
+
 ## Test it
 
+**Ingest a chapter (extracts + stores):**
 ```bash
-curl -X POST http://127.0.0.1:8000/extract \
+curl -X POST http://127.0.0.1:8000/chapters \
   -H "Content-Type: application/json" \
   -d '{
     "chapter_id": "ch1",
@@ -38,19 +58,49 @@ curl -X POST http://127.0.0.1:8000/extract \
   }'
 ```
 
-You should get back structured JSON facts (Marcus's eye color, his relationship to Elena, the war ending three years ago, Tomas being the innkeeper, etc.).
+**Look up everything known about Marcus:**
+```bash
+curl "http://127.0.0.1:8000/facts/Marcus"
+```
 
-## If tool calling fails / empty response
+**Ingest a second, contradicting chapter:**
+```bash
+curl -X POST http://127.0.0.1:8000/chapters \
+  -H "Content-Type: application/json" \
+  -d '{
+    "chapter_id": "ch5",
+    "text": "Marcus looked up, his green eyes catching the torchlight as he entered the old inn."
+  }'
+```
 
-1. First try removing the `tool_choice` line in `extract.py` — let the model decide to call the only tool offered.
-2. If still unreliable, use the commented-out fallback function at the bottom of `extract.py`, which prompts for raw JSON instead of using function calling.
-3. Try swapping `MODEL` in `extract.py` to `meta/llama-3.3-70b-instruct` or `nvidia/llama-3.1-nemotron-70b-instruct` — tool-calling reliability varies across NIM catalog models.
+**Check `/facts/Marcus` again** — you should now see two conflicting `eye_color` entries (`blue` from ch1, `green` from ch5) with different `chapter_id`s and `source_quote`s. This is exactly the raw material Step 3 (contradiction detection) will consume.
 
-## Checklist before moving to Step 2
-- [ ] `/extract` returns valid structured facts on multiple test inputs
-- [ ] `source_quote` fields actually match text in the chapter (spot-check a few)
-- [ ] Confidence scores look reasonable (not everything at 1.0 or 0.5)
+**Try semantic search:**
+```bash
+curl "http://127.0.0.1:8000/search?q=who%20has%20died%20in%20the%20story"
+```
+
+## Troubleshooting
+
+**Extraction / tool calling fails or returns empty:**
+1. Remove the `tool_choice` line in `extract.py` — let the model decide to call the only tool offered.
+2. Still unreliable? Use the commented-out fallback function at the bottom of `extract.py`, which prompts for raw JSON instead of using function calling.
+3. Try swapping `MODEL` in `extract.py` to `meta/llama-3.3-70b-instruct` or `nvidia/llama-3.1-nemotron-70b-instruct`.
+
+**Storage fails / can't connect to Postgres:**
+- Double-check `SUPABASE_DB_URL` — it's easy to copy the pooler URL by mistake. Use the direct connection string (port 5432).
+- If your network blocks outbound Postgres connections, Supabase also offers a connection pooler on port 6543 as a fallback — swap the port in the URL if 5432 times out.
+
+**Embedding calls fail:**
+- Confirm `nvidia/nv-embedqa-e5-v5` is enabled for your NVIDIA API key (some models require separate opt-in on build.nvidia.com).
+- Make sure you're passing `input_type` via `extra_body` — the plain OpenAI SDK doesn't have a native param for it, so it's easy to accidentally drop when refactoring.
+
+## Checklist before moving to Step 3
+- [ ] `/chapters` extracts and stores facts without errors
+- [ ] `/facts/{entity}` correctly returns facts across multiple ingested chapters for the same entity
+- [ ] The deliberate-contradiction test above actually shows two conflicting facts stored side by side
+- [ ] `/search` returns semantically relevant results, not just exact keyword matches
 - [ ] Repo pushed to GitHub with `.env` excluded
 
-## Next (Step 2)
-Supabase (Postgres + pgvector) setup to persist these extracted facts across chapters, so the system builds up story memory instead of extracting fresh each time.
+## Next (Step 3)
+Contradiction detection: given a newly ingested chapter's facts, retrieve conflicting prior facts (like the `/facts/Marcus` example above) and use an LLM call to decide whether it's a real contradiction, then generate a human-readable explanation with a citation.
