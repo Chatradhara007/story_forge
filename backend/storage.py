@@ -9,11 +9,11 @@ nim_client = OpenAI(
     api_key=os.environ["NVIDIA_API_KEY"],
 )
 
-EMBED_MODEL = "nvidia/nv-embedqa-e5-v5"  # 1024-dim, must match schema.sql's vector(1024)
+EMBED_MODEL = "nvidia/nemotron-3-embed-1b"
 
 
 def get_db_connection():
-    return psycopg2.connect(os.environ["SUPABASE_DB_URL"])
+    return psycopg2.connect(os.environ["DATABASE_URL"])
 
 
 def embed_text(text: str, input_type: str = "passage") -> list[float]:
@@ -73,6 +73,50 @@ def get_facts_for_entity(entity: str) -> list[dict]:
         ORDER BY chapter_id
         """,
         (entity,),
+    )
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return rows
+
+
+def store_contradictions(contradictions: list) -> None:
+    """contradictions: list[Contradiction] pydantic models."""
+    if not contradictions:
+        return
+    conn = get_db_connection()
+    cur = conn.cursor()
+    for c in contradictions:
+        cur.execute(
+            """
+            INSERT INTO contradictions
+                (entity, new_chapter_id, new_attribute, new_value, new_quote,
+                 conflicting_chapter_id, conflicting_value, conflicting_quote,
+                 contradiction_type, explanation)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """,
+            (
+                c.entity, c.new_chapter_id, c.new_attribute, c.new_value, c.new_quote,
+                c.conflicting_chapter_id, c.conflicting_value, c.conflicting_quote,
+                c.contradiction_type, c.explanation,
+            ),
+        )
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+def get_all_contradictions() -> list[dict]:
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+    cur.execute(
+        """
+        SELECT entity, new_chapter_id, new_attribute, new_value, new_quote,
+               conflicting_chapter_id, conflicting_value, conflicting_quote,
+               contradiction_type, explanation, created_at
+        FROM contradictions
+        ORDER BY created_at DESC
+        """
     )
     rows = cur.fetchall()
     cur.close()

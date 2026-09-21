@@ -1,0 +1,15 @@
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: storyforge
+      POSTGRES_PASSWORD: storyforge
+      POSTGRES_DB: storyforge
+    ports:
+      - "5432:5432"
+    volumes:
+      - storyforge_pgdata:/var/lib/postgresql/data
+
+volumes:
+  storyforge_pgdata:

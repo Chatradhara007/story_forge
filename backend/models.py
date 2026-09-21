@@ -12,3 +12,20 @@ class Fact(BaseModel):
 class ExtractionResult(BaseModel):
     chapter_id: str
     facts: list[Fact]
+
+class Contradiction(BaseModel):
+    entity: str
+    new_chapter_id: str
+    new_attribute: str
+    new_value: str
+    new_quote: str
+    conflicting_chapter_id: str
+    conflicting_value: str
+    conflicting_quote: str
+    contradiction_type: Literal["attribute", "status", "timeline"]
+    explanation: str
+
+class ChapterIngestResult(BaseModel):
+    chapter_id: str
+    facts: list[Fact]
+    contradictions: list[Contradiction]
