@@ -1,0 +1,308 @@
+{
+  "_about": "Answer key for the test story in eval/story. 'planted' are real mistakes the system SHOULD flag; 'decoys' look like changes but are fine and should NOT be flagged. A flag matches an item when it was raised while checking that chapter, its entity contains one of 'entity_contains', and one of 'keywords' appears in its values, quotes or explanation. MATCHING: a warning matches an item when it was raised while checking that chapter, one of 'entity_contains' appears in its entity or quotes, one of 'new_keywords' appears in its NEW side (attribute, value, quote) and, for planted mistakes, one of 'old_keywords' appears in its EARLIER side (value, quote). Explanations are not used for matching.",
+  "chapters": [
+    "ch1",
+    "ch2",
+    "ch3",
+    "ch4",
+    "ch5",
+    "ch6"
+  ],
+  "planted": [
+    {
+      "id": "A1",
+      "type": "attribute",
+      "chapter": "ch4",
+      "entity_contains": [
+        "ines",
+        "keeper"
+      ],
+      "description": "Ines's eyes: grey (ch1) vs green (ch4). Uses a different name, 'Keeper Calloway'.",
+      "new_keywords": [
+        "green"
+      ],
+      "old_keywords": [
+        "grey",
+        "gray"
+      ]
+    },
+    {
+      "id": "A2",
+      "type": "attribute",
+      "chapter": "ch5",
+      "entity_contains": [
+        "tobias",
+        "ines"
+      ],
+      "description": "Tobias is Ines's older brother (ch1) but her younger brother (ch5).",
+      "new_keywords": [
+        "younger"
+      ],
+      "old_keywords": [
+        "older"
+      ]
+    },
+    {
+      "id": "A3",
+      "type": "attribute",
+      "chapter": "ch5",
+      "entity_contains": [
+        "merrow"
+      ],
+      "description": "The Merrow is red-painted (ch2) but has a blue hull (ch5).",
+      "new_keywords": [
+        "blue"
+      ],
+      "old_keywords": [
+        "red"
+      ]
+    },
+    {
+      "id": "A4",
+      "type": "attribute",
+      "chapter": "ch6",
+      "entity_contains": [
+        "rudd",
+        "silas"
+      ],
+      "description": "Rudd has a long white beard (ch2) but a clean-shaven chin (ch6). Uses 'Harbourmaster Rudd'.",
+      "new_keywords": [
+        "shaven",
+        "shave"
+      ],
+      "old_keywords": [
+        "beard"
+      ]
+    },
+    {
+      "id": "A5",
+      "type": "attribute",
+      "chapter": "ch6",
+      "entity_contains": [
+        "pip"
+      ],
+      "description": "Pip is ten (ch3) but twelve (ch6), within one autumn.",
+      "new_keywords": [
+        "twelve",
+        "12"
+      ],
+      "old_keywords": [
+        "ten",
+        "10"
+      ]
+    },
+    {
+      "id": "S1",
+      "type": "status",
+      "chapter": "ch5",
+      "entity_contains": [
+        "bramble"
+      ],
+      "description": "Bramble dies (ch3) but barks at gulls (ch5).",
+      "new_keywords": [
+        "bark"
+      ],
+      "old_keywords": [
+        "died",
+        "dead",
+        "death"
+      ]
+    },
+    {
+      "id": "S2",
+      "type": "status",
+      "chapter": "ch4",
+      "entity_contains": [
+        "tobias"
+      ],
+      "also_accept_types": [
+        "attribute"
+      ],
+      "description": "Tobias lost his left hand (ch2) but claps both hands over a latch (ch4).",
+      "new_keywords": [
+        "both hands",
+        "clapped"
+      ],
+      "old_keywords": [
+        "lost",
+        "left hand",
+        "empty sleeve"
+      ]
+    },
+    {
+      "id": "S3",
+      "type": "status",
+      "chapter": "ch6",
+      "entity_contains": [
+        "key",
+        "lamp room",
+        "ines"
+      ],
+      "also_accept_types": [
+        "timeline"
+      ],
+      "description": "The brass key is thrown into the sea (ch3) but used to unlock the lamp room (ch6).",
+      "new_keywords": [
+        "key",
+        "unlocked"
+      ],
+      "old_keywords": [
+        "threw",
+        "thrown",
+        "into the sea"
+      ]
+    },
+    {
+      "id": "S4",
+      "type": "status",
+      "chapter": "ch5",
+      "entity_contains": [
+        "rudd",
+        "silas"
+      ],
+      "also_accept_types": [
+        "timeline"
+      ],
+      "description": "Rudd spent the whole storm night in the harbour office (ch4) but rowed out to the Gullstone that night (ch5).",
+      "new_keywords": [
+        "rowed"
+      ],
+      "old_keywords": [
+        "office"
+      ]
+    },
+    {
+      "id": "T1",
+      "type": "timeline",
+      "chapter": "ch5",
+      "entity_contains": [
+        "ines",
+        "keeper"
+      ],
+      "also_accept_types": [
+        "attribute"
+      ],
+      "description": "Ines has kept the light twenty years (ch1) but eight years (ch5).",
+      "new_keywords": [
+        "eight"
+      ],
+      "old_keywords": [
+        "twenty"
+      ]
+    },
+    {
+      "id": "T2",
+      "type": "timeline",
+      "chapter": "ch6",
+      "entity_contains": [
+        "storm",
+        "ines",
+        "tobias",
+        "rudd",
+        "pip"
+      ],
+      "also_accept_types": [
+        "attribute"
+      ],
+      "description": "The storm broke on Tuesday (ch4) but was 'on Friday' (ch6).",
+      "new_keywords": [
+        "friday"
+      ],
+      "old_keywords": [
+        "tuesday"
+      ]
+    },
+    {
+      "id": "T3",
+      "type": "timeline",
+      "chapter": "ch5",
+      "entity_contains": [
+        "tobias",
+        "storm"
+      ],
+      "description": "Tobias arrived three days before the storm (ch2) but the morning after it (ch5).",
+      "new_keywords": [
+        "after the storm",
+        "morning after"
+      ],
+      "old_keywords": [
+        "days before",
+        "before the storm"
+      ]
+    }
+  ],
+  "decoys": [
+    {
+      "id": "D1",
+      "chapter": "ch6",
+      "entity_contains": [
+        "ines",
+        "keeper"
+      ],
+      "description": "Ines moves into the village for winter: a normal change of location over time.",
+      "new_keywords": [
+        "village",
+        "chandler",
+        "moved"
+      ],
+      "old_keywords": []
+    },
+    {
+      "id": "D2",
+      "chapter": "ch5",
+      "entity_contains": [
+        "pip"
+      ],
+      "description": "Pip's sprained ankle (ch3) heals by the end of the week (ch5): recovery, not a contradiction.",
+      "new_keywords": [
+        "ankle",
+        "heal"
+      ],
+      "old_keywords": []
+    },
+    {
+      "id": "D3",
+      "chapter": "ch5",
+      "entity_contains": [
+        "ines",
+        "keeper"
+      ],
+      "description": "Ines cuts her wrist (ch4) and it's bandaged (ch5): consistent.",
+      "new_keywords": [
+        "wrist",
+        "bandage"
+      ],
+      "old_keywords": []
+    }
+  ],
+  "same_entity": [
+    [
+      "Ines Calloway",
+      "Keeper Calloway",
+      "Ines"
+    ],
+    [
+      "Silas Rudd",
+      "Harbourmaster Rudd",
+      "Rudd"
+    ],
+    [
+      "Tobias Calloway",
+      "Tobias"
+    ]
+  ],
+  "different_entities": [
+    [
+      "Mara Calloway",
+      "Ines Calloway"
+    ],
+    [
+      "Mara Calloway",
+      "Tobias Calloway"
+    ],
+    [
+      "Tobias Calloway",
+      "Ines Calloway"
+    ]
+  ]
+}

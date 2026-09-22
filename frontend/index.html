@@ -45,6 +45,15 @@
   .brand { font: 600 1.6rem/1.1 var(--serif); margin: 0 0 1.5rem; letter-spacing: -0.01em; }
   .brand span { display: block; font: 400 0.85rem/1.3 var(--sans); color: var(--ink-soft); margin-top: .35rem; letter-spacing: 0; }
 
+  .book-switch { margin: 0 0 1.75rem; }
+  .book-switch label { font-size: .85rem; }
+  .book-switch .manage { font-size: .85rem; display: inline-block; margin-top: .35rem; color: var(--pencil); }
+  .book-list { list-style: none; padding: 0; margin: 0 0 2rem; }
+  .book-list li { display: flex; flex-wrap: wrap; gap: .5rem 1rem; align-items: center; background: var(--sheet); border: 1px solid var(--rule); border-radius: 4px; padding: .75rem 1rem; margin-bottom: .5rem; }
+  .book-list li.current { box-shadow: inset 3px 0 0 var(--pencil); }
+  .book-list .bname { font: 600 1.1rem var(--serif); flex: 1 1 12rem; }
+  .book-list .bmeta { color: var(--ink-soft); font-size: .88rem; }
+  .book-list input { max-width: 18rem; }
   .side-head { display: flex; justify-content: space-between; align-items: baseline; margin: 0 0 .5rem; }
   .side-head h2 { font-size: .95rem; margin: 0; }
   .chapter-list { list-style: none; margin: 0; padding: 0; }
@@ -193,6 +202,11 @@
 <div class="shell">
   <aside>
     <p class="brand">StoryForge<span>Keeps your story consistent from chapter to chapter.</span></p>
+    <div class="book-switch">
+      <label for="book-select">Book</label>
+      <select id="book-select" aria-label="Choose a book"></select>
+      <a class="manage" href="#/books">New book, rename or delete</a>
+    </div>
     <div class="side-head"><h2>Chapters</h2><a class="btn quiet" href="#/add">Add</a></div>
     <ol class="chapter-list" id="chapter-list"></ol>
   </aside>
@@ -213,6 +227,82 @@
    To point it somewhere else, open it as  index.html?api=https://your-backend  */
 const API = (new URLSearchParams(location.search).get("api") || "").replace(/\/$/, "");
 const view = document.getElementById("view");
+
+// ---------- books ----------
+let books = [];
+let currentBook = null;
+function rememberBook(id) { try { localStorage.setItem("storyforge-book", String(id)); } catch { /* not essential */ } }
+function rememberedBook() { try { return Number(localStorage.getItem("storyforge-book")); } catch { return null; } }
+function book(path, options) { return api(`/projects/${currentBook}${path}`, options); }
+
+async function loadBooks() {
+  ({ projects: books } = await api("/projects"));
+  if (!books.some(b => b.id === currentBook)) {
+    const saved = rememberedBook();
+    currentBook = books.some(b => b.id === saved) ? saved : (books[0] ? books[0].id : null);
+  }
+  const select = document.getElementById("book-select");
+  select.innerHTML = books.map(b => `<option value="${b.id}">${esc(b.name)}</option>`).join("");
+  select.value = currentBook ?? "";
+  select.disabled = books.length === 0;
+}
+
+async function viewBooks() {
+  view.innerHTML = `
+    <h1>Books</h1>
+    <p class="lede">Each book keeps its own chapters, characters and warnings. Nothing is shared between books.</p>
+    <ul class="book-list" id="book-list"></ul>
+    <h3>Start a new book</h3>
+    <div class="ask-row"><input type="text" id="new-book" aria-label="New book title" placeholder="Book title">
+      <button class="btn" id="create-book">Create book</button></div>
+    <div id="book-msg"></div>`;
+  const msg = document.getElementById("book-msg");
+  const list = document.getElementById("book-list");
+  const render = () => {
+    list.innerHTML = books.length ? books.map(b => `
+      <li class="${b.id === currentBook ? "current" : ""}">
+        <span class="bname">${esc(b.name)}</span>
+        <span class="bmeta">${b.chapter_count} ${b.chapter_count === 1 ? "chapter" : "chapters"} · ${b.open_issue_count} open ${b.open_issue_count === 1 ? "issue" : "issues"}</span>
+        ${b.id === currentBook ? "" : `<button class="btn quiet" data-open="${b.id}">Open</button>`}
+        <button class="btn quiet" data-rename="${b.id}">Rename</button>
+        <button class="btn danger" data-delete="${b.id}">Delete</button>
+      </li>`).join("") : `<li class="side-empty">No books yet. Create one below to get started.</li>`;
+  };
+  render();
+  const create = async () => {
+    const name = document.getElementById("new-book").value.trim();
+    if (!name) { msg.innerHTML = errorBox("Give the book a title."); return; }
+    try {
+      const b = await api("/projects", { method: "POST", body: { name } });
+      currentBook = b.id; rememberBook(b.id);
+      await loadBooks();
+      location.hash = "#/add";
+    } catch (err) { msg.innerHTML = errorBox(err); }
+  };
+  document.getElementById("create-book").onclick = create;
+  document.getElementById("new-book").onkeydown = (e) => { if (e.key === "Enter") create(); };
+  list.onclick = async (e) => {
+    const t = e.target;
+    try {
+      if (t.dataset.open) {
+        currentBook = Number(t.dataset.open); rememberBook(currentBook);
+        await loadBooks(); location.hash = "#/add";
+      } else if (t.dataset.rename) {
+        const b = books.find(x => x.id === Number(t.dataset.rename));
+        const name = prompt("New title for this book:", b.name);
+        if (!name || !name.trim() || name.trim() === b.name) return;
+        await api(`/projects/${b.id}`, { method: "PATCH", body: { name: name.trim() } });
+        await loadBooks(); render(); refreshSidebar();
+      } else if (t.dataset.delete) {
+        const b = books.find(x => x.id === Number(t.dataset.delete));
+        if (!confirm(`Delete “${b.name}” and everything in it: ${b.chapter_count} chapters, their facts, characters and warnings? This can't be undone.`)) return;
+        await api(`/projects/${b.id}`, { method: "DELETE" });
+        if (b.id === currentBook) currentBook = null;
+        await loadBooks(); render(); refreshSidebar();
+      }
+    } catch (err) { msg.innerHTML = errorBox(err); }
+  };
+}
 
 // ---------- helpers ----------
 function esc(value) {
@@ -249,8 +339,13 @@ const pretty = s => String(s).replace(/_/g, " ");
 // ---------- sidebar & counts ----------
 async function refreshSidebar(activeChapter) {
   const list = document.getElementById("chapter-list");
+  if (currentBook == null) {
+    list.innerHTML = `<li class="side-empty">Create a book first.</li>`;
+    document.getElementById("issue-count").hidden = true;
+    return;
+  }
   try {
-    const { chapters } = await api("/chapters");
+    const { chapters } = await book("/chapters");
     list.innerHTML = chapters.length
       ? chapters.map(c => `<li><a href="#/chapter/${encodeURIComponent(c.chapter_id)}" ${c.chapter_id === activeChapter ? 'aria-current="page"' : ""}>
           <span class="num">${c.chapter_number}</span><span>${esc(c.chapter_id)}</span><span class="count">${c.fact_count} facts</span></a></li>`).join("")
@@ -259,7 +354,7 @@ async function refreshSidebar(activeChapter) {
     list.innerHTML = `<li class="side-empty">${esc(err.message)}</li>`;
   }
   try {
-    const { contradictions } = await api("/contradictions?status=open");
+    const { contradictions } = await book("/contradictions?status=open");
     const badge = document.getElementById("issue-count");
     badge.hidden = contradictions.length === 0;
     badge.textContent = contradictions.length;
@@ -270,6 +365,7 @@ async function refreshSidebar(activeChapter) {
 function viewAdd() {
   view.innerHTML = `
     <h1>Add a chapter</h1>
+    <p class="hint" style="margin:-.2rem 0 .6rem">to ${esc((books.find(b => b.id === currentBook) || {}).name || "")}</p>
     <p class="lede">Paste a chapter. StoryForge notes every fact in it, works out who is who, and checks it against earlier chapters.</p>
     <div class="row">
       <div><label for="cid">Chapter name <span class="hint">(e.g. ch3; re-using a name replaces that chapter)</span></label>
@@ -297,11 +393,14 @@ function viewAdd() {
     button.disabled = true;
     result.innerHTML = loading("Reading the chapter and checking it against the story so far. This can take a minute for long chapters.");
     try {
-      const r = await api("/chapters", { method: "POST", body });
+      const r = await book("/chapters", { method: "POST", body });
       const linked = r.entity_links.filter(l => l.method === "AI match");
+      const removed = r.contradictions.filter(c => c.status === "dismissed").length;
+      r.contradictions = r.contradictions.filter(c => c.status !== "dismissed");
       result.innerHTML = `
         <div class="notice">Saved as chapter ${r.chapter_number}: ${r.facts.length} facts noted,
-          ${r.contradictions.length ? `<strong>${r.contradictions.length} possible ${r.contradictions.length === 1 ? "mistake" : "mistakes"}</strong>` : "no mistakes found"}.</div>
+          ${r.contradictions.length ? `<strong>${r.contradictions.length} possible ${r.contradictions.length === 1 ? "mistake" : "mistakes"}</strong>` : "no mistakes found"}.
+          ${removed ? `The double-check set aside ${removed} more that looked like normal story changes; see Issues → Dismissed.` : ""}</div>
         ${r.contradictions.length ? `<h3>Possible mistakes</h3>${r.contradictions.map(c => issueCard({ ...c, status: "open" }, false)).join("")}` : ""}
         ${linked.length ? `<h3>Names matched to earlier chapters</h3><ul>${linked.map(l => `<li>“${esc(l.name)}” is ${esc(l.canonical_name)} ${confBadge(l.confidence)}</li>`).join("")}</ul>` : ""}
         <div class="actions"><a class="btn quiet" href="#/chapter/${encodeURIComponent(r.chapter_id)}">See all facts from this chapter</a></div>`;
@@ -331,6 +430,7 @@ function issueCard(c, withActions = true) {
     <article class="issue ${c.status === "dismissed" ? "dismissed" : ""}">
       <div class="issue-head"><strong>${esc(c.entity)}</strong><span class="kind">${KIND[c.contradiction_type] || esc(c.contradiction_type)}</span>${confBadge(c.confidence)}</div>
       <p class="why">${esc(c.explanation)}</p>
+      ${c.review_note ? `<p class="hint" style="margin:-.5rem 0 1rem">${esc(c.review_note)}</p>` : ""}
       <div class="facing">
         <div class="slip"><span class="where">${earlier}</span>${highlight(c.conflicting_quote, c.conflicting_value)}</div>
         <div class="mark">${redMark}</div>
@@ -360,7 +460,7 @@ async function viewIssues(filter = "open") {
   select.onchange = () => viewIssues(select.value);
   const box = document.getElementById("issues");
   try {
-    const { contradictions } = await api("/contradictions" + (filter ? `?status=${filter}` : ""));
+    const { contradictions } = await book("/contradictions" + (filter ? `?status=${filter}` : ""));
     box.innerHTML = contradictions.length
       ? contradictions.map(c => issueCard(c)).join("")
       : `<div class="empty">${filter === "open" ? "No open issues. Every chapter so far agrees with the others." : "Nothing here."}</div>`;
@@ -368,7 +468,7 @@ async function viewIssues(filter = "open") {
       const id = e.target.dataset.dismiss || e.target.dataset.reopen;
       if (!id) return;
       try {
-        await api(`/contradictions/${id}`, { method: "PATCH", body: { status: e.target.dataset.dismiss ? "dismissed" : "open" } });
+        await book(`/contradictions/${id}`, { method: "PATCH", body: { status: e.target.dataset.dismiss ? "dismissed" : "open" } });
         viewIssues(filter);
         refreshSidebar();
       } catch (err) { box.insertAdjacentHTML("afterbegin", errorBox(err)); }
@@ -383,7 +483,7 @@ async function viewCharacters() {
     <div id="entities">${loading("Loading…")}</div>`;
   const box = document.getElementById("entities");
   try {
-    const { entities } = await api("/entities");
+    const { entities } = await book("/entities");
     const render = (term) => {
       const t = term.toLowerCase();
       const shown = entities.filter(e => !t || e.aliases.concat(e.canonical_name).some(n => n.toLowerCase().includes(t)));
@@ -408,7 +508,7 @@ async function viewCharacters() {
 async function viewEntity(id) {
   view.innerHTML = loading("Loading…");
   try {
-    const [entity, { entities }] = await Promise.all([api(`/entities/${id}`), api("/entities")]);
+    const [entity, { entities }] = await Promise.all([book(`/entities/${id}`), book("/entities")]);
     const byAttr = {};
     entity.facts.forEach(f => (byAttr[f.attribute] ||= []).push(f));
     const others = entities.filter(e => e.id !== entity.id && e.entity_type === entity.entity_type);
@@ -433,7 +533,7 @@ async function viewEntity(id) {
       const name = b.dataset.detach;
       if (!confirm(`Split “${name}” off into its own entry? Facts written under that name go with it.`)) return;
       try {
-        const r = await api(`/entities/${entity.id}/detach`, { method: "POST", body: { name } });
+        const r = await book(`/entities/${entity.id}/detach`, { method: "POST", body: { name } });
         location.hash = `#/characters/${r.kept.id}`;
         viewEntity(r.kept.id);
       } catch (err) { msg.innerHTML = errorBox(err); }
@@ -443,7 +543,7 @@ async function viewEntity(id) {
       const other = document.getElementById("merge-with").value;
       if (!other) { msg.innerHTML = errorBox("Choose the entry to merge in."); return; }
       try {
-        await api("/entities/merge", { method: "POST", body: { keep_entity_id: entity.id, merge_entity_id: Number(other) } });
+        await book("/entities/merge", { method: "POST", body: { keep_entity_id: entity.id, merge_entity_id: Number(other) } });
         msg.innerHTML = `<div class="notice">Merged. Re-submit later chapters to re-check them with the combined facts.</div>`;
         setTimeout(() => viewEntity(entity.id), 900);
       } catch (err) { msg.innerHTML = errorBox(err); }
@@ -455,7 +555,7 @@ async function viewTimeline() {
   view.innerHTML = `<h1>Timeline</h1><p class="lede">Events in the order the reader meets them.</p><div id="tl">${loading("Loading…")}</div>`;
   const box = document.getElementById("tl");
   try {
-    const { events } = await api("/timeline");
+    const { events } = await book("/timeline");
     if (!events.length) { box.innerHTML = `<div class="empty">No events yet. They'll appear here as you add chapters.</div>`; return; }
     const byChapter = [];
     events.forEach(e => {
@@ -482,7 +582,7 @@ function viewAsk() {
     if (!question) return;
     box.innerHTML = loading("Looking through the story…");
     try {
-      const r = await api("/ask", { method: "POST", body: { question } });
+      const r = await book("/ask", { method: "POST", body: { question } });
       box.innerHTML = `<div class="answer">${esc(r.answer)}</div>
         ${r.sources.length ? `<h3>Facts used</h3><ul class="sources">${r.sources.map(s =>
           `<li>ch. ${s.chapter_number}: ${esc(s.canonical_name || s.entity)}, ${esc(pretty(s.attribute))} — ${esc(s.value)}</li>`).join("")}</ul>` : ""}`;
@@ -495,10 +595,10 @@ function viewAsk() {
 async function viewChapter(chapterId) {
   view.innerHTML = loading("Loading chapter…");
   try {
-    const ch = await api(`/chapters/${encodeURIComponent(chapterId)}`);
+    const ch = await book(`/chapters/${encodeURIComponent(chapterId)}`);
     view.innerHTML = `
       <h1>Chapter ${ch.chapter_number}: ${esc(ch.chapter_id)}</h1>
-      <p class="lede">${ch.facts.length} facts noted. Fix anything the AI got wrong; your corrections are saved.</p>
+      <p class="lede">${ch.time_note ? `When it's set: ${esc(ch.time_note)}. ` : ""}${ch.facts.length} facts noted. Fix anything the AI got wrong; your corrections are saved.</p>
       <div class="chapter-text">${esc(ch.text)}</div>
       <div class="actions">
         <a class="btn quiet" href="#/add" id="resubmit">Edit and re-check this chapter</a>
@@ -526,7 +626,7 @@ async function viewChapter(chapterId) {
     };
     document.getElementById("delete-chapter").onclick = async () => {
       if (!confirm(`Delete ${ch.chapter_id} and everything taken from it?`)) return;
-      try { await api(`/chapters/${encodeURIComponent(ch.chapter_id)}`, { method: "DELETE" }); location.hash = "#/add"; refreshSidebar(); }
+      try { await book(`/chapters/${encodeURIComponent(ch.chapter_id)}`, { method: "DELETE" }); location.hash = "#/add"; refreshSidebar(); }
       catch (err) { document.getElementById("fact-msg").innerHTML = errorBox(err); }
     };
     const msg = document.getElementById("fact-msg");
@@ -534,7 +634,7 @@ async function viewChapter(chapterId) {
       const t = e.target;
       if (t.dataset.del) {
         if (!confirm("Delete this fact?")) return;
-        try { await api(`/facts/${t.dataset.del}`, { method: "DELETE" }); viewChapter(chapterId); refreshSidebar(); }
+        try { await book(`/facts/${t.dataset.del}`, { method: "DELETE" }); viewChapter(chapterId); refreshSidebar(); }
         catch (err) { msg.innerHTML = errorBox(err); }
       }
       if (t.dataset.edit) {
@@ -548,7 +648,7 @@ async function viewChapter(chapterId) {
       if (t.dataset.save) {
         const row = t.closest("tr");
         const [attribute, value] = [...row.querySelectorAll("input")].map(i => i.value.trim());
-        try { await api(`/facts/${t.dataset.save}`, { method: "PATCH", body: { attribute, value } }); viewChapter(chapterId); }
+        try { await book(`/facts/${t.dataset.save}`, { method: "PATCH", body: { attribute, value } }); viewChapter(chapterId); }
         catch (err) { msg.innerHTML = errorBox(err); }
       }
     });
@@ -558,11 +658,13 @@ async function viewChapter(chapterId) {
 // ---------- routing ----------
 function route() {
   const parts = (location.hash.replace(/^#\/?/, "") || "add").split("/").map(decodeURIComponent);
-  const [page, arg] = parts;
+  let [page, arg] = parts;
+  if (currentBook == null) page = "books";
   document.querySelectorAll("#tabs a").forEach(a => a.toggleAttribute("aria-current", a.dataset.tab === page));
   document.querySelectorAll("#tabs a[aria-current]").forEach(a => a.setAttribute("aria-current", "page"));
   refreshSidebar(page === "chapter" ? arg : null);
-  if (page === "issues") viewIssues();
+  if (page === "books") viewBooks();
+  else if (page === "issues") viewIssues();
   else if (page === "characters" && arg) viewEntity(arg);
   else if (page === "characters") viewCharacters();
   else if (page === "timeline") viewTimeline();
@@ -572,7 +674,13 @@ function route() {
   window.scrollTo(0, 0);
 }
 window.addEventListener("hashchange", route);
-route();
+document.getElementById("book-select").onchange = (e) => {
+  currentBook = Number(e.target.value);
+  rememberBook(currentBook);
+  location.hash = "#/add";
+  route();
+};
+loadBooks().catch(err => { view.innerHTML = errorBox(err); }).finally(route);
 </script>
 </body>
 </html>

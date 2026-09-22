@@ -25,18 +25,22 @@ class Contradiction(BaseModel):
     contradiction_type: Literal["attribute", "status", "timeline"]
     confidence: float = 0.5   # 0.0-1.0, how sure the model is this is a real mistake
     explanation: str
+    status: Literal["open", "dismissed"] = "open"
+    review_note: str | None = None   # why the double-check dismissed it, if it did
 
 class EntityLink(BaseModel):
     """How one name in the chapter was linked, e.g. "Captain Vale" → Marcus Vale (AI match)."""
     name: str
     entity_id: int
     canonical_name: str
-    method: Literal["known name", "AI match", "new"]
+    method: Literal["known name", "name match", "AI match", "new"]
     confidence: float
 
 class ChapterIngestResult(BaseModel):
     chapter_id: str
     chapter_number: int
+    time_note: str | None = None          # e.g. "flashback: twelve years before the fire"
     facts: list[Fact]
     entity_links: list[EntityLink]
     contradictions: list[Contradiction]
+    timings_seconds: dict[str, float] = {}   # how long each stage took

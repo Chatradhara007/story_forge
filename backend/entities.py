@@ -6,9 +6,12 @@ facts about each of them get compared with each other.
 
 How a name gets linked, cheapest first:
   1. Known name   – we've seen this exact name before (stored as an alias). Instant, no AI.
-  2. AI match     – a new name; the AI compares it with the known entities, using
+  2. Name match   – one name is the start of the other ("Tobias" / "Tobias Calloway"), or a
+                    title + surname matches a full name ("Captain Crane" / "Aldous Crane"),
+                    and only one known entity fits. Instant, no AI.
+  3. AI match     – a new name; the AI compares it with the known entities, using
                     quotes from the chapter and known facts as evidence.
-  3. New entity   – nothing matched confidently, so it's someone/something new.
+  4. New entity   – nothing matched confidently, so it's someone/something new.
 
 We only accept an AI match when it is confident, because a WRONG merge is worse
 than a missed one: merging two different people creates fake "contradictions".
@@ -16,7 +19,7 @@ than a missed one: merging two different people creates fake "contradictions".
 import re
 from dataclasses import dataclass
 from models import Fact
-from llm import call_tool
+from llm import call_tool, JUDGING_THINKING_MODE
 from storage import find_entities_by_alias, get_all_entities_with_context
 
 MIN_CONFIDENCE_TO_MERGE = 0.7   # AI must be at least this sure to link to a known entity
@@ -27,6 +30,12 @@ NAMES_PER_CALL = 40              # how many new names to resolve in one AI call
 # Small words that shouldn't count as a "shared word" between two names.
 IGNORED_WORDS = {"the", "a", "an", "of", "and", "de", "la", "le", "von", "van"}
 
+# Titles and descriptions: "Keeper" or "Captain" alone doesn't identify one person.
+TITLE_WORDS = {"captain", "keeper", "harbourmaster", "harbormaster", "doctor", "dr", "mr", "mrs",
+               "ms", "miss", "lord", "lady", "sir", "king", "queen", "prince", "princess",
+               "old", "young", "little", "big", "father", "mother", "uncle", "aunt", "brother",
+               "sister", "master", "mistress", "professor", "officer", "sergeant", "general"}
+
 
 @dataclass
 class Resolution:
@@ -34,7 +43,7 @@ class Resolution:
     entity_type: str
     existing_entity_id: int | None  # set if linked to an entity we already know
     canonical_name: str             # main name of the entity it belongs to
-    method: str                     # "known name" | "AI match" | "new"
+    method: str                     # "known name" | "name match" | "AI match" | "new"
     confidence: float
 
     @property
@@ -120,6 +129,78 @@ def _pick_candidates(names: list[str], known: list[dict]) -> list[dict]:
     return related[:MAX_CANDIDATES]
 
 
+def _without_article(name: str) -> list[str]:
+    """Words of a name without a leading "the"/"a"/"an": "the storm on Friday" -> storm, on, friday."""
+    words = name.lower().split()
+    while words and words[0] in ("the", "a", "an"):
+        words = words[1:]
+    return words
+
+
+def _name_rule_match(name: str, entity_type: str, known: list[dict]) -> dict | None:
+    """
+    Link without the AI when one name is exactly the START of the other, e.g.
+    "Tobias" and "Tobias Calloway", or "Pip Aldane" and "Pip", and exactly one known
+    entity of a compatible type fits. Never used when the shared part starts with a
+    title ("Keeper", "Captain") or when it's only a surname ("Calloway" alone), so
+    family members and titled strangers still go to the AI.
+    """
+    words = _without_article(name)
+    if not words:
+        return None
+    matches = {}
+    for entity in known:
+        if not _types_compatible(entity_type, entity["entity_type"]):
+            continue
+        for alias in [entity["canonical_name"], *entity["aliases"]]:
+            other = _without_article(alias)
+            if not other or len(other) == len(words):     # a name that's only "the"/"a" matches nothing
+                continue
+            shorter, longer = (words, other) if len(words) < len(other) else (other, words)
+            if (longer[:len(shorter)] == shorter
+                    and shorter[0] not in IGNORED_WORDS | TITLE_WORDS
+                    and len(shorter[0]) >= 3):
+                matches[entity["id"]] = entity
+                break
+    return next(iter(matches.values())) if len(matches) == 1 else None
+
+
+def _title_surname_match(name: str, entity_type: str, known: list[dict]) -> dict | None:
+    """
+    Link a title + surname ("Captain Crane", "Harbourmaster Rudd") with a known full name
+    ("Aldous Crane", "Silas Rudd"), or the other way round, but only when exactly ONE known
+    entity of a compatible type has that surname. With several people sharing a surname
+    ("Keeper Calloway" when Ines, Tobias and Mara are all Calloways) it's left to the AI.
+    """
+    words = name.lower().split()
+    if len(words) < 2:
+        return None
+    surname = words[-1]
+    new_is_titled = len(words) == 2 and words[0] in TITLE_WORDS
+    holders: dict[int, dict] = {}
+    first_names: dict[int, set] = {}          # the non-title first names each holder is known by
+    for entity in known:
+        if not _types_compatible(entity_type, entity["entity_type"]):
+            continue
+        for alias in [entity["canonical_name"], *entity["aliases"]]:
+            other = alias.lower().split()
+            if len(other) >= 2 and other[-1] == surname:
+                holders[entity["id"]] = entity
+                if other[0] not in TITLE_WORDS:
+                    first_names.setdefault(entity["id"], set()).add(other[0])
+    if len(holders) != 1:
+        return None
+    entity_id, entity = next(iter(holders.items()))
+    if new_is_titled:
+        return entity            # "Captain Crane" -> the only Crane
+    # "Aldous Crane" -> only if the known Crane has no OTHER first name ("Elena Vale" must
+    # not join "Marcus Vale", even if he's also known as "Captain Vale")
+    known_firsts = first_names.get(entity_id, set())
+    if known_firsts - {words[0]}:
+        return None
+    return entity if not known_firsts or words[0] in known_firsts else None
+
+
 def _types_compatible(a: str, b: str) -> bool:
     return a == b or "other" in (a, b)
 
@@ -141,7 +222,7 @@ def _format_known(candidates: list[dict]) -> str:
     )
 
 
-def resolve_entities(facts: list[Fact]) -> dict[str, Resolution]:
+def resolve_entities(project_id: int, facts: list[Fact]) -> dict[str, Resolution]:
     """
     Returns {lowercase name as written: Resolution} for every name in the chapter.
     Nothing is saved here; saving happens later, all at once, with the rest of the chapter.
@@ -156,7 +237,7 @@ def resolve_entities(facts: list[Fact]) -> dict[str, Resolution]:
     results: dict[str, Resolution] = {}
 
     # 1. Names we already know: link instantly.
-    known_aliases = find_entities_by_alias(list(names))
+    known_aliases = find_entities_by_alias(project_id, list(names))
     unmatched = []
     for key, info in names.items():
         if key in known_aliases:
@@ -168,7 +249,7 @@ def resolve_entities(facts: list[Fact]) -> dict[str, Resolution]:
     if not unmatched:
         return results
 
-    known = get_all_entities_with_context()
+    known = get_all_entities_with_context(project_id)
 
     # One brand-new name and nothing known yet: nothing to compare with, skip the AI.
     if not known and len(unmatched) == 1:
@@ -176,7 +257,22 @@ def resolve_entities(facts: list[Fact]) -> dict[str, Resolution]:
         results[info["name"].lower()] = Resolution(info["name"], info["type"], None, info["name"], "new", 1.0)
         return results
 
-    # 2. Ask the AI about the rest.
+    # 2. Obvious cases by name alone ("Tobias" -> "Tobias Calloway").
+    still_unmatched = []
+    for info in unmatched:
+        entity = (_name_rule_match(info["name"], info["type"], known)
+                  or _title_surname_match(info["name"], info["type"], known))
+        if entity is not None:
+            results[info["name"].lower()] = Resolution(
+                info["name"], info["type"], entity["id"], entity["canonical_name"], "name match", 0.9
+            )
+        else:
+            still_unmatched.append(info)
+    unmatched = still_unmatched
+    if not unmatched:
+        return results
+
+    # 3. Ask the AI about the rest.
     candidates = _pick_candidates([u["name"] for u in unmatched], known)
     candidates_by_id = {e["id"]: e for e in candidates}
 
@@ -186,6 +282,7 @@ def resolve_entities(facts: list[Fact]) -> dict[str, Resolution]:
             RESOLUTION_PROMPT.format(new_names=_format_new_names(batch), known_entities=_format_known(candidates)),
             RESOLUTION_TOOL,
             max_tokens=4096,
+            thinking=JUDGING_THINKING_MODE,
         )
 
         decisions: dict[str, tuple[int, str, float]] = {}
@@ -199,7 +296,7 @@ def resolve_entities(facts: list[Fact]) -> dict[str, Resolution]:
                 continue
             decisions[name] = (entity_id, canonical, confidence)
 
-        # 3. Check every AI decision before trusting it.
+        # 4. Check every AI decision before trusting it.
         for info in batch:
             entity_id, canonical, confidence = decisions.get(info["name"].lower(), (0, "", 0.0))
             entity = candidates_by_id.get(entity_id)

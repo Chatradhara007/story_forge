@@ -1,0 +1,430 @@
+{
+  "_about": "Answer key for 'The Glassmaker's Ledger', a second, harder test story written AFTER the system was tuned on the lighthouse story, so it has never been tuned on. It adds a flashback (ch3, 12 years earlier), a time skip (ch4, 3 years later), a secret identity (Rook = Edwin Marsh), magic that legitimately reverses damage, two characters called Tom, and a character called Rose next to real roses. 'planted' are real mistakes; 'decoys' are traps that should NOT be flagged. Matching rules are the same as the lighthouse story. MATCHING: a warning matches an item when it was raised while checking that chapter, one of 'entity_contains' appears in its entity or quotes, one of 'new_keywords' appears in its NEW side (attribute, value, quote) and, for planted mistakes, one of 'old_keywords' appears in its EARLIER side (value, quote). Explanations are not used for matching.",
+  "chapters": [
+    "ch1",
+    "ch2",
+    "ch3",
+    "ch4",
+    "ch5"
+  ],
+  "planted": [
+    {
+      "id": "A1",
+      "type": "attribute",
+      "chapter": "ch2",
+      "entity_contains": [
+        "orla"
+      ],
+      "description": "Orla's scar is on her right palm (ch1, ch3) but her left palm (ch2).",
+      "new_keywords": [
+        "left palm",
+        "left"
+      ],
+      "old_keywords": [
+        "right palm",
+        "right"
+      ]
+    },
+    {
+      "id": "A2",
+      "type": "attribute",
+      "chapter": "ch2",
+      "entity_contains": [
+        "workshop",
+        "furnace",
+        "orla"
+      ],
+      "description": "The workshop has a single furnace (ch1) but all three furnaces are roaring (ch2).",
+      "new_keywords": [
+        "three"
+      ],
+      "old_keywords": [
+        "single",
+        "one furnace"
+      ]
+    },
+    {
+      "id": "A3",
+      "type": "attribute",
+      "chapter": "ch4",
+      "entity_contains": [
+        "orla"
+      ],
+      "also_accept_types": [
+        "status"
+      ],
+      "description": "Orla is left-handed (ch1) but signs with her right hand 'as she always had' (ch4).",
+      "new_keywords": [
+        "right hand"
+      ],
+      "old_keywords": [
+        "left-handed",
+        "left handed"
+      ]
+    },
+    {
+      "id": "A4",
+      "type": "attribute",
+      "chapter": "ch4",
+      "entity_contains": [
+        "rose",
+        "orla"
+      ],
+      "description": "Rose is Orla's younger sister (ch1) but her cousin (ch4).",
+      "new_keywords": [
+        "cousin"
+      ],
+      "old_keywords": [
+        "sister"
+      ]
+    },
+    {
+      "id": "A5",
+      "type": "attribute",
+      "chapter": "ch5",
+      "entity_contains": [
+        "crane",
+        "captain",
+        "aldous"
+      ],
+      "description": "Captain Crane is tall and stooping (ch1, ch3) but 'the short captain' who stands on his toes (ch5).",
+      "new_keywords": [
+        "short",
+        "toes"
+      ],
+      "old_keywords": [
+        "tall"
+      ]
+    },
+    {
+      "id": "S1",
+      "type": "status",
+      "chapter": "ch4",
+      "entity_contains": [
+        "fenner",
+        "tom"
+      ],
+      "description": "Tom Fenner drowned in the fire (ch2) but poles his ferry past, whistling (ch4).",
+      "new_keywords": [
+        "poled",
+        "ferry",
+        "whistl"
+      ],
+      "old_keywords": [
+        "drown"
+      ]
+    },
+    {
+      "id": "S2",
+      "type": "status",
+      "chapter": "ch5",
+      "entity_contains": [
+        "ledger",
+        "crane",
+        "orla"
+      ],
+      "also_accept_types": [
+        "timeline"
+      ],
+      "description": "The green ledger burned to ash (ch2) but Crane reads its old entries (ch5).",
+      "new_keywords": [
+        "ledger",
+        "entries"
+      ],
+      "old_keywords": [
+        "ash",
+        "burn"
+      ]
+    },
+    {
+      "id": "S3",
+      "type": "status",
+      "chapter": "ch5",
+      "entity_contains": [
+        "edwin",
+        "rook",
+        "marsh"
+      ],
+      "also_accept_types": [
+        "attribute"
+      ],
+      "description": "Rook lost two fingers (ch1) but Edwin Marsh spreads all ten fingers (ch5). Needs the secret identity linked.",
+      "new_keywords": [
+        "ten fingers",
+        "ten"
+      ],
+      "old_keywords": [
+        "two fingers",
+        "lost"
+      ]
+    },
+    {
+      "id": "S4",
+      "type": "status",
+      "chapter": "ch5",
+      "entity_contains": [
+        "lens",
+        "sunstone"
+      ],
+      "also_accept_types": [
+        "attribute"
+      ],
+      "description": "The lens was mended seamlessly by magic (ch4) but is 'still cracked, just as it had been since the fire' (ch5).",
+      "new_keywords": [
+        "cracked",
+        "crack"
+      ],
+      "old_keywords": [
+        "mended",
+        "whole",
+        "seamless",
+        "binding",
+        "sealed"
+      ]
+    },
+    {
+      "id": "T1",
+      "type": "timeline",
+      "chapter": "ch3",
+      "entity_contains": [
+        "orla",
+        "varrow"
+      ],
+      "also_accept_types": [
+        "attribute"
+      ],
+      "description": "Orla was born in Varrow and never left (ch1) but came to Varrow at nineteen (ch3). The mistake is inside the flashback.",
+      "new_keywords": [
+        "nineteen",
+        "came to varrow",
+        "satchel"
+      ],
+      "old_keywords": [
+        "born",
+        "never once left",
+        "never left"
+      ]
+    },
+    {
+      "id": "T2",
+      "type": "timeline",
+      "chapter": "ch4",
+      "entity_contains": [
+        "edwin",
+        "rook",
+        "marsh"
+      ],
+      "also_accept_types": [
+        "attribute"
+      ],
+      "description": "Rook is sixteen (ch1); three years later he should be nineteen, not twenty-two (ch4).",
+      "new_keywords": [
+        "twenty-two",
+        "22"
+      ],
+      "old_keywords": [
+        "sixteen",
+        "16"
+      ]
+    },
+    {
+      "id": "T3",
+      "type": "timeline",
+      "chapter": "ch4",
+      "entity_contains": [
+        "fire",
+        "orla",
+        "workshop"
+      ],
+      "also_accept_types": [
+        "attribute"
+      ],
+      "description": "The fire began just after midnight (ch2) but started at dusk (ch4).",
+      "new_keywords": [
+        "dusk"
+      ],
+      "old_keywords": [
+        "midnight"
+      ]
+    },
+    {
+      "id": "T4",
+      "type": "timeline",
+      "chapter": "ch5",
+      "entity_contains": [
+        "fire",
+        "orla",
+        "crane",
+        "ledger",
+        "marsh",
+        "debt",
+        "festival"
+      ],
+      "also_accept_types": [
+        "attribute"
+      ],
+      "description": "The fire was on the eve of the autumn Lantern Festival (ch1-2) but is called 'the midsummer fire' (ch5).",
+      "new_keywords": [
+        "midsummer",
+        "summer"
+      ],
+      "old_keywords": [
+        "autumn",
+        "lantern"
+      ]
+    }
+  ],
+  "decoys": [
+    {
+      "id": "D1",
+      "chapter": "ch3",
+      "entity_contains": [
+        "ysolde"
+      ],
+      "description": "FLASHBACK: Ysolde is alive in ch3 after dying in ch2, because ch3 is set 12 years earlier.",
+      "new_keywords": [
+        "alive",
+        "laughed",
+        "not yet old",
+        "listen",
+        "teas"
+      ],
+      "old_keywords": []
+    },
+    {
+      "id": "D2",
+      "chapter": "ch3",
+      "entity_contains": [
+        "orla"
+      ],
+      "description": "FLASHBACK: Orla's palms are unmarked in ch3 because she hasn't been cut yet; she gets the scar at the end of the chapter.",
+      "new_keywords": [
+        "unmarked",
+        "smooth"
+      ],
+      "old_keywords": []
+    },
+    {
+      "id": "D3",
+      "chapter": "ch3",
+      "entity_contains": [
+        "orla"
+      ],
+      "description": "FLASHBACK: Orla is 22 in ch3 and 34 in ch1: exactly 12 years apart.",
+      "new_keywords": [
+        "twenty-two"
+      ],
+      "old_keywords": []
+    },
+    {
+      "id": "D4",
+      "chapter": "ch4",
+      "entity_contains": [
+        "orla"
+      ],
+      "description": "TIME SKIP: Orla is 37 three years after being 34. Correct.",
+      "new_keywords": [
+        "thirty-seven",
+        "37"
+      ],
+      "old_keywords": []
+    },
+    {
+      "id": "D5",
+      "chapter": "ch4",
+      "entity_contains": [
+        "lens",
+        "sunstone"
+      ],
+      "description": "MAGIC: the shattered lens is mended by a binding spell, explained on the page.",
+      "new_keywords": [
+        "mended",
+        "whole",
+        "seamless",
+        "binding",
+        "sealed"
+      ],
+      "old_keywords": []
+    },
+    {
+      "id": "D6",
+      "chapter": "ch5",
+      "entity_contains": [
+        "tom",
+        "brisk"
+      ],
+      "description": "TWO TOMS: 'Tom' in ch5 is Tom Brisk the clerk, not the drowned ferryman Tom Fenner.",
+      "new_keywords": [
+        "warrant",
+        "clerk",
+        "spell"
+      ],
+      "old_keywords": []
+    },
+    {
+      "id": "D7",
+      "chapter": "ch5",
+      "entity_contains": [
+        "rose"
+      ],
+      "description": "COMMON-WORD NAME: the roses in the window box die; Rose Halloway does not.",
+      "new_keywords": [
+        "roses",
+        "frost",
+        "died"
+      ],
+      "old_keywords": []
+    },
+    {
+      "id": "D8",
+      "chapter": "ch4",
+      "entity_contains": [
+        "edwin",
+        "rook",
+        "marsh"
+      ],
+      "description": "EXPLAINED CHANGE: Edwin dyed his red hair black to avoid the watch.",
+      "new_keywords": [
+        "dyed",
+        "black",
+        "hair"
+      ],
+      "old_keywords": []
+    }
+  ],
+  "same_entity": [
+    [
+      "Rook",
+      "Edwin Marsh",
+      "Edwin"
+    ],
+    [
+      "Aldous Crane",
+      "Captain Aldous Crane",
+      "Captain Crane",
+      "Crane"
+    ],
+    [
+      "Orla Venn",
+      "Orla"
+    ],
+    [
+      "Rose Halloway",
+      "Rose"
+    ]
+  ],
+  "different_entities": [
+    [
+      "Tom Fenner",
+      "Tom Brisk"
+    ],
+    [
+      "Rose Halloway",
+      "Orla Venn"
+    ],
+    [
+      "Ysolde",
+      "Orla Venn"
+    ]
+  ]
+}

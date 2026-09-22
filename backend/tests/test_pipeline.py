@@ -51,7 +51,7 @@ def test_failure_saves_nothing_and_explains(client, fake_ai):
         raise RuntimeError("AI down")
     fake_ai.on("report_contradictions", broken)
     r = client.post("/chapters", json={"chapter_id": "ch2", "text": "[brown]"})
-    assert r.status_code == 502 and "failed after 3 tries" in r.json()["detail"]
+    assert r.status_code == 502 and "failed after 6 tries" in r.json()["detail"]
     assert "ch2" not in [c["chapter_id"] for c in client.get("/chapters").json()["chapters"]]
 
 

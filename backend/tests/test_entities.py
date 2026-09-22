@@ -58,7 +58,9 @@ def test_names_are_linked_and_mistakes_caught_across_names(client, fake_ai):
     assert len(people) == 1 and set(people[0]["aliases"]) == {"Marcus", "Marcus Vale"}
 
     r2 = client.post("/chapters", json={"chapter_id": "ch2", "text": "[ch2]"}).json()
-    assert r2["entity_links"][0]["method"] == "AI match"
+    # "Captain Vale" is linked by the title + surname rule (the only Vale known so far)
+    assert r2["entity_links"][0]["method"] == "name match"
+    assert r2["entity_links"][0]["canonical_name"] == "Marcus Vale"
     assert len(r2["contradictions"]) == 1
     assert r2["contradictions"][0]["entity"] == "Marcus Vale"
     assert "Captain Vale" in fake_ai.prompts["report_contradictions"]
@@ -96,3 +98,50 @@ def test_merge_and_detach(client, fake_ai):
     assert split["split_off"]["canonical_name"] == "The Stranger" and split["split_off"]["fact_count"] == 1
     assert client.post(f"/entities/{entities['Marcus Vale']}/detach", json={"name": "Gandalf"}).status_code == 400
     assert client.get("/facts/Nobody").status_code == 404
+
+
+def test_name_rule_links_first_names_without_the_ai(client, fake_ai):
+    table = {
+        "[a]": [fact("Tobias", "relation", "older brother", "her older brother Tobias"),
+                fact("Ines Calloway", "eyes", "grey", "grey eyes")],
+        "[b]": [fact("Tobias Calloway", "hand", "lost left hand", "lost his left hand"),
+                fact("Calloway", "note", "x", "the Calloway family"),       # surname only: not by rule
+                fact("Keeper", "note", "y", "the keeper")],                   # title only: not by rule
+    }
+    fake_ai.on("record_facts", facts_by_marker(table))
+    fake_ai.on("link_names", lambda p: {"resolutions": []})
+    client.post("/chapters", json={"chapter_id": "a", "text": "[a]"})
+    r = client.post("/chapters", json={"chapter_id": "b", "text": "[b]"}).json()
+    methods = {l["name"]: l["method"] for l in r["entity_links"]}
+    assert methods["Tobias Calloway"] == "name match"
+    assert methods["Calloway"] == "new" and methods["Keeper"] == "new"
+    assert "Tobias Calloway" in client.get("/facts/Tobias").json()["aliases"]
+
+
+def test_name_rule_skips_ambiguous_first_names(client, fake_ai):
+    table = {"[a]": [fact("Tom Reed", "job", "baker", "Tom Reed the baker"),
+                     fact("Tom Hale", "job", "smith", "Tom Hale the smith")],
+             "[b]": [fact("Tom", "mood", "happy", "Tom smiled")]}
+    fake_ai.on("record_facts", facts_by_marker(table))
+    fake_ai.on("link_names", lambda p: {"resolutions": [
+        {"name": n, "existing_entity_id": 0, "canonical_name": n, "confidence": 0.9}
+        for n in re.findall(r"^- (.+?) \|", p, re.M)]})
+    client.post("/chapters", json={"chapter_id": "a", "text": "[a]"})
+    r = client.post("/chapters", json={"chapter_id": "b", "text": "[b]"}).json()
+    assert r["entity_links"][0]["method"] == "new"     # two Toms: left to the AI, which said new
+
+
+def test_sister_is_not_linked_to_titled_brother(client, fake_ai):
+    """Marcus Vale is also 'Captain Vale'; his sister Elena Vale must stay separate."""
+    setup(fake_ai)
+    for ch in ("ch1", "ch2"):
+        client.post("/chapters", json={"chapter_id": ch, "text": f"[{ch}]"})
+    r = client.post("/chapters", json={"chapter_id": "ch4", "text": "[ch4]"}).json()
+    assert r["entity_links"][0]["name"] == "Elena Vale" and r["entity_links"][0]["method"] == "new"
+
+
+def test_a_name_that_is_only_an_article_does_not_crash(client, fake_ai):
+    fake_ai.on("record_facts", facts_by_marker({"[a]": [fact("A", "x", "1", "q")],
+                                                "[b]": [fact("The", "x", "2", "q"), fact("A", "x", "3", "q")]}))
+    client.post("/chapters", json={"chapter_id": "a", "text": "[a]"})
+    assert client.post("/chapters", json={"chapter_id": "b", "text": "[b]"}).status_code == 200

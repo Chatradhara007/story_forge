@@ -75,8 +75,15 @@ class FakeAI:
         self.calls[name] = self.calls.get(name, 0) + 1
         self.prompts[name] = prompt
         default = {"record_facts": {"facts": []}, "link_names": {"resolutions": []},
-                   "report_contradictions": {"contradictions": []}}[name]
+                   "report_contradictions": {"contradictions": []},
+                   "report_cross_contradictions": {"contradictions": []},
+                   "record_timing": {"setting": "continues", "description": "follows on"},
+                   "review_warnings": {"reviews": []}}[name]
+        self.max_tokens = getattr(self, "max_tokens", []) + [kw.get("max_tokens")]
         out = self.handlers.get(name, lambda p: default)(prompt)
+        if isinstance(out, dict) and "__text__" in out:  # model answered in plain text
+            return _obj(choices=[_obj(finish_reason=out.get("__finish__", "stop"),
+                                      message=_obj(tool_calls=None, content=out["__text__"]))])
         if out is None:
             tool_calls = None
         else:
@@ -101,7 +108,10 @@ def fake_ai(monkeypatch):
     fake = FakeAI()
     monkeypatch.setattr(llm, "client", _obj(chat=_obj(completions=_obj(create=fake._chat)),
                                             embeddings=_obj(create=fake._embed)))
-    monkeypatch.setattr(llm.time, "sleep", lambda s: None)  # no waiting between retries
+    monkeypatch.setattr(llm, "_pause", lambda s: None)  # no waiting between retries
+    monkeypatch.setattr(llm, "MAX_REQUESTS_PER_MINUTE", 0)  # no pacing in tests
+    import extract
+    monkeypatch.setattr(extract, "CHECK_GROUNDING", False)  # pretend chapters are markers, not real text
     return fake
 
 
@@ -112,7 +122,7 @@ def client(fake_ai):
     import storage
     with TestClient(main.app) as c:  # start-up creates the tables
         with storage.db() as conn, conn.cursor() as cur:
-            cur.execute("TRUNCATE contradictions, facts, chapters, entity_aliases, entities, "
+            cur.execute("TRUNCATE contradictions, facts, chapters, entity_aliases, entities, projects, "
                         "fact_corrections RESTART IDENTITY CASCADE")
         yield c
 
