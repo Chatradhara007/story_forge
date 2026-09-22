@@ -23,9 +23,20 @@ class Contradiction(BaseModel):
     conflicting_value: str
     conflicting_quote: str
     contradiction_type: Literal["attribute", "status", "timeline"]
+    confidence: float = 0.5   # 0.0-1.0, how sure the model is this is a real mistake
     explanation: str
+
+class EntityLink(BaseModel):
+    """How one name in the chapter was linked, e.g. "Captain Vale" → Marcus Vale (AI match)."""
+    name: str
+    entity_id: int
+    canonical_name: str
+    method: Literal["known name", "AI match", "new"]
+    confidence: float
 
 class ChapterIngestResult(BaseModel):
     chapter_id: str
+    chapter_number: int
     facts: list[Fact]
+    entity_links: list[EntityLink]
     contradictions: list[Contradiction]

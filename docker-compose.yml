@@ -11,5 +11,18 @@ services:
     volumes:
       - storyforge_pgdata:/var/lib/postgresql/data
 
+  # Optional: run the whole app in Docker too (no Python install needed).
+  #   docker compose --profile app up --build
+  # then open http://localhost:8000
+  app:
+    profiles: ["app"]
+    build: .
+    depends_on: [db]
+    env_file: backend/.env
+    environment:
+      DATABASE_URL: postgresql://storyforge:storyforge@db:5432/storyforge
+    ports:
+      - "8000:8000"
+
 volumes:
   storyforge_pgdata:

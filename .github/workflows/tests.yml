@@ -1,0 +1,29 @@
+# Runs the automated tests on GitHub every time you push, using a throwaway
+# Postgres + pgvector database and a fake AI (no API key needed).
+name: tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      db:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: storyforge
+          POSTGRES_PASSWORD: storyforge
+          POSTGRES_DB: storyforge
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U storyforge"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://storyforge:storyforge@localhost:5432/storyforge
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r backend/requirements-dev.txt
+      - run: pytest
+        working-directory: backend

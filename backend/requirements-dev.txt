@@ -1,0 +1,4 @@
+# Extra tools for running the automated tests:  pip install -r requirements-dev.txt
+-r requirements.txt
+pytest==9.1.1
+httpx==0.28.1

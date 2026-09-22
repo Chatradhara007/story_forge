@@ -1,0 +1,33 @@
+{
+  "_about": "Answer key for the test story in eval/story. 'planted' are real mistakes the system SHOULD flag; 'decoys' look like changes but are fine and should NOT be flagged. A flag matches an item when it was raised while checking that chapter, its entity contains one of 'entity_contains', and one of 'keywords' appears in its values, quotes or explanation.",
+  "chapters": ["ch1", "ch2", "ch3", "ch4", "ch5", "ch6"],
+  "planted": [
+    {"id": "A1", "type": "attribute", "chapter": "ch4", "entity_contains": ["ines", "keeper"], "keywords": ["green", "grey", "gray", "eye"], "description": "Ines's eyes: grey (ch1) vs green (ch4). Uses a different name, 'Keeper Calloway'."},
+    {"id": "A2", "type": "attribute", "chapter": "ch5", "entity_contains": ["tobias", "ines"], "keywords": ["younger", "older"], "description": "Tobias is Ines's older brother (ch1) but her younger brother (ch5)."},
+    {"id": "A3", "type": "attribute", "chapter": "ch5", "entity_contains": ["merrow"], "keywords": ["blue", "red"], "description": "The Merrow is red-painted (ch2) but has a blue hull (ch5)."},
+    {"id": "A4", "type": "attribute", "chapter": "ch6", "entity_contains": ["rudd", "silas"], "keywords": ["beard", "shaven", "shave"], "description": "Rudd has a long white beard (ch2) but a clean-shaven chin (ch6). Uses 'Harbourmaster Rudd'."},
+    {"id": "A5", "type": "attribute", "chapter": "ch6", "entity_contains": ["pip"], "keywords": ["twelve", "ten", "12", "10", "age"], "description": "Pip is ten (ch3) but twelve (ch6), within one autumn."},
+    {"id": "S1", "type": "status", "chapter": "ch5", "entity_contains": ["bramble"], "keywords": ["died", "dead", "bark", "alive", "death"], "description": "Bramble dies (ch3) but barks at gulls (ch5)."},
+    {"id": "S2", "type": "status", "chapter": "ch4", "entity_contains": ["tobias"], "keywords": ["hand"], "also_accept_types": ["attribute"], "description": "Tobias lost his left hand (ch2) but claps both hands over a latch (ch4)."},
+    {"id": "S3", "type": "status", "chapter": "ch6", "entity_contains": ["key", "lamp room", "ines"], "keywords": ["key"], "also_accept_types": ["timeline"], "description": "The brass key is thrown into the sea (ch3) but used to unlock the lamp room (ch6)."},
+    {"id": "S4", "type": "status", "chapter": "ch5", "entity_contains": ["rudd", "silas"], "keywords": ["office", "rowed", "gullstone", "lamp room"], "also_accept_types": ["timeline"], "description": "Rudd spent the whole storm night in the harbour office (ch4) but rowed out to the Gullstone that night (ch5)."},
+    {"id": "T1", "type": "timeline", "chapter": "ch5", "entity_contains": ["ines", "keeper"], "keywords": ["eight", "twenty", "8", "20"], "also_accept_types": ["attribute"], "description": "Ines has kept the light twenty years (ch1) but eight years (ch5)."},
+    {"id": "T2", "type": "timeline", "chapter": "ch6", "entity_contains": ["storm", "ines", "tobias", "rudd", "pip"], "keywords": ["tuesday", "friday"], "also_accept_types": ["attribute"], "description": "The storm broke on Tuesday (ch4) but was 'on Friday' (ch6)."},
+    {"id": "T3", "type": "timeline", "chapter": "ch5", "entity_contains": ["tobias"], "keywords": ["arriv", "before", "after"], "description": "Tobias arrived three days before the storm (ch2) but the morning after it (ch5)."}
+  ],
+  "decoys": [
+    {"id": "D1", "chapter": "ch6", "entity_contains": ["ines", "keeper"], "keywords": ["village", "chandler", "moved", "port wick"], "description": "Ines moves into the village for winter: a normal change of location over time."},
+    {"id": "D2", "chapter": "ch5", "entity_contains": ["pip"], "keywords": ["ankle", "sprain", "heal"], "description": "Pip's sprained ankle (ch3) heals by the end of the week (ch5): recovery, not a contradiction."},
+    {"id": "D3", "chapter": "ch5", "entity_contains": ["ines", "keeper"], "keywords": ["wrist", "bandage", "cut"], "description": "Ines cuts her wrist (ch4) and it's bandaged (ch5): consistent."}
+  ],
+  "same_entity": [
+    ["Ines Calloway", "Keeper Calloway", "Ines"],
+    ["Silas Rudd", "Harbourmaster Rudd", "Rudd"],
+    ["Tobias Calloway", "Tobias"]
+  ],
+  "different_entities": [
+    ["Mara Calloway", "Ines Calloway"],
+    ["Mara Calloway", "Tobias Calloway"],
+    ["Tobias Calloway", "Ines Calloway"]
+  ]
+}

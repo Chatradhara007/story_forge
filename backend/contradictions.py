@@ -1,16 +1,9 @@
-import os
-import json
 from collections import defaultdict
-from openai import OpenAI
 from models import Fact, Contradiction
-from storage import get_facts_for_entity
+from storage import get_facts_for_entity_id
+from llm import call_tool
 
-nim_client = OpenAI(
-    base_url="https://integrate.api.nvidia.com/v1",
-    api_key=os.environ["NVIDIA_API_KEY"],
-)
-
-MODEL = "nvidia/nemotron-3-super-120b-a12b"
+VALID_TYPES = {"attribute", "status", "timeline"}
 
 CONTRADICTION_TOOL = {
     "type": "function",
@@ -31,9 +24,10 @@ CONTRADICTION_TOOL = {
                                 "type": "string",
                                 "enum": ["attribute", "status", "timeline"]
                             },
+                            "confidence": {"type": "number"},
                             "explanation": {"type": "string"}
                         },
-                        "required": ["new_fact_index", "existing_fact_index", "contradiction_type", "explanation"]
+                        "required": ["new_fact_index", "existing_fact_index", "contradiction_type", "confidence", "explanation"]
                     }
                 }
             },
@@ -44,8 +38,11 @@ CONTRADICTION_TOOL = {
 
 CONTRADICTION_PROMPT = """You are checking a work of long-form fiction for continuity errors.
 
-Below is a list of NEW facts just extracted from a new chapter, and a list of EXISTING facts
-already established about the same entity from earlier chapters.
+Below is a list of NEW facts just extracted from chapter {new_chapter_number}, and a list of
+EXISTING facts already established about the same entity from other chapters.
+This entity is "{canonical_name}". All of these names refer to it: {aliases}.
+Treat facts under any of those names as facts about the same entity. Chapter
+numbers show reading order: a lower number happens earlier in the book.
 
 Compare them and flag genuine contradictions only. A contradiction is:
 - ATTRIBUTE: a stated attribute (like eye color, age, name spelling, physical trait) changed
@@ -62,10 +59,12 @@ Do NOT flag:
   changing over time is normal, not a contradiction, unless the timing makes it impossible).
 - Vague or ambiguous phrasing that isn't a clear conflict.
 
+For each contradiction, give a confidence from 0.0 (unsure) to 1.0 (certain).
+
 NEW facts (index: entity | attribute | value | quote):
 {new_facts}
 
-EXISTING facts (index: entity | attribute | value | chapter | quote):
+EXISTING facts (index: entity | attribute | value | chapter number | quote):
 {existing_facts}
 
 Only report genuine contradictions. If there are none, return an empty list.
@@ -81,41 +80,56 @@ def _format_new_facts(facts: list[Fact]) -> str:
 
 def _format_existing_facts(facts: list[dict]) -> str:
     return "\n".join(
-        f'{i}: {f["entity"]} | {f["attribute"]} | {f["value"]} | ch:{f["chapter_id"]} | "{f["source_quote"]}"'
+        f'{i}: {f["entity"]} | {f["attribute"]} | {f["value"]} | chapter {f["chapter_number"]} | "{f["source_quote"]}"'
         for i, f in enumerate(facts)
     )
 
 
 def _check_entity_contradictions(
-    new_chapter_id: str, new_facts: list[Fact], existing_facts: list[dict]
+    new_chapter_id: str, new_chapter_number: int, canonical_name: str,
+    new_facts: list[Fact], existing_facts: list[dict],
 ) -> list[Contradiction]:
     """Compares one entity's new facts against its previously stored facts."""
     if not existing_facts:
         return []
 
-    response = nim_client.chat.completions.create(
-        model=MODEL,
+    answer = call_tool(
+        CONTRADICTION_PROMPT.format(
+            new_chapter_number=new_chapter_number,
+            canonical_name=canonical_name,
+            aliases=", ".join(sorted({f.entity for f in new_facts} | {f["entity"] for f in existing_facts})),
+            new_facts=_format_new_facts(new_facts),
+            existing_facts=_format_existing_facts(existing_facts),
+        ),
+        CONTRADICTION_TOOL,
         max_tokens=2048,
-        tools=[CONTRADICTION_TOOL],
-        tool_choice={"type": "function", "function": {"name": "report_contradictions"}},
-        messages=[{
-            "role": "user",
-            "content": CONTRADICTION_PROMPT.format(
-                new_facts=_format_new_facts(new_facts),
-                existing_facts=_format_existing_facts(existing_facts),
-            )
-        }]
     )
 
-    tool_call = response.choices[0].message.tool_calls[0]
-    raw = json.loads(tool_call.function.arguments)["contradictions"]
-
     results = []
-    for item in raw:
-        new_fact = new_facts[item["new_fact_index"]]
-        existing_fact = existing_facts[item["existing_fact_index"]]
+    for item in answer.get("contradictions", []):
+        # The AI refers to facts by their number in the lists above. Check that
+        # those numbers actually exist before using them — before this check, one
+        # made-up number crashed the whole request.
+        try:
+            new_index = int(item["new_fact_index"])
+            existing_index = int(item["existing_fact_index"])
+            kind = item["contradiction_type"]
+            explanation = str(item["explanation"])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if not (0 <= new_index < len(new_facts) and 0 <= existing_index < len(existing_facts)):
+            continue
+        if kind not in VALID_TYPES:
+            continue
+        try:
+            confidence = min(max(float(item.get("confidence", 0.5)), 0.0), 1.0)
+        except (TypeError, ValueError):
+            confidence = 0.5
+
+        new_fact = new_facts[new_index]
+        existing_fact = existing_facts[existing_index]
         results.append(Contradiction(
-            entity=new_fact.entity,
+            entity=canonical_name,
             new_chapter_id=new_chapter_id,
             new_attribute=new_fact.attribute,
             new_value=new_fact.value,
@@ -123,30 +137,34 @@ def _check_entity_contradictions(
             conflicting_chapter_id=existing_fact["chapter_id"],
             conflicting_value=existing_fact["value"],
             conflicting_quote=existing_fact["source_quote"],
-            contradiction_type=item["contradiction_type"],
-            explanation=item["explanation"],
+            contradiction_type=kind,
+            confidence=confidence,
+            explanation=explanation,
         ))
     return results
 
 
-def find_contradictions_for_chapter(chapter_id: str, facts: list[Fact]) -> list[Contradiction]:
+def find_contradictions_for_chapter(
+    chapter_id: str, chapter_number: int, facts: list[Fact], resolutions: dict
+) -> list[Contradiction]:
     """
-    Entry point called from /chapters. Groups the new chapter's facts by entity,
-    pulls each entity's previously stored facts (excluding this chapter), and
-    checks for contradictions per entity. One LLM call per distinct entity that
-    already has prior history — entities appearing for the first time cost nothing.
+    Groups the new chapter's facts by ENTITY (not by name), using the links from
+    resolve_entities(). So facts about "Captain Vale" are checked against earlier
+    facts about "Marcus" and "Marcus Vale" if they're the same person.
+    One AI call per entity that already has history; brand-new entities cost nothing.
     """
-    by_entity: dict[str, list[Fact]] = defaultdict(list)
+    by_entity: dict[int, list[Fact]] = defaultdict(list)
+    canonical: dict[int, str] = {}
     for f in facts:
-        by_entity[f.entity].append(f)
+        r = resolutions[f.entity.lower()]
+        if r.existing_entity_id is not None:          # new entities have no history yet
+            by_entity[r.existing_entity_id].append(f)
+            canonical[r.existing_entity_id] = r.canonical_name
 
     all_contradictions: list[Contradiction] = []
-    for entity, entity_facts in by_entity.items():
-        existing = [
-            row for row in get_facts_for_entity(entity)
-            if row["chapter_id"] != chapter_id
-        ]
+    for entity_id, entity_facts in by_entity.items():
+        existing = get_facts_for_entity_id(entity_id, exclude_chapter_id=chapter_id)
         all_contradictions.extend(
-            _check_entity_contradictions(chapter_id, entity_facts, existing)
+            _check_entity_contradictions(chapter_id, chapter_number, canonical[entity_id], entity_facts, existing)
         )
     return all_contradictions

@@ -1,0 +1,12 @@
+# One-click deployment on Render (https://render.com). See DEPLOY.md.
+services:
+  - type: web
+    name: storyforge
+    runtime: docker
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NVIDIA_API_KEY
+        sync: false          # you paste this in Render's dashboard
+      - key: DATABASE_URL
+        sync: false          # your hosted Postgres address (e.g. from Neon)

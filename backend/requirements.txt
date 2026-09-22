@@ -1,6 +1,7 @@
-fastapi
-uvicorn[standard]
-openai
-python-dotenv
-pydantic
-psycopg2-binary
+# Exact versions, so every teammate (and the server) installs the same thing.
+fastapi==0.141.1
+uvicorn[standard]==0.53.0
+openai==3.16.2
+python-dotenv==1.2.2
+pydantic==2.13.5
+psycopg2-binary==2.9.13
