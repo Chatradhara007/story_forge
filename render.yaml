@@ -3,10 +3,22 @@ services:
   - type: web
     name: storyforge
     runtime: docker
-    plan: free
+    plan: free            # sleeps when idle; use "starter" so background jobs aren't cut off
     healthCheckPath: /health
     envVars:
       - key: NVIDIA_API_KEY
-        sync: false          # you paste this in Render's dashboard
+        sync: false          # paste in Render's dashboard
       - key: DATABASE_URL
         sync: false          # your hosted Postgres address (e.g. from Neon)
+      - key: AUTH_REQUIRED
+        value: "true"        # sign-in required: books are private, AI use is budgeted
+      - key: SECRET_KEY
+        generateValue: true  # signs sign-in sessions; Render generates a random one
+      - key: DAILY_CHAPTER_LIMIT
+        value: "40"          # chapter checks per user per day (0 = unlimited)
+      - key: ALLOW_REGISTRATION
+        value: "true"        # set "false" once everyone who needs an account has one
+      - key: INVITE_CODE
+        sync: false          # optional: only people with this code can create accounts
+      - key: MAX_REQUESTS_PER_MINUTE
+        value: "30"

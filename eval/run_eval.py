@@ -403,9 +403,10 @@ def run_many(count: int, one_run, error_type) -> tuple[list, list]:
 
 def run_once(story_dir: Path, truth: dict, storage, app_main) -> dict:
     """Wipe the test database, feed in every chapter, and score the result."""
+    import pipeline
     with storage.db() as conn, conn.cursor() as cur:
         cur.execute("TRUNCATE contradictions, facts, chapters, entity_aliases, entities, projects, "
-                    "fact_corrections RESTART IDENTITY CASCADE")
+                    "fact_corrections, warning_decisions, jobs RESTART IDENTITY CASCADE")
     project_id = storage.create_project(f"Evaluation: {story_dir.name}")["id"]
     import llm
     requests_before, refused_before = llm.request_count, llm.refused_count
@@ -415,8 +416,7 @@ def run_once(story_dir: Path, truth: dict, storage, app_main) -> dict:
         text = (story_dir / f"{chapter_id}.txt").read_text(encoding="utf-8")
         print(f"Chapter {number} ({chapter_id})…", end=" ", flush=True)
         t0 = time.time()
-        result = app_main.ingest(project_id, app_main.ChapterInput(chapter_id=chapter_id, text=text,
-                                                                   chapter_number=number))
+        result, _later = pipeline.ingest(project_id, chapter_id, text, number)   # chapters go in order: nothing to re-check
         for stage, secs in result.timings_seconds.items():
             stage_totals[stage] = stage_totals.get(stage, 0) + secs
         print(f"{len(result.facts)} facts, {len(result.contradictions)} warnings, {time.time() - t0:.0f}s")

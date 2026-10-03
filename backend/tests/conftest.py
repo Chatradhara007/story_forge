@@ -22,6 +22,8 @@ MAIN_URL = os.environ.get("DATABASE_URL", "postgresql://storyforge:storyforge@lo
 TEST_URL = os.environ.get("TEST_DATABASE_URL") or urlunparse(urlparse(MAIN_URL)._replace(path="/storyforge_test"))
 os.environ["DATABASE_URL"] = TEST_URL
 os.environ["NVIDIA_API_KEY"] = "fake-key-for-tests"
+os.environ["JOBS_INLINE"] = "true"          # background jobs run at once, so tests see their results
+os.environ.setdefault("AUTH_REQUIRED", "false")
 
 
 def _database_available() -> bool:
@@ -103,7 +105,12 @@ def _obj(**kw):
 @pytest.fixture
 def fake_ai(monkeypatch):
     if not DB_OK:
-        pytest.skip(f"Test database not reachable at {TEST_URL}. Start it with: docker compose up -d")
+        # A FAILURE, not a skip: a skipped suite looks green with zero tests run.
+        # Set SKIP_DB_TESTS=1 to skip on purpose.
+        message = f"Test database not reachable at {TEST_URL}. Start it with: docker compose up -d"
+        if os.environ.get("SKIP_DB_TESTS") == "1":
+            pytest.skip(message)
+        pytest.fail(message)
     import llm
     fake = FakeAI()
     monkeypatch.setattr(llm, "client", _obj(chat=_obj(completions=_obj(create=fake._chat)),
@@ -123,7 +130,8 @@ def client(fake_ai):
     with TestClient(main.app) as c:  # start-up creates the tables
         with storage.db() as conn, conn.cursor() as cur:
             cur.execute("TRUNCATE contradictions, facts, chapters, entity_aliases, entities, projects, "
-                        "fact_corrections RESTART IDENTITY CASCADE")
+                        "fact_corrections, warning_decisions, jobs, usage_counters, users "
+                        "RESTART IDENTITY CASCADE")
         yield c
 
 

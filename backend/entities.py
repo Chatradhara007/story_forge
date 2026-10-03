@@ -193,12 +193,12 @@ def _title_surname_match(name: str, entity_type: str, known: list[dict]) -> dict
     entity_id, entity = next(iter(holders.items()))
     if new_is_titled:
         return entity            # "Captain Crane" -> the only Crane
-    # "Aldous Crane" -> only if the known Crane has no OTHER first name ("Elena Vale" must
-    # not join "Marcus Vale", even if he's also known as "Captain Vale")
+    # A full name ("Aldous Crane") links by rule only to someone already known by that SAME
+    # first name. If the only Crane is known purely by a title ("Captain Crane"), a full name
+    # could be anyone in the family ("Mara Calloway" vs "Keeper Calloway" = Ines), so the AI
+    # decides, with the quotes as evidence. ("Elena Vale" must never join "Marcus Vale".)
     known_firsts = first_names.get(entity_id, set())
-    if known_firsts - {words[0]}:
-        return None
-    return entity if not known_firsts or words[0] in known_firsts else None
+    return entity if words[0] in known_firsts and not (known_firsts - {words[0]}) else None
 
 
 def _types_compatible(a: str, b: str) -> bool:
@@ -312,4 +312,14 @@ def resolve_entities(project_id: int, facts: list[Fact]) -> dict[str, Resolution
                 results[info["name"].lower()] = Resolution(
                     info["name"], info["type"], None, canonical or info["name"], "new", confidence
                 )
+
+    # 5. A "new" entity whose canonical name is already a KNOWN name is not new: the AI gave
+    #    the right name but id 0. Link it instead of creating a duplicate "Marcus Vale".
+    new_ones = [r for r in results.values() if r.is_new]
+    known_canonicals = find_entities_by_alias(project_id, sorted({r.canonical_name for r in new_ones}))
+    types_by_id = {e["id"]: e["entity_type"] for e in known}
+    for r in new_ones:
+        match = known_canonicals.get(r.canonical_name.lower())
+        if match and _types_compatible(r.entity_type, types_by_id.get(match[0], r.entity_type)):
+            r.existing_entity_id, r.canonical_name, r.method = match[0], match[1], "name match"
     return results

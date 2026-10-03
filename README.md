@@ -1,6 +1,7 @@
 # StoryForge AI — Project Status & Setup
 
-**Last updated:** 21 September 2026 (Steps 3–7: evaluation, website, features, deployment, tests)
+**Last updated:** 3 October 2026 (character map: family tree, relationship web, presence map; cream
+theme; book shelf; welcome page and top navigation)
 
 A continuity-tracking system for long-form fiction. Writers ingest chapters; the system extracts
 structured facts (characters, locations, items, events), builds up a persistent "story memory,"
@@ -8,7 +9,7 @@ and automatically flags contradictions when new content conflicts with something
 established — with a citation pointing to exactly where.
 
 **Quick start:** `docker compose up -d`, start the backend (see [Setup](#setup)), then open
-http://127.0.0.1:8000 for the website.
+http://127.0.0.1:8000 for the website. To put it online, follow [DEPLOY.md](DEPLOY.md).
 
 ---
 
@@ -266,21 +267,36 @@ and cheap, and the decoys make sure the system isn't rewarded for flagging every
 
 ### 7. Website
 **What it does:** A browser interface at http://127.0.0.1:8000, served by the backend itself (no
-separate install). Pages:
-- **Add chapter:** paste text, see facts, name links and possible mistakes.
-- **Issues:** every contradiction as two facing quotes with the conflicting words underlined, a
-  confidence badge (Sure / Likely / Unsure), and a *Dismiss* button for intentional changes.
-- **Characters & places:** the auto-generated story bible: every entity, all its names, and a
-  sheet of everything the story says about it. Merge or split entries here.
-- **Timeline:** events in reading order.
+separate install, no build step). Pages:
+- **Overview:** the book in one sentence (chapters, words, facts, open issues), a chapter strip
+  showing each chapter's length and open issues, the most-flagged characters, and recent work.
+- **Add chapters:** paste one chapter, or **upload many `.txt`/`.md` files at once** (added in
+  filename order, names and numbers editable). Each chapter runs as a background job with a
+  live progress bar, so long chapters never time out in the browser.
+- **Issues:** every contradiction as two facing quotes with the conflicting words underlined,
+  a severity (Serious / Worth a look / Unsure), and where it came from (checker, safety net,
+  story clock). Show open, dismissed, resolved or all; group by severity, character or chapter.
+  "It's intentional" dismisses with an optional reason (remembered across re-checks);
+  "Keep the earlier version as canon" pins the earlier fact.
+- **Story bible:** every entity laid out like a book's index, by type and letter. An entry
+  shows all its names and everything the story says about it; pin facts as canon, merge
+  entries (same type only) or split a name off. Merges and splits re-check affected chapters.
+- **Timeline:** events in reading order or **story order** (flashbacks first, or the position
+  you set on a chapter's page).
 - **Ask:** natural-language questions answered only from stored facts, with sources.
-- **Chapter history** (left sidebar): open any chapter to read it, correct or delete wrongly
-  extracted facts (corrections are logged), re-check it, or delete it.
+- **Chapter pages:** the text, when it's set, its open issues, and its facts: correct, delete
+  or pin them. Re-check, edit and re-check, or delete the chapter.
+- **Books:** create, rename, delete, and **export a book as JSON lore**.
+- **Sign-in** (when switched on): accounts, private books, and a daily chapter allowance shown
+  in the sidebar.
 
-**How it works:** One plain HTML/CSS/JavaScript file, `frontend/index.html`, with no build step.
-It calls the same API documented below.
+Background work (re-checks after an edit, merge or correction) shows in the sidebar while it
+runs, and the Issues page refreshes when it finishes.
 
-**Files:** `frontend/index.html`, new endpoints in `backend/main.py` and `backend/storage.py`
+**How it works:** Plain HTML/CSS/JavaScript in `frontend/` (`index.html`, `styles.css`,
+`app.js`), calling the same API documented below.
+
+**Files:** `frontend/`
 
 ---
 
@@ -306,27 +322,131 @@ their data moves into a book called "My story".
 - **Deployment:** `Dockerfile` (backend + website in one container), `render.yaml` for Render,
   and step-by-step instructions in [DEPLOY.md](DEPLOY.md). Tables are created automatically on
   start-up, so a fresh hosted database needs no manual setup.
-- **Automated tests:** 74 tests in `backend/tests/` using a fake AI and a separate test database.
+- **Automated tests:** 111 tests in `backend/tests/` using a fake AI and a separate test database.
   They run on GitHub automatically on every push (`.github/workflows/tests.yml`).
 - **Pinned dependencies:** exact versions in `requirements.txt`, so everyone installs the same thing.
 
 ---
 
+### 10. Review fixes and new features (October 2026)
+A code review (*StoryForge Review and Fix Plan*, 22 Sept 2026) confirmed nine bugs. Each now
+has a test of the fixed behaviour in `backend/tests/test_review_fixes.py`; every one of those
+tests fails on the code before the fixes.
+
+| # | Was | Now |
+|---|---|---|
+| 1 | "Earlier" facts = any other chapter | Only chapters with a lower chapter number count as history |
+| 2 | Re-submitting lost dismissals and deleted later chapters' warnings | Warnings have a fingerprint (entity, attribute, both values); the writer's dismissals (with reasons) survive re-checks; later chapters are re-checked automatically |
+| 3 | "12" vs "twelve" dropped as invented | Numbers normalised to digits (twenty-one, 12th, a hundred and five, 1,000); grounding checked against the passage only |
+| 4 | "Mara Calloway" auto-merged into "Keeper Calloway" | A full name links by rule only to someone known by the same first name; otherwise the AI decides |
+| 5 | AI's id 0 + known canonical name created a duplicate | Linked to the existing entity |
+| 6 | Correcting a fact left its warning open | Warnings store both fact ids; editing or deleting a fact resolves them and re-checks |
+| 7 | Every fact ever recorded sent to the checker | At most `MAX_EVIDENCE_FACTS` (60): pinned and permanent-state facts plus the most relevant; a too-long prompt is split and retried |
+| 8 | Token budget doubled on every retry | Grows only after a cut-off answer |
+| 9 | Place mergeable into a character; no re-check | Type-checked; merges and splits re-check affected chapters |
+
+Other review findings fixed: the timing detector now sees earlier chapters' timing notes and
+up to 30,000 characters (opening and ending of longer chapters); adding a chapter runs as a
+**background job** with progress (`POST /chapters/jobs`, `GET /jobs/{id}`) and **one job per
+book at a time**; a **connection pool**; the safety net makes **one query per chapter** and uses
+a **halfvec HNSW index** when pgvector ≥ 0.7; a rejected request no longer switches "low"
+thinking off for good (only if "off" then works); the safety net keeps two real warnings from
+one sentence; the app starts without an API key and `/health` says what's missing; chapter
+names can't contain `/ \ ? #`; tests **fail** (not skip) when the database is down
+(`SKIP_DB_TESTS=1` to skip on purpose); the stale `eval/story/` copy is gone.
+
+New features (review Phases 5 and 6):
+- **Story clock** (`storyclock.py`): ages and time skips checked by arithmetic in code, e.g.
+  nine in chapter 1, "three years after the fire", fourteen in chapter 3: flagged ("should be
+  about 12"). Targets the 0-of-3 misses. Not second-guessed by the double-check.
+- **Canon facts:** pin a fact; the checker sees it as `[CANON]` and conflicts become serious.
+- **Severity** (high / medium / low) on every warning, and **dismiss reasons**, collected at
+  `GET /feedback` for growing the evaluation set.
+- **Accounts** (`auth.py`, off by default): sign-in, private books per user, a daily chapter
+  allowance (`DAILY_CHAPTER_LIMIT`), no cross-site API access, slowed password guessing.
+- **Story-order timeline** and **JSON lore export** (`GET /export`).
+
+**Deployment:** `Dockerfile` runs as a non-root user with a health check and ONE worker
+(background jobs live in the web process); `render.yaml` switches sign-in on and generates
+`SECRET_KEY`. See [DEPLOY.md](DEPLOY.md).
+
+**Files:** `backend/pipeline.py`, `jobs.py`, `auth.py`, `storyclock.py` (new), changes in every
+other backend file, `backend/tests/test_review_fixes.py`, `frontend/`
+
+---
+
+### 11. Character map, cream theme and book shelf (October 2026)
+- **Relationships are recorded properly.** The Reader now also lists every stated relationship
+  ("person | relation | other person"). `backend/relationships.py` turns the AI's wording into a
+  fixed set of kinds: family (parent, spouse, sibling, relative) and social (friend, ally, rival,
+  enemy, mentor, employer, romance); "son of" is turned round into "parent of", grandparents and
+  cousins become "relative". They're stored in a `relationships` table (re-submitting a chapter
+  replaces them; merges and splits move them) AND as plain facts on both people, so the
+  contradiction checker sees "sister of Ines" vs "cousin of Ines" too.
+- **Character map page** (`frontend/charts.js`, no chart library):
+  - *Family tree*: generations from parent links, siblings kept together, spouses joined by a
+    double line, children centred under their parents.
+  - *Relationship web*: a deterministic force layout; line style AND colour show the kind
+    (solid family, long-dash friendly, short-dash hostile), arrows show direction (parent,
+    mentor, employer). Selecting someone labels their ties and fades everyone else.
+  - *Chapter slider and Play*: "as of chapter N" reveals people and ties as the story
+    introduces them; anyone who has died by then is drawn dashed. Layouts are computed once for
+    the whole book so nothing jumps while you scrub, and the slider doubles as spoiler control.
+  - *Impossible family ties* (sister in one chapter, cousin in another; A parent of B and B
+    parent of A) are found by a rule in code and drawn in red, with both quotes in the panel.
+  - *Who appears where*: the presence map, people/places/objects by chapter, dot size = facts,
+    red = open issues.
+- **Cream theme** with a bottle-green accent (parchment page, vellum sheets, iron-gall ink),
+  correction red for issues, and bookbinding cover colours.
+- **Book shelf home page**: cover tiles with initials, kind (novel, novella, short stories,
+  screenplay, serial), synopsis, issue status, sort, and a Recent work panel across all books.
+
+**Endpoints:** `GET /characters/map`, `GET /presence`, `GET /activity`; `POST/PATCH /projects`
+accept `kind`, `synopsis`, `cover_color`. **Tests:** `backend/tests/test_charts.py`.
+
+**Existing books:** relationships are only recorded for chapters read after this change.
+Re-submit a book's chapters (Edit and re-check) to fill in its map.
+
+---
+
+### 12. Welcome page and top navigation (October 2026)
+- **Welcome page** (product name, what it does, a real example of a caught mistake), then
+  **sign-in**, then the app. With sign-in switched off, the welcome page shows on the first visit.
+  The product name and tagline appear only on these two pages.
+- **Top bar** instead of a left panel: a small mark (back to your books), the book switcher, the
+  page tabs (Books, Overview, Chapters, Issues, Character map, Story bible, Timeline, Ask), a
+  "checking…" indicator for background work, and an account menu with today's allowance.
+  On phones the tabs become a swipeable strip.
+- **Chapters**: a dropdown in the bar to jump to any chapter, a Chapters page (every chapter with
+  when it's set, words, facts and open issues), and previous/next links on each chapter page.
+- Page introductions rewritten in plainer words.
+- **Typography:** headings in **Amatic SC**; all other text in **Avenir Light** where the device
+  has Avenir (Apple devices), otherwise **Nunito Sans Light**, its closest open-licence match
+  (Avenir is a commercial font and can't be shipped without a web licence; if you buy one, add
+  its files to `frontend/fonts/` and an `@font-face` for "Avenir Next" at the top of `styles.css`).
+  Both open fonts are served by the app itself from `frontend/fonts/` (SIL Open Font License,
+  licence files alongside): no requests to Google, faster first load, works offline. Amatic SC is
+  only used at heading sizes; small labels stay in the text font so they remain readable.
+
+---
+
 ## 🚧 What's left
 
-Everything in the original build plan is done. What remains is running and improving it:
-
-1. **Run the evaluation with the real AI** (`python eval/run_eval.py`), commit the report in
-   `eval/results/`, and record the scores here. Then improve prompts where it misses and re-run.
-2. **Deploy** following [DEPLOY.md](DEPLOY.md).
+1. **Re-run the evaluation with the real AI** on both stories, 3 runs each
+   (`python eval/run_eval.py --runs 3` and `--story glassmaker --runs 3`). The last saved numbers
+   predate the double-check, the story clock and the bug fixes. Record the scores here.
+2. **A third test story with realistic ~4,000-word chapters**, to prove the Phase 4 scale work
+   end to end (the review's "done when" for Phase 4).
+3. **Contradictions within a single chapter** (review Phase 3) are still not checked.
+4. **Permanent-state ledger** (review Phase 5): permanent states are always shown to the checker
+   now (bug 7 fix), but reversals aren't yet caught by a rule in code the way ages are.
+5. **Series** (books that share characters, so a sequel is checked against book one).
+6. **Deploy** following [DEPLOY.md](DEPLOY.md).
 
 ### Future work / explicitly out of scope for now
-- Login / user accounts (needed before sharing a deployed link publicly)
 - Multi-author collaboration mode (books exist now, but there are no user accounts yet)
-- Export to game-engine-friendly lore format (JSON)
 - Tone/voice consistency checking
 - Checking contradictions *within* a single chapter, and between different entities
-- Story-time ordering (flashbacks) — the timeline currently follows reading order
 - Neo4j-based graph storage (currently using Postgres + pgvector instead)
 
 ---
@@ -354,7 +474,7 @@ Everything below works inside one book. Use it under `/projects/{id}` (e.g.
 | `GET /chapters` | All submitted chapters in reading order, with fact counts |
 | `GET /chapters/{id}` | One chapter's text and all its facts |
 | `DELETE /chapters/{id}` | Delete a chapter with its facts and warnings |
-| `PATCH /facts/{id}` | Correct a fact: `{"attribute": ..., "value": ..., "entity_type": ...}` (logged) |
+| `PATCH /facts/{id}` | Correct a fact: `{"attribute": ..., "value": ..., "entity_type": ...}` (logged; resolves its warnings and re-checks), or pin it as canon: `{"pinned": true}` |
 | `DELETE /facts/{id}` | Delete a wrongly extracted fact (logged) |
 | `GET /facts/{name}` | Everything known about an entity, looked up by any of its names, in reading order |
 | `GET /entities` | Every entity with all the names it goes by and its fact count |
@@ -362,11 +482,21 @@ Everything below works inside one book. Use it under `/projects/{id}` (e.g.
 | `POST /entities/merge` | Fix a missed link: `{"keep_entity_id": 1, "merge_entity_id": 2}` |
 | `POST /entities/{id}/detach` | Fix a wrong link: `{"name": "The Stranger"}` splits that name off into its own entity |
 | `GET /search?q=...` | Semantic search across all stored facts |
-| `GET /contradictions` | Contradictions, most recent first; filter with `?status=open` or `?status=dismissed` |
-| `PATCH /contradictions/{id}` | Dismiss or reopen a warning: `{"status": "dismissed"}` |
-| `GET /timeline` | Event facts in reading order |
+| `GET /contradictions` | Contradictions, most recent first; filter with `?status=open`, `dismissed` or `resolved` |
+| `PATCH /contradictions/{id}` | Dismiss or reopen a warning: `{"status": "dismissed", "reason": "..."}` (remembered across re-checks) |
+| `GET /timeline` | Event facts in reading order, or `?order=story` for story time |
 | `POST /ask` | `{"question": "..."}` → an answer written from stored facts, plus the facts used |
-| `GET /health` | Sanity check |
+| `POST /chapters/jobs` | Same as `POST /chapters`, in the background: returns `{"job_id"}` at once (the website uses this) |
+| `GET /jobs`, `GET /jobs/{id}` | Background jobs: status (queued/running/done/failed), stage, progress 0–1, result |
+| `POST /chapters/{id}/recheck` | Check a saved chapter again against the story as it is now (no re-reading) |
+| `PATCH /chapters/{id}` | Set its story position: `{"story_order": 0.5}` (null = automatic) |
+| `GET /overview` | Dashboard numbers for the book |
+| `GET /export` | The whole book as JSON lore |
+| `GET /feedback` | The writer's dismissals with reasons |
+| `GET /health` | Always 200; says whether the database and AI key are set up |
+
+Accounts (only needed when `AUTH_REQUIRED=true`): `GET /auth/config`, `POST /auth/register`,
+`POST /auth/login` (both return a token to send as `Authorization: Bearer ...`), `GET /auth/me`.
 
 Interactive documentation for every endpoint: http://127.0.0.1:8000/docs
 
@@ -383,7 +513,10 @@ storyforge/
 ├── docker-compose.yml     # local Postgres + pgvector (and optionally the app)
 ├── .github/workflows/tests.yml   # runs the tests on every push
 ├── frontend/
-│   └── index.html         # the website
+│   ├── index.html         # the website (no build step)
+│   ├── styles.css
+│   ├── app.js
+│   └── charts.js          # family tree, relationship web, presence map
 ├── eval/
 │   ├── stories/
 │   │   ├── lighthouse/    # 6 chapters + ground_truth.json (answer key); tuned on
@@ -395,6 +528,11 @@ storyforge/
     ├── requirements.txt / requirements-dev.txt
     ├── schema.sql          # database tables (applied automatically on start-up)
     ├── llm.py              # AI connection, model names, retries, batched embeddings
+    ├── pipeline.py         # add a chapter / re-check a saved chapter
+    ├── jobs.py             # background jobs, one per book at a time
+    ├── auth.py             # accounts, sessions, daily allowance
+    ├── storyclock.py       # age and time-skip arithmetic
+    ├── relationships.py    # relationship wording -> fixed kinds; impossible family ties
     ├── models.py           # Fact / Contradiction / EntityLink / ...
     ├── extract.py          # extraction pipeline
     ├── entities.py         # entity resolution (which names are the same entity)

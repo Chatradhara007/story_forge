@@ -10,15 +10,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
-from extract import extract_facts, detect_timing
-from models import ExtractionResult, ChapterIngestResult, EntityLink
-from entities import resolve_entities
-from llm import AIServiceError, ask_text, run_in_parallel
+from extract import extract_facts
+from models import ExtractionResult, ChapterIngestResult
+from llm import AIServiceError, AI_CONFIGURED, ask_text
+import auth
+import jobs
+import pipeline
 import storage
 from storage import (
-    resolve_chapter_number,
-    embed_facts,
-    save_chapter_results,
     get_facts_for_entity_id,
     find_entities_by_alias,
     get_entity,
@@ -36,7 +35,7 @@ from storage import (
     get_timeline,
     apply_schema,
 )
-from contradictions import find_contradictions_for_chapter, find_cross_card_contradictions, double_check
+from entities import _types_compatible
 
 
 @asynccontextmanager
@@ -46,6 +45,7 @@ async def lifespan(app: FastAPI):
     if os.getenv("AUTO_CREATE_SCHEMA", "true").lower() == "true":
         apply_schema()
     yield
+    storage.close_pool()
 
 
 app = FastAPI(title="StoryForge", lifespan=lifespan)
@@ -53,9 +53,12 @@ app = FastAPI(title="StoryForge", lifespan=lifespan)
 # Lets a web page on a DIFFERENT address talk to this backend (browsers block that
 # by default). The built-in website is served from this same address, so it doesn't
 # need this. Set ALLOWED_ORIGINS in .env (comma-separated) to restrict it when deploying.
+# With sign-in switched on, other websites are NOT allowed by default (set ALLOWED_ORIGINS
+# to allow some); locally, anything goes, as before.
+_origins = os.getenv("ALLOWED_ORIGINS", "" if auth.AUTH_REQUIRED else "*")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[o.strip() for o in os.getenv("ALLOWED_ORIGINS", "*").split(",")],
+    allow_origins=[o.strip() for o in _origins.split(",") if o.strip()],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -68,8 +71,9 @@ def ai_service_error(request: Request, error: AIServiceError):
 
 
 class ChapterInput(BaseModel):
-    chapter_id: str = Field(min_length=1)
-    text: str = Field(min_length=1)
+    # Used in web addresses (/chapters/ch1), so "/", "?" and "#" aren't allowed.
+    chapter_id: str = Field(min_length=1, max_length=100, pattern=r"^[^/\\?#]+$")
+    text: str = Field(min_length=1, max_length=400_000)
     # Reading order (1, 2, 3...). Optional: if left out, a new chapter goes after
     # the last one, and a re-submitted chapter keeps its old number.
     chapter_number: int | None = Field(default=None, ge=1)
@@ -78,138 +82,146 @@ class ChapterInput(BaseModel):
 # ---------------------------------------------------------------------------
 # Books (projects)
 # ---------------------------------------------------------------------------
+BOOK_KINDS = Literal["novel", "novella", "short stories", "screenplay", "serial", "other"]
+COVER = Field(default=None, pattern=r"^(sage|slate|plum|ochre|oxblood|moss|ink)$")
+
+
 class ProjectInput(BaseModel):
     name: str = Field(min_length=1, max_length=120)
+    kind: BOOK_KINDS = "novel"
+    synopsis: str | None = Field(default=None, max_length=2000)
+    cover_color: str | None = COVER
+
+
+class ProjectUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=120)
+    kind: BOOK_KINDS | None = None
+    synopsis: str | None = Field(default=None, max_length=2000)
+    cover_color: str | None = COVER
+
+
+def _owner(user: dict | None) -> int | None:
+    return user["id"] if user else None
 
 
 @app.get("/projects")
-def projects():
-    """Every book, with its chapter count and number of open warnings."""
-    return {"projects": storage.list_projects()}
+def projects(user: dict | None = Depends(auth.current_user)):
+    """Every book (of the signed-in user), with its chapter count and number of open warnings."""
+    return {"projects": storage.list_projects(_owner(user))}
 
 
 @app.post("/projects", status_code=201)
-def create_project(body: ProjectInput):
+def create_project(body: ProjectInput, user: dict | None = Depends(auth.current_user)):
     """Start a new, empty book."""
-    if storage.project_name_taken(body.name):
+    if storage.project_name_taken(body.name, owner_id=_owner(user)):
         raise HTTPException(status_code=409, detail=f"There's already a book called '{body.name.strip()}'.")
-    return storage.create_project(body.name)
+    return storage.create_project(body.name, _owner(user), body.kind, body.synopsis, body.cover_color)
 
 
-def _existing_project(project_id: int) -> dict:
-    project = storage.get_project(project_id)
+def _existing_project(project_id: int, user: dict | None) -> dict:
+    project = storage.get_project(project_id, _owner(user))
     if project is None:
         raise HTTPException(status_code=404, detail=f"No book with id {project_id}.")
     return project
 
 
 @app.get("/projects/{project_id}")
-def project_detail(project_id: int):
-    return _existing_project(project_id)
+def project_detail(project_id: int, user: dict | None = Depends(auth.current_user)):
+    return _existing_project(project_id, user)
 
 
 @app.patch("/projects/{project_id}")
-def rename_project(project_id: int, body: ProjectInput):
-    _existing_project(project_id)
-    if storage.project_name_taken(body.name, except_id=project_id):
-        raise HTTPException(status_code=409, detail=f"There's already a book called '{body.name.strip()}'.")
-    return storage.rename_project(project_id, body.name)
+def update_project(project_id: int, body: ProjectUpdate, user: dict | None = Depends(auth.current_user)):
+    """Rename a book, or change its kind, synopsis or cover colour."""
+    _existing_project(project_id, user)
+    changes = body.model_dump(exclude_unset=True)
+    if changes.get("name") and storage.project_name_taken(changes["name"], except_id=project_id, owner_id=_owner(user)):
+        raise HTTPException(status_code=409, detail=f"There's already a book called '{changes['name'].strip()}'.")
+    if "name" in changes:
+        changes["name"] = changes["name"].strip()
+    return storage.update_project(project_id, changes)
+
+
+@app.get("/activity")
+def activity(user: dict | None = Depends(auth.current_user)):
+    """Recent work across all your books (the shelf's side panel)."""
+    return {"activity": storage.recent_activity(_owner(user))}
 
 
 @app.delete("/projects/{project_id}")
-def delete_project(project_id: int):
+def delete_project(project_id: int, user: dict | None = Depends(auth.current_user)):
     """Delete a book and everything in it: chapters, facts, characters and warnings."""
-    _existing_project(project_id)
+    _existing_project(project_id, user)
     storage.delete_project(project_id)
     return {"deleted": project_id}
 
 
-def current_project(request: Request) -> int:
+def current_project(request: Request, user: dict | None = Depends(auth.current_user)) -> int:
     """
-    Which book a request is about. Addresses under /projects/{id}/... use that book.
-    The short addresses without a book (e.g. /chapters) use the first book, which is
-    created as "My story" if there isn't one yet.
+    Which book a request is about. Addresses under /projects/{id}/... use that book (it
+    must belong to the signed-in user). The short addresses without a book (e.g.
+    /chapters) use the user's first book, created as "My story" if there isn't one yet.
     """
     raw = request.path_params.get("project_id")
     if raw is None:
-        return storage.default_project_id()
+        return storage.default_project_id(_owner(user))
     try:
         project_id = int(raw)
     except ValueError:
         raise HTTPException(status_code=404, detail=f"No book with id {raw}.")
-    _existing_project(project_id)
+    _existing_project(project_id, user)
     return project_id
+
+
+# ---------------------------------------------------------------------------
+# Accounts
+# ---------------------------------------------------------------------------
+class RegisterInput(BaseModel):
+    email: str = Field(min_length=3, max_length=200, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+    password: str = Field(min_length=8, max_length=200)
+    display_name: str | None = Field(default=None, max_length=80)
+    invite_code: str | None = None
+
+
+class LoginInput(BaseModel):
+    email: str = Field(min_length=3, max_length=200)
+    password: str = Field(min_length=1, max_length=200)
+
+
+@app.get("/auth/config")
+def auth_config():
+    """What the sign-in screen needs to know (public)."""
+    return {"auth_required": auth.AUTH_REQUIRED, "registration_open": auth.ALLOW_REGISTRATION,
+            "invite_required": bool(auth.INVITE_CODE), "daily_chapter_limit": auth.DAILY_CHAPTER_LIMIT}
+
+
+@app.post("/auth/register", status_code=201)
+def register(body: RegisterInput):
+    user = auth.register(body.email, body.password, body.display_name, body.invite_code)
+    return {"user": user, "token": auth.make_token(user["id"])}
+
+
+@app.post("/auth/login")
+def login(body: LoginInput, request: Request):
+    user = auth.login(body.email, body.password, request.client.host if request.client else "?")
+    return {"user": user, "token": auth.make_token(user["id"])}
+
+
+@app.get("/auth/me")
+def me(user: dict | None = Depends(auth.current_user)):
+    if user is None:
+        return {"user": None, "auth_required": False}
+    return {"user": user, "auth_required": True, "chapters_today": auth.usage_today(user["id"]),
+            "daily_chapter_limit": auth.DAILY_CHAPTER_LIMIT}
 
 
 # ---------------------------------------------------------------------------
 # The pipeline
 # ---------------------------------------------------------------------------
-def ingest(project_id: int, chapter: ChapterInput) -> ChapterIngestResult:
-    """
-    Full pipeline for one chapter of one book. All the slow AI work happens first; only
-    if it all succeeds is everything saved to the database in one go. Re-submitting the
-    same chapter_id replaces that chapter's old results.
-    """
-    timings: dict[str, float] = {}
-
-    def timed(stage, function, *args):
-        started = time.perf_counter()
-        value = function(*args)
-        timings[stage] = round(time.perf_counter() - started, 1)
-        return value
-
-    chapter_number = resolve_chapter_number(project_id, chapter.chapter_id, chapter.chapter_number)
-    # Read the facts and work out when the chapter is set, at the same time.
-    result, time_note = timed("reading facts", lambda: run_in_parallel(lambda job: job(), [
-        lambda: extract_facts(chapter.chapter_id, chapter.text),
-        lambda: detect_timing(chapter.text),
-    ]))
-    resolutions = timed("linking names", resolve_entities, project_id, result.facts)
-    embeddings = timed("preparing search", embed_facts, result.facts)
-    contradictions = timed(
-        "checking for mistakes", find_contradictions_for_chapter,
-        project_id, chapter.chapter_id, chapter_number, result.facts, resolutions, time_note,
-    )
-    # Safety net: conflicts hidden because the two facts are filed under different names.
-    contradictions += timed(
-        "safety-net check", find_cross_card_contradictions,
-        project_id, chapter.chapter_id, chapter_number, result.facts, resolutions, embeddings,
-        contradictions, time_note,
-    )
-    # Double-check every warning; ones that fail are kept but marked dismissed, with the reason.
-    contradictions = timed(
-        "double-checking", double_check,
-        project_id, chapter.chapter_id, chapter_number, contradictions, time_note,
-    )
-    new_entity_ids = timed(
-        "saving", save_chapter_results,
-        project_id, chapter.chapter_id, chapter_number, chapter.text,
-        result.facts, embeddings, contradictions, resolutions, time_note,
-    )
-    entity_links = [
-        EntityLink(
-            name=r.name,
-            entity_id=r.existing_entity_id or new_entity_ids[r.canonical_name.lower()],
-            canonical_name=r.canonical_name,
-            method=r.method,
-            confidence=r.confidence,
-        )
-        for r in resolutions.values()
-    ]
-    return ChapterIngestResult(
-        chapter_id=chapter.chapter_id,
-        chapter_number=chapter_number,
-        time_note=time_note,
-        facts=result.facts,
-        entity_links=entity_links,
-        contradictions=contradictions,
-        timings_seconds=timings,
-    )
-
-
 @app.post("/extract", response_model=ExtractionResult)
-def extract(chapter: ChapterInput):
+def extract(chapter: ChapterInput, user: dict | None = Depends(auth.current_user)):
     """Extract facts only — does not store them. Useful for testing extraction in isolation."""
+    auth.charge_chapter(user)
     return extract_facts(chapter.chapter_id, chapter.text)
 
 
@@ -222,9 +234,73 @@ book = APIRouter()
 
 
 @book.post("/chapters", response_model=ChapterIngestResult)
-def ingest_chapter(chapter: ChapterInput, project_id: int = Depends(current_project)):
-    """Add (or re-check) a chapter: read its facts, link names, check for mistakes, save."""
-    return ingest(project_id, chapter)
+def ingest_chapter(chapter: ChapterInput, project_id: int = Depends(current_project),
+                   user: dict | None = Depends(auth.current_user)):
+    """
+    Add (or re-check) a chapter and wait for the answer: read its facts, link names, check
+    for mistakes, save. Takes minutes for long chapters; the website uses /chapters/jobs.
+    Later chapters affected by this one are re-checked in the background afterwards.
+    """
+    auth.charge_chapter(user)
+    with jobs.book_lock(project_id):
+        result, later = pipeline.ingest(project_id, chapter.chapter_id, chapter.text, chapter.chapter_number)
+    jobs.submit_rechecks(project_id, later, f"{chapter.chapter_id} changed")
+    return result
+
+
+@book.post("/chapters/jobs", status_code=202)
+def ingest_chapter_job(chapter: ChapterInput, project_id: int = Depends(current_project),
+                       user: dict | None = Depends(auth.current_user)):
+    """
+    Add (or re-check) a chapter in the BACKGROUND. Returns a job id at once; follow it at
+    GET /jobs/{job_id}. When it's done the job's result is the same as POST /chapters.
+    """
+    auth.charge_chapter(user)
+
+    def work(progress):
+        result, later = pipeline.ingest(project_id, chapter.chapter_id, chapter.text, chapter.chapter_number,
+                                        progress=progress)
+        recheck_job = jobs.submit_rechecks(project_id, later, f"{chapter.chapter_id} changed")
+        return {**result.model_dump(), "recheck_job_id": recheck_job}
+
+    return {"job_id": jobs.submit(project_id, "ingest", chapter.chapter_id, work)}
+
+
+@book.get("/jobs")
+def list_jobs(project_id: int = Depends(current_project)):
+    """Recent background jobs for this book, newest first."""
+    return {"jobs": jobs.recent(project_id)}
+
+
+@book.get("/jobs/{job_id}")
+def job_status(job_id: str, project_id: int = Depends(current_project)):
+    """Progress of a background job: status (queued/running/done/failed), stage, progress 0-1, result."""
+    job = jobs.get(project_id, job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="No such job.")
+    return job
+
+
+@book.post("/chapters/{chapter_id}/recheck", status_code=202)
+def recheck(chapter_id: str, project_id: int = Depends(current_project),
+            user: dict | None = Depends(auth.current_user)):
+    """Check a saved chapter again against the story as it is now (no re-reading)."""
+    if storage.chapter_number_of(project_id, chapter_id) is None:
+        raise HTTPException(status_code=404, detail=f"No chapter called '{chapter_id}'.")
+    auth.charge_chapter(user)
+    return {"job_id": jobs.submit_rechecks(project_id, [chapter_id], "asked by the writer")}
+
+
+class ChapterUpdate(BaseModel):
+    story_order: float | None = None
+
+
+@book.patch("/chapters/{chapter_id}")
+def update_chapter(chapter_id: str, body: ChapterUpdate, project_id: int = Depends(current_project)):
+    """Set where a chapter sits in STORY time (for flashbacks); null = work it out automatically."""
+    if not storage.set_chapter_story_order(project_id, chapter_id, body.story_order):
+        raise HTTPException(status_code=404, detail=f"No chapter called '{chapter_id}'.")
+    return get_chapter(project_id, chapter_id)
 
 
 @book.get("/chapters")
@@ -244,39 +320,51 @@ def chapter_detail(chapter_id: str, project_id: int = Depends(current_project)):
 
 @book.delete("/chapters/{chapter_id}")
 def remove_chapter(chapter_id: str, project_id: int = Depends(current_project)):
-    """Delete a chapter, its facts and its warnings."""
-    if not delete_chapter(project_id, chapter_id):
+    """Delete a chapter, its facts and its warnings. Later chapters are re-checked without it."""
+    number = storage.chapter_number_of(project_id, chapter_id)
+    if number is None or not delete_chapter(project_id, chapter_id):
         raise HTTPException(status_code=404, detail=f"No chapter called '{chapter_id}'.")
-    return {"deleted": chapter_id}
+    job = jobs.submit_rechecks(project_id, storage.chapters_after(project_id, number), f"{chapter_id} deleted")
+    return {"deleted": chapter_id, "recheck_job_id": job}
 
 
 class FactUpdate(BaseModel):
     attribute: str | None = Field(default=None, min_length=1)
     value: str | None = Field(default=None, min_length=1)
     entity_type: Literal["character", "location", "item", "event", "other"] | None = None
+    pinned: bool | None = None          # true = canon: this fact always wins
 
 
 @book.patch("/facts/{fact_id}")
 def edit_fact(fact_id: int, body: FactUpdate, project_id: int = Depends(current_project)):
     """
-    Correct a fact the AI got wrong. Changes are logged. Existing warnings aren't
-    re-checked automatically: dismiss them, or re-submit the chapter.
+    Correct a fact the AI got wrong (logged), and/or pin it as canon. Open warnings built on
+    the old version are closed, and the affected chapters are re-checked in the background.
     """
     changes = body.model_dump(exclude_none=True)
     if not changes:
-        raise HTTPException(status_code=400, detail="Send at least one of: attribute, value, entity_type.")
-    fact = update_fact(project_id, fact_id, changes)
+        raise HTTPException(status_code=400, detail="Send at least one of: attribute, value, entity_type, pinned.")
+    fact = storage.get_fact(project_id, fact_id)
     if fact is None:
         raise HTTPException(status_code=404, detail=f"No fact with id {fact_id}.")
+    if "pinned" in changes:
+        fact = storage.set_fact_pinned(project_id, fact_id, changes.pop("pinned"))
+    if changes:
+        fact = update_fact(project_id, fact_id, changes)
+        later = storage.chapters_after(project_id, storage.chapter_number_of(project_id, fact["chapter_id"]))
+        fact["recheck_job_id"] = jobs.submit_rechecks(
+            project_id, fact.pop("recheck_chapters") + later, "a fact was corrected")
     return fact
 
 
 @book.delete("/facts/{fact_id}")
 def remove_fact(fact_id: int, project_id: int = Depends(current_project)):
-    """Delete a fact the AI shouldn't have extracted. Logged as a correction."""
-    if not delete_fact(project_id, fact_id):
+    """Delete a fact the AI shouldn't have extracted. Logged; warnings built on it are closed."""
+    affected = delete_fact(project_id, fact_id)
+    if affected is None:
         raise HTTPException(status_code=404, detail=f"No fact with id {fact_id}.")
-    return {"deleted": fact_id}
+    return {"deleted": fact_id,
+            "recheck_job_id": jobs.submit_rechecks(project_id, affected, "a fact was deleted")}
 
 
 @book.get("/facts/{name}")
@@ -320,10 +408,17 @@ def merge(body: MergeInput, project_id: int = Depends(current_project)):
     """
     if body.keep_entity_id == body.merge_entity_id:
         raise HTTPException(status_code=400, detail="Those are the same entity.")
-    if get_entity(project_id, body.keep_entity_id) is None or get_entity(project_id, body.merge_entity_id) is None:
+    keep, other = get_entity(project_id, body.keep_entity_id), get_entity(project_id, body.merge_entity_id)
+    if keep is None or other is None:
         raise HTTPException(status_code=404, detail="One of those entity ids doesn't exist in this book.")
+    if not _types_compatible(keep["entity_type"], other["entity_type"]):
+        raise HTTPException(status_code=400, detail=f"Can't merge a {other['entity_type']} into a "
+                                                    f"{keep['entity_type']}: they can't be the same thing.")
     merge_entities(project_id, body.keep_entity_id, body.merge_entity_id)
-    return get_entity(project_id, body.keep_entity_id)
+    # Facts that were never compared (they were on two cards) are compared now.
+    job = jobs.submit_rechecks(project_id, storage.chapters_with_entity(project_id, body.keep_entity_id),
+                               "two entries were merged")
+    return {**get_entity(project_id, body.keep_entity_id), "recheck_job_id": job}
 
 
 class DetachInput(BaseModel):
@@ -344,7 +439,11 @@ def detach(entity_id: int, body: DetachInput, project_id: int = Depends(current_
     if len(entity["aliases"]) < 2:
         raise HTTPException(status_code=400, detail="This entity only has one name; nothing to split off.")
     new_id = detach_alias(project_id, entity_id, body.name)
-    return {"kept": get_entity(project_id, entity_id), "split_off": get_entity(project_id, new_id)}
+    chapters = storage.chapters_with_entity(project_id, entity_id) + storage.chapters_with_entity(project_id, new_id)
+    job = jobs.submit_rechecks(project_id, sorted(set(chapters), key=lambda c: storage.chapter_number_of(project_id, c)),
+                               "a name was split off")
+    return {"kept": get_entity(project_id, entity_id), "split_off": get_entity(project_id, new_id),
+            "recheck_job_id": job}
 
 
 @book.get("/search")
@@ -355,28 +454,76 @@ def search(q: str = Query(min_length=1), top_k: int = Query(default=5, ge=1, le=
 
 
 @book.get("/contradictions")
-def list_contradictions(status: Literal["open", "dismissed"] | None = None,
+def list_contradictions(status: Literal["open", "dismissed", "resolved"] | None = None,
                         project_id: int = Depends(current_project)):
-    """Contradictions flagged so far, most recent first. Filter with ?status=open or ?status=dismissed."""
+    """Contradictions flagged so far, most recent first. Filter with ?status=open|dismissed|resolved."""
     return {"contradictions": get_all_contradictions(project_id, status)}
 
 
 class StatusInput(BaseModel):
     status: Literal["open", "dismissed"]
+    reason: str | None = Field(default=None, max_length=500)   # why it's fine (feeds the evaluation set)
 
 
 @book.patch("/contradictions/{contradiction_id}")
 def update_contradiction(contradiction_id: int, body: StatusInput, project_id: int = Depends(current_project)):
-    """Dismiss a warning the writer says is fine (or re-open it)."""
-    if not set_contradiction_status(project_id, contradiction_id, body.status):
+    """Dismiss a warning the writer says is fine (or re-open it). Remembered across re-checks."""
+    if not set_contradiction_status(project_id, contradiction_id, body.status, body.reason):
         raise HTTPException(status_code=404, detail=f"No contradiction with id {contradiction_id}.")
     return {"id": contradiction_id, "status": body.status}
 
 
 @book.get("/timeline")
-def timeline(project_id: int = Depends(current_project)):
-    """Story events in reading order."""
-    return {"events": get_timeline(project_id)}
+def timeline(order: Literal["reading", "story"] = "reading", project_id: int = Depends(current_project)):
+    """Story events in reading order, or in story time (?order=story: flashbacks placed first)."""
+    return {"order": order, "events": get_timeline(project_id, order)}
+
+
+@book.get("/overview")
+def overview(project_id: int = Depends(current_project)):
+    """Dashboard numbers for one book."""
+    chapters = list_chapters(project_id)
+    warnings = get_all_contradictions(project_id)
+    entities_ = list_entities(project_id)
+    open_ = [w for w in warnings if w["status"] == "open"]
+    count = lambda items, key: {k: sum(1 for i in items if i[key] == k) for k in sorted({i[key] for i in items})}
+    return {
+        "chapters": len(chapters),
+        "words": sum(c["word_count"] or 0 for c in chapters),
+        "facts": sum(c["fact_count"] for c in chapters),
+        "entities": count(entities_, "entity_type"),
+        "open_issues": len(open_),
+        "open_by_severity": count(open_, "severity"),
+        "open_by_type": count(open_, "contradiction_type"),
+        "dismissed": sum(1 for w in warnings if w["status"] == "dismissed"),
+        "resolved": sum(1 for w in warnings if w["status"] == "resolved"),
+        "most_flagged": sorted(count(open_, "entity").items(), key=lambda kv: -kv[1])[:5],
+        "jobs": jobs.recent(project_id, 5),
+    }
+
+
+@book.get("/characters/map")
+def characters_map(project_id: int = Depends(current_project)):
+    """Characters and their relationships, chapter by chapter: the family tree and relationship web."""
+    return storage.character_map(project_id)
+
+
+@book.get("/presence")
+def presence(project_id: int = Depends(current_project)):
+    """Which people, places and objects appear in which chapters, and where their open issues are."""
+    return storage.presence(project_id)
+
+
+@book.get("/export")
+def export(project_id: int = Depends(current_project)):
+    """The whole book as JSON lore (entities, names, facts, chapters, warnings)."""
+    return storage.export_book(project_id)
+
+
+@book.get("/feedback")
+def feedback(project_id: int = Depends(current_project)):
+    """The writer's dismissals with reasons: material for growing the evaluation set."""
+    return {"dismissals": storage.dismissal_feedback(project_id)}
 
 
 ASK_PROMPT = """You answer questions about a novel using ONLY the facts below, which were
@@ -418,7 +565,9 @@ app.include_router(book, include_in_schema=False)        # short addresses: the 
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    """Liveness check. Always 200 if the web server runs; says whether the database and AI are set up."""
+    return {"status": "ok", "database": storage.database_ok(), "ai_configured": AI_CONFIGURED,
+            "auth_required": auth.AUTH_REQUIRED}
 
 
 # ---- The website ----------------------------------------------------------

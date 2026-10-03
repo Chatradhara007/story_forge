@@ -38,7 +38,7 @@ def test_entities_are_checked_at_the_same_time(client, fake_ai, monkeypatch):
     assert peak[0] > 1                                          # ran at the same time
     assert time.time() - started < 1.0                          # 4 x 0.3s one-by-one would be 1.2s+
     assert set(r["timings_seconds"]) == {"reading facts", "linking names", "preparing search",
-                                         "checking for mistakes", "safety-net check", "double-checking", "saving"}
+                                         "checking for mistakes", "story clock", "safety-net check", "double-checking", "saving"}
 
 
 def test_evidence_filed_under_someone_else_is_shown(client, fake_ai):

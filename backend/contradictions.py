@@ -1,8 +1,10 @@
+import time
 from collections import defaultdict
 from models import Fact, Contradiction
-from storage import (get_time_notes, get_facts_for_entity_id, get_facts_mentioning_entity, get_facts_mentioning_names,
-                     get_similar_earlier_facts)
-from llm import call_tool, run_in_parallel, JUDGING_THINKING_MODE, AIServiceError
+from storage import (get_time_notes, get_facts_for_entity_id, get_entity_evidence, get_facts_mentioning_entity,
+                     get_facts_mentioning_names, get_similar_earlier_facts)
+from llm import call_tool, run_in_parallel, JUDGING_THINKING_MODE, AIServiceError, ContextTooLongError
+import storyclock
 
 VALID_TYPES = {"attribute", "status", "timeline"}
 
@@ -81,6 +83,9 @@ contradict later-time facts, unless they are about something that cannot change,
 where someone was born. After a time skip, ages and durations should grow by the time
 skipped: growing by clearly more or less than that IS a contradiction.
 
+Facts marked [CANON] were confirmed by the writer and are always right: a new fact that
+conflicts with a [CANON] fact is a contradiction.
+
 Direction matters. A change is only a contradiction when the NEW chapter goes against
 something the story established as permanent or already finished, for example the dead
 acting alive, a lost body part being used, a destroyed or thrown-away object being used,
@@ -128,9 +133,17 @@ def _format_new_facts(facts: list[Fact]) -> str:
 
 def _format_existing_facts(facts: list[dict]) -> str:
     return "\n".join(
-        f'{i}: {f["entity"]} | {f["attribute"]} | {f["value"]} | chapter {f["chapter_number"]} | "{f["source_quote"]}"'
+        f'{i}: {"[CANON] " if f.get("pinned") else ""}{f["entity"]} | {f["attribute"]} | {f["value"]} | '
+        f'chapter {f["chapter_number"]} | "{f["source_quote"]}"'
         for i, f in enumerate(facts)
     )
+
+
+def _mean_vector(vectors: list[list[float]]) -> list[float] | None:
+    vectors = [v for v in vectors if v]
+    if not vectors:
+        return None
+    return [sum(column) / len(vectors) for column in zip(*vectors)]
 
 
 def timing_text(project_id: int, chapter_id: str, chapter_number: int, time_note: str | None) -> str:
@@ -143,15 +156,39 @@ def timing_text(project_id: int, chapter_id: str, chapter_number: int, time_note
 
 def _check_entities(
     new_chapter_id: str, new_chapter_number: int, batch: list[tuple[str, list[Fact], list[dict]]],
-    timing: str = "not recorded",
+    timing: str = "not recorded", index_of: dict[int, int] | None = None,
 ) -> list[Contradiction]:
     """
     Compares each entity's new facts with its previously stored facts, for several entities
     in ONE request. batch: [(canonical name, new facts, existing facts), ...]
+    If the request is too long for the model, it is split and retried instead of failing
+    the whole chapter: first one entity per request, then each entity's evidence in halves.
     """
     batch = [item for item in batch if item[2]]          # entities with no history: nothing to compare
     if not batch:
         return []
+    try:
+        return _check_entities_once(new_chapter_id, new_chapter_number, batch, timing, index_of or {})
+    except ContextTooLongError:
+        if len(batch) > 1:
+            middle = len(batch) // 2
+            return (_check_entities(new_chapter_id, new_chapter_number, batch[:middle], timing, index_of)
+                    + _check_entities(new_chapter_id, new_chapter_number, batch[middle:], timing, index_of))
+        name, new_facts, existing = batch[0]
+        if len(existing) <= 4 and len(new_facts) <= 4:
+            print(f"  [note] could not check {name}: too long for the model even after splitting", flush=True)
+            return []
+        if len(new_facts) > len(existing):
+            middle = len(new_facts) // 2
+            halves = [(name, new_facts[:middle], existing), (name, new_facts[middle:], existing)]
+        else:
+            middle = len(existing) // 2
+            halves = [(name, new_facts, existing[:middle]), (name, new_facts, existing[middle:])]
+        return [c for half in halves
+                for c in _check_entities(new_chapter_id, new_chapter_number, [half], timing, index_of)]
+
+
+def _check_entities_once(new_chapter_id, new_chapter_number, batch, timing, index_of) -> list[Contradiction]:
     sections = "\n".join(
         SECTION.format(
             number=number,
@@ -212,13 +249,15 @@ def _check_entities(
             contradiction_type=kind,
             confidence=confidence,
             explanation=explanation,
+            new_fact_index=index_of.get(id(new_fact)),
+            conflicting_fact_id=existing_fact.get("fact_id"),
         ))
     return results
 
 
 def find_contradictions_for_chapter(
     project_id: int, chapter_id: str, chapter_number: int, facts: list[Fact], resolutions: dict,
-    time_note: str | None = None,
+    time_note: str | None = None, embeddings: list[list[float]] | None = None,
 ) -> list[Contradiction]:
     """
     Groups the new chapter's facts by ENTITY (not by name), using the links from
@@ -232,6 +271,8 @@ def find_contradictions_for_chapter(
     broke on Tuesday night"), so they're checked against those mentions.
     """
     timing = timing_text(project_id, chapter_id, chapter_number, time_note)
+    index_of = {id(f): i for i, f in enumerate(facts)}
+    vector_of = {id(f): v for f, v in zip(facts, embeddings or [])}
     known: dict[int, list[Fact]] = defaultdict(list)
     new: dict[str, list[Fact]] = defaultdict(list)
     canonical: dict = {}
@@ -245,17 +286,22 @@ def find_contradictions_for_chapter(
             new[key].append(f)
             canonical[key] = r.canonical_name
 
+    # Only chapters EARLIER in reading order count as established history. (Before, every
+    # other chapter did, so re-checking chapter 1 treated chapter 2 as its past.)
     def evidence_known(item):
         entity_id, entity_facts = item
-        existing = get_facts_for_entity_id(entity_id, exclude_chapter_id=chapter_id)
-        existing += get_facts_mentioning_entity(entity_id, exclude_chapter_id=chapter_id)
+        focus = _mean_vector([vector_of.get(id(f)) for f in entity_facts])
+        existing = get_entity_evidence(entity_id, chapter_id, chapter_number, focus)
+        existing += get_facts_mentioning_entity(entity_id, exclude_chapter_id=chapter_id,
+                                                before_chapter_number=chapter_number)
         return (canonical[entity_id], entity_facts, existing)
 
     def evidence_new(item):
         # nothing earlier mentions a brand-new entity? then it has nothing to be checked against
         key, entity_facts = item
         names = {canonical[key]} | {f.entity for f in entity_facts}
-        existing = get_facts_mentioning_names(project_id, sorted(names), exclude_chapter_id=chapter_id)
+        existing = get_facts_mentioning_names(project_id, sorted(names), exclude_chapter_id=chapter_id,
+                                              before_chapter_number=chapter_number)
         return (canonical[key], entity_facts, existing)
 
     # Gather each entity's evidence from the database (no AI yet)...
@@ -264,7 +310,8 @@ def find_contradictions_for_chapter(
     # ...then check them CHECK_BATCH_SIZE at a time; batches run at the same time.
     batches = [entries[i:i + CHECK_BATCH_SIZE] for i in range(0, len(entries), CHECK_BATCH_SIZE)]
     all_contradictions: list[Contradiction] = []
-    for found in run_in_parallel(lambda batch: _check_entities(chapter_id, chapter_number, batch, timing), batches):
+    for found in run_in_parallel(lambda batch: _check_entities(chapter_id, chapter_number, batch, timing, index_of),
+                                 batches):
         all_contradictions.extend(found)
     return all_contradictions
 
@@ -344,9 +391,11 @@ def find_cross_card_contradictions(
     """
     pairs: list[tuple[Fact, dict]] = []
     seen = set()
-    for fact, vector in zip(facts, embeddings):
+    index_of = {id(f): i for i, f in enumerate(facts)}
+    neighbours = get_similar_earlier_facts(project_id, embeddings, chapter_id, chapter_number, NEIGHBOURS_PER_FACT)
+    for fact, near in zip(facts, neighbours):
         r = resolutions[fact.entity.lower()]
-        for old in get_similar_earlier_facts(project_id, vector, chapter_id, NEIGHBOURS_PER_FACT):
+        for old in near:
             if r.existing_entity_id is not None and old["entity_id"] == r.existing_entity_id:
                 continue   # same card: already covered by the normal check
             key = (fact.source_quote, fact.attribute, old["fact_id"])
@@ -393,16 +442,24 @@ def find_cross_card_contradictions(
                 contradiction_type=kind,
                 confidence=min(confidence, same),
                 explanation=explanation,
+                source="safety net",
+                new_fact_index=index_of.get(id(new_fact)),
+                conflicting_fact_id=old["fact_id"],
             ))
         return found
 
+    # One warning per new FACT (not per quote: one sentence can hold two real mistakes,
+    # e.g. "the one-handed keeper read the burned letter").
+    def fact_key(c: Contradiction):
+        return (c.new_quote, c.new_attribute.lower(), c.new_value.lower())
+
     results: list[Contradiction] = []
-    used_new: set[str] = {c.new_quote for c in already_found}
+    used_new = {fact_key(c) for c in already_found}
     for found in run_in_parallel(check_batch, batches):
         for c in found:
-            if (c.new_quote, c.conflicting_quote) in already or c.new_quote in used_new:
+            if (c.new_quote, c.conflicting_quote) in already or fact_key(c) in used_new:
                 continue   # the normal check already reported this new fact
-            used_new.add(c.new_quote)
+            used_new.add(fact_key(c))
             results.append(c)
     return results
 
@@ -479,7 +536,8 @@ def double_check(project_id: int, chapter_id: str, chapter_number: int,
     fail are NOT deleted: they are marked "dismissed" with the reason, so the writer can see
     them under Issues -> Dismissed. If the double-check itself fails, every warning is kept.
     """
-    open_ones = [c for c in contradictions if c.status == "open"]
+    # Story-clock warnings are arithmetic done in code: the AI isn't asked to second-guess them.
+    open_ones = [c for c in contradictions if c.status == "open" and c.source != "story clock"]
     if not open_ones:
         return contradictions
     timing = timing_text(project_id, chapter_id, chapter_number, time_note)
@@ -511,3 +569,52 @@ def double_check(project_id: int, chapter_id: str, chapter_number: int,
 
     run_in_parallel(review, batches)
     return contradictions
+
+
+# ---------------------------------------------------------------------------
+# The whole check for one chapter (used when adding a chapter AND when re-checking)
+# ---------------------------------------------------------------------------
+def find_age_conflicts(project_id: int, chapter_id: str, chapter_number: int, facts: list[Fact],
+                       resolutions: dict, time_note: str | None) -> list[Contradiction]:
+    """The story clock (see storyclock.py): age arithmetic done in code."""
+    known = [(resolutions[f.entity.lower()].existing_entity_id, resolutions[f.entity.lower()].canonical_name, f, i)
+             for i, f in enumerate(facts) if resolutions[f.entity.lower()].existing_entity_id is not None]
+    if not any(storyclock.parse_age(f.attribute, f.value) is not None for _, _, f, _ in known):
+        return []
+    return storyclock.check_ages(
+        chapter_id, chapter_number, known,
+        lambda entity_id: get_facts_for_entity_id(entity_id, exclude_chapter_id=chapter_id,
+                                                  before_chapter_number=chapter_number),
+        get_time_notes(project_id), time_note,
+    )
+
+
+def check_chapter(project_id: int, chapter_id: str, chapter_number: int, facts: list[Fact],
+                  resolutions: dict, embeddings: list[list[float]], time_note: str | None,
+                  timings: dict | None = None, progress=None) -> list[Contradiction]:
+    """
+    Every check, in order: per-entity AI check, story clock, safety net, double-check.
+    timings: filled with seconds per stage. progress(stage): called as each stage starts.
+    """
+    timings = timings if timings is not None else {}
+
+    def stage(name, function, *args, **kwargs):
+        if progress:
+            progress(name)
+        started = time.perf_counter()
+        value = function(*args, **kwargs)
+        timings[name] = round(time.perf_counter() - started, 1)
+        return value
+
+    found = stage("checking for mistakes", find_contradictions_for_chapter, project_id, chapter_id,
+                  chapter_number, facts, resolutions, time_note, embeddings)
+    # The story clock adds only what the AI checker didn't already report for that fact.
+    reported = {c.new_fact_index for c in found}
+    found += [c for c in stage("story clock", find_age_conflicts, project_id, chapter_id, chapter_number,
+                               facts, resolutions, time_note)
+              if c.new_fact_index not in reported]
+    # Safety net: conflicts hidden because the two facts are filed under different names.
+    found += stage("safety-net check", find_cross_card_contradictions, project_id, chapter_id, chapter_number,
+                   facts, resolutions, embeddings, found, time_note)
+    # Double-check every warning; ones that fail are kept but marked dismissed, with the reason.
+    return stage("double-checking", double_check, project_id, chapter_id, chapter_number, found, time_note)

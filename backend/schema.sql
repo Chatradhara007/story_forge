@@ -11,7 +11,7 @@ create table if not exists projects (
     name text not null,
     created_at timestamptz default now()
 );
-create unique index if not exists projects_name_idx on projects (lower(name));
+-- (Book titles are unique per owner: see projects_owner_name_idx further down.)
 
 -- ---------------------------------------------------------------------------
 -- Upgrade: databases created before books existed. Their tables are moved into a
@@ -175,3 +175,117 @@ create table if not exists fact_corrections (
     created_at timestamptz default now()
 );
 alter table fact_corrections add column if not exists project_id integer;
+
+-- ===========================================================================
+-- Review fixes and new features (October 2026). All statements are re-runnable.
+-- ===========================================================================
+
+-- Accounts. Books belong to a user when login is switched on (AUTH_REQUIRED=true).
+create table if not exists users (
+    id serial primary key,
+    email text not null,
+    password_hash text not null,
+    display_name text,
+    created_at timestamptz default now()
+);
+create unique index if not exists users_email_idx on users (lower(email));
+alter table projects add column if not exists owner_id integer references users(id) on delete cascade;
+-- Book titles only need to be unique for one owner.
+drop index if exists projects_name_idx;
+create unique index if not exists projects_owner_name_idx on projects (coalesce(owner_id, 0), lower(name));
+
+-- How many chapters each user has sent to the AI per day (the request budget).
+create table if not exists usage_counters (
+    user_id integer not null references users(id) on delete cascade,
+    day date not null,
+    chapters integer not null default 0,
+    primary key (user_id, day)
+);
+
+-- Story order (flashbacks): NULL = work it out from the chapter's timing note.
+alter table chapters add column if not exists story_order double precision;
+
+-- Writer-pinned "canon" facts always win.
+alter table facts add column if not exists pinned boolean not null default false;
+
+-- Warnings are tied to the two facts they compare (bug 6), carry a fingerprint so the
+-- writer's decisions survive re-checks (bug 2), a severity, and where they came from.
+alter table contradictions add column if not exists new_fact_id integer;
+alter table contradictions add column if not exists conflicting_fact_id integer;
+alter table contradictions add column if not exists fingerprint text;
+alter table contradictions add column if not exists severity text not null default 'medium';
+alter table contradictions add column if not exists source text not null default 'checker';
+alter table contradictions add column if not exists dismiss_reason text;
+create index if not exists contradictions_new_fact_idx on contradictions (new_fact_id);
+create index if not exists contradictions_conflicting_fact_idx on contradictions (conflicting_fact_id);
+create index if not exists contradictions_new_chapter_idx on contradictions (project_id, new_chapter_id);
+
+-- The writer's decision about a warning, by fingerprint: re-checking a chapter re-creates
+-- its warnings, and a warning the writer dismissed must stay dismissed.
+create table if not exists warning_decisions (
+    project_id integer not null references projects(id) on delete cascade,
+    fingerprint text not null,
+    status text not null,               -- 'dismissed'
+    reason text,
+    created_at timestamptz default now(),
+    primary key (project_id, fingerprint)
+);
+
+-- Background jobs: adding a chapter takes minutes, so it runs as a job with progress.
+create table if not exists jobs (
+    id text primary key,
+    project_id integer not null references projects(id) on delete cascade,
+    kind text not null,                 -- 'ingest' | 'recheck'
+    chapter_id text,
+    status text not null default 'queued',   -- queued | running | done | failed
+    stage text,
+    progress double precision not null default 0,
+    result jsonb,
+    error text,
+    created_at timestamptz default now(),
+    updated_at timestamptz default now()
+);
+create index if not exists jobs_project_idx on jobs (project_id, created_at desc);
+-- Jobs that were running when the server stopped will never finish.
+update jobs set status = 'failed', error = 'The server restarted while this was running. Please try again.'
+where status in ('queued', 'running') and updated_at < now() - interval '30 seconds';
+
+-- Fast similarity search. pgvector can't index 2048-dimension vectors directly, but from
+-- version 0.7 it can index them as half-precision (halfvec). Older versions skip this.
+do $$
+begin
+    if (select string_to_array(extversion, '.')::int[] >= array[0,7,0]
+        from pg_extension where extname = 'vector') then
+        execute 'create index if not exists facts_embedding_hnsw on facts '
+                'using hnsw ((embedding::halfvec(2048)) halfvec_cosine_ops)';
+    end if;
+end $$;
+
+-- ===========================================================================
+-- Character charts and book covers (October 2026)
+-- ===========================================================================
+-- Who is related to whom, as the story states it, chapter by chapter. Drawn as the
+-- family tree and the relationship web. kind is directional for parent / mentor /
+-- employer ("from" is the parent), symmetric for the others.
+create table if not exists relationships (
+    id serial primary key,
+    project_id integer not null,
+    chapter_id text not null,
+    from_entity_id integer references entities(id) on delete cascade,
+    to_entity_id integer references entities(id) on delete cascade,
+    from_name text not null,
+    to_name text not null,
+    kind text not null,
+    category text not null,           -- 'family' | 'social'
+    source_quote text not null,
+    confidence float not null default 0.8,
+    created_at timestamptz default now(),
+    constraint relationships_chapter_fkey foreign key (project_id, chapter_id)
+        references chapters(project_id, id) on delete cascade
+);
+create index if not exists relationships_project_idx on relationships (project_id);
+
+-- How a book looks on the shelf.
+alter table projects add column if not exists kind text not null default 'novel';
+alter table projects add column if not exists synopsis text;
+alter table projects add column if not exists cover_color text;

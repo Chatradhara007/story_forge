@@ -41,9 +41,14 @@ RATE_LIMIT_MAX_TRIES = 30   # safety stop, however the time is counted
 # How many times to try a request before giving up.
 RETRY_ATTEMPTS = max(1, int(os.getenv("AI_RETRY_ATTEMPTS", "6")))
 
+# A missing key must not crash the app on start-up (then even /health would fail). The
+# first AI request reports it clearly instead (see _permanent_problem).
+API_KEY = os.getenv("NVIDIA_API_KEY", "").strip()
+AI_CONFIGURED = bool(API_KEY) and API_KEY != "your_key_here"
+
 client = OpenAI(
-    base_url="https://integrate.api.nvidia.com/v1",
-    api_key=os.environ["NVIDIA_API_KEY"],
+    base_url=os.getenv("AI_BASE_URL", "https://integrate.api.nvidia.com/v1"),
+    api_key=API_KEY or "missing-key",
 )
 
 
@@ -54,6 +59,17 @@ def _pause(seconds: float) -> None:
 
 class AIServiceError(Exception):
     """Raised when the AI service keeps failing even after retrying."""
+
+
+class ContextTooLongError(AIServiceError):
+    """The prompt was bigger than the model accepts. The caller should split it and retry."""
+
+
+def _is_context_too_long(error: Exception) -> bool:
+    text = str(error).lower()
+    return isinstance(error, openai.BadRequestError) and any(
+        k in text for k in ("context length", "context_length", "maximum context", "too long",
+                            "too many tokens", "prompt is too long", "max_tokens"))
 
 
 # ---------------------------------------------------------------------------
@@ -180,6 +196,8 @@ def _call_api(request):
 
 # Errors that can never succeed on a retry: stop at once with a clear message.
 def _permanent_problem(error: Exception) -> str | None:
+    if not AI_CONFIGURED and isinstance(error, (openai.AuthenticationError, openai.PermissionDeniedError)):
+        return "No NVIDIA_API_KEY is set. Add it to backend/.env (or the host's environment settings)."
     if isinstance(error, openai.AuthenticationError) or isinstance(error, openai.PermissionDeniedError):
         return "NVIDIA rejected the API key. Check NVIDIA_API_KEY in backend/.env."
     if isinstance(error, openai.NotFoundError):
@@ -224,6 +242,8 @@ def with_retries(action, what: str, attempts: int | None = None):
         try:
             return action()
         except Exception as error:
+            if _is_context_too_long(error):
+                raise ContextTooLongError(f"{what} failed: the request was too long for the model.") from error
             problem = _permanent_problem(error)
             if problem:
                 raise AIServiceError(f"{what} failed: {problem}") from error
@@ -324,11 +344,12 @@ def call_tool(prompt: str, tool: dict, max_tokens: int = 4096, thinking: str | N
     thinking: "off" / "low" / "on" for this call (default: CHAT_THINKING).
     """
     tool_name = tool["function"]["name"]
-    attempt = {"number": 0}
+    # The answer space only grows after an answer was actually CUT OFF (finish_reason
+    # "length"). Refusals, outages and garbled answers retry with the same budget.
+    state = {"budget": min(max_tokens, MAX_TOKENS_CEILING)}
 
     def ask_once():
-        attempt["number"] += 1
-        budget = min(max_tokens * (2 ** (attempt["number"] - 1)), MAX_TOKENS_CEILING)
+        budget = state["budget"]
         request = dict(
             model=CHAT_MODEL,
             max_tokens=budget,
@@ -340,14 +361,18 @@ def call_tool(prompt: str, tool: dict, max_tokens: int = 4096, thinking: str | N
         mode = thinking or THINKING_MODE
         try:
             response = _call_api(lambda: client.chat.completions.create(**request, **_thinking_options(mode)))
-        except openai.BadRequestError:
-            if mode == "off" or mode in _unsupported_modes:
+        except openai.BadRequestError as error:
+            if mode == "off" or mode in _unsupported_modes or _is_context_too_long(error):
                 raise
-            # The service rejected this thinking setting: remember that and use "off".
+            # Maybe the service doesn't support this thinking setting. Try "off": only if THAT
+            # works is the setting remembered as unsupported. (Before, any rejected request,
+            # e.g. one that was simply too long, switched thinking off for good.)
+            response = _call_api(lambda: client.chat.completions.create(**request, **_thinking_options("off")))
             print(f"  [note] thinking mode '{mode}' was rejected by the AI service; using 'off' instead", flush=True)
             _unsupported_modes.add(mode)
-            response = _call_api(lambda: client.chat.completions.create(**request, **_thinking_options("off")))
         choice = response.choices[0]
+        if getattr(choice, "finish_reason", None) == "length":
+            state["budget"] = min(budget * 2, MAX_TOKENS_CEILING)
         message = choice.message
         if message.tool_calls:
             # If the answer was cut off or garbled, this raises and we retry.
