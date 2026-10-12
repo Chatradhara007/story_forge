@@ -189,6 +189,20 @@ create table if not exists users (
     created_at timestamptz default now()
 );
 create unique index if not exists users_email_idx on users (lower(email));
+-- Bumped by "sign out everywhere", a password change or a reset: older sign-ins stop working.
+alter table users add column if not exists token_version integer not null default 0;
+alter table users add column if not exists last_login_at timestamptz;
+
+-- Forgotten-password links. Only a hash of the link's secret is stored; each link works once.
+create table if not exists password_resets (
+    id serial primary key,
+    user_id integer not null references users(id) on delete cascade,
+    token_hash text not null unique,
+    expires_at timestamptz not null,
+    used_at timestamptz,
+    created_at timestamptz default now()
+);
+create index if not exists password_resets_user_idx on password_resets (user_id);
 alter table projects add column if not exists owner_id integer references users(id) on delete cascade;
 -- Book titles only need to be unique for one owner.
 drop index if exists projects_name_idx;

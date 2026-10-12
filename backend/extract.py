@@ -304,7 +304,7 @@ def extract_facts(chapter_id: str, text: str, on_passage=None) -> ExtractionResu
         answer = call_tool(
             EXTRACTION_PROMPT.format(
                 text=job[1], context=CONTEXT_BLOCK.format(previous=job[0]) if job[0] else ""),
-            EXTRACTION_TOOL, max_tokens=8192,   # room for a detail-rich passage; unused room costs nothing
+            EXTRACTION_TOOL, max_tokens=8192, role="read",   # room for a detail-rich passage; unused room costs nothing
         )
         if on_passage:
             with lock:
@@ -398,7 +398,7 @@ def detect_timing(text: str, earlier_notes: list[str] | None = None) -> str:
     """
     earlier = "\n".join(earlier_notes or []) or "(this is the first chapter)"
     answer = call_tool(TIMING_PROMPT.format(text=_timing_excerpt(text), earlier=earlier), TIMING_TOOL,
-                       max_tokens=1024, thinking=JUDGING_THINKING_MODE)
+                       max_tokens=1024, thinking=JUDGING_THINKING_MODE, role="judge")
     setting = str(answer.get("setting", "unclear")).strip().lower()
     description = " ".join(str(answer.get("description", "")).split())[:200]
     return f"{setting}: {description}" if description else setting

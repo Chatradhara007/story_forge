@@ -204,7 +204,7 @@ def _check_entities_once(new_chapter_id, new_chapter_number, batch, timing, inde
                                     timing=timing, sections=sections),
         CONTRADICTION_TOOL,
         max_tokens=4096,
-        thinking=JUDGING_THINKING_MODE,
+        thinking=JUDGING_THINKING_MODE, role="judge",
     )
 
     results = []
@@ -415,7 +415,7 @@ def find_cross_card_contradictions(
                 new_chapter_number=chapter_number, rules=RULES, timing=timing,
                 pairs="\n".join(_format_pair(i, f, o) for i, (f, o) in enumerate(batch)),
             ),
-            CROSS_CHECK_TOOL, max_tokens=4096, thinking=JUDGING_THINKING_MODE,
+            CROSS_CHECK_TOOL, max_tokens=4096, thinking=JUDGING_THINKING_MODE, role="judge",
         )
         found = []
         for item in answer.get("contradictions", []):
@@ -551,7 +551,7 @@ def double_check(project_id: int, chapter_id: str, chapter_number: int,
                     new_chapter_number=chapter_number, timing=timing,
                     warnings="\n".join(_format_warning(i, c, numbers, chapter_number) for i, c in enumerate(batch)),
                 ),
-                REVIEW_TOOL, max_tokens=4096, thinking=JUDGING_THINKING_MODE,
+                REVIEW_TOOL, max_tokens=4096, thinking=JUDGING_THINKING_MODE, role="judge",
             )
         except AIServiceError as error:
             print(f"  [note] double-check skipped, all warnings kept: {error}", flush=True)

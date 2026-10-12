@@ -293,6 +293,33 @@ tr.pinned td:first-child { box-shadow: inset 3px 0 0 var(--pencil); }
 .signin { min-height: 100vh; display: grid; place-items: center; padding: 1.5rem; }
 .signin-card { width: min(26rem, 100%); background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 2rem 1.8rem; }
 .signin-card .brand { margin-bottom: 1.4rem; }
+.signin-card .wordmark { display: flex; align-items: center; gap: .5rem; font: 700 1.9rem var(--display); color: var(--ink); }
+.signin-card .wordmark svg { width: 1.6rem; height: 1.6rem; color: var(--pencil); }
+.signin-title { font-size: 2.3rem; }
+.signin-lede { margin: -.2rem 0 1.2rem; }
+.signin-foot { margin: 1.4rem 0 0; font-size: .9rem; }
+.forgot { margin: -.5rem 0 1rem; font-size: .88rem; text-align: right; }
+.pw-wrap { position: relative; }
+.pw-wrap input { padding-right: 4.2rem; }
+.pw-toggle { position: absolute; right: .3rem; top: 50%; transform: translateY(-50%); border: 0; background: none; color: var(--pencil);
+  font: 700 .82rem var(--body); padding: .3rem .5rem; border-radius: var(--radius); cursor: pointer; }
+.pw-toggle:hover { background: var(--pencil-wash); }
+.landing-notice { max-width: 72rem; width: calc(100% - 2rem); margin: 1rem auto 0; }
+.account-links { display: flex; align-items: center; justify-content: space-between; gap: .6rem; border-top: 1px solid var(--rule-soft); margin-top: .7rem; padding-top: .55rem; }
+.account-links .btn { padding-right: 0; }
+.account-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: 1.1rem; align-items: start; }
+.sheet-card { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: .2rem 1.3rem 1.3rem; }
+.sheet-card h2.section { margin-top: 1rem; }
+.sheet-card p { max-width: 60ch; }
+.danger-zone { border-color: #E7C3BB; }
+.danger-zone summary { list-style: none; display: inline-block; }
+.danger-zone summary.btn, .sheet-card .actions .btn.quiet { padding-left: 0; }
+.danger-zone summary::-webkit-details-marker { display: none; }
+.danger-zone form { margin-top: .8rem; }
+.btn.btn-danger-solid { background: var(--red); }
+.btn.btn-danger-solid:hover { background: #8A2824; }
+.usage-bar.wide { display: block; height: .5rem; max-width: 22rem; margin: .2rem 0 .8rem; }
+:focus-visible { outline: 2px solid var(--pencil); outline-offset: 2px; }
 
 .spinner { display: inline-block; width: 1rem; height: 1rem; border: 2px solid var(--rule); border-top-color: var(--pencil); border-radius: 50%; animation: spin 1s linear infinite; vertical-align: -2px; }
 @keyframes spin { to { transform: rotate(360deg); } }

@@ -1,0 +1,363 @@
+{
+  "_about": "HELD-OUT test story: never used for tuning. Written before StoryForge was run on it (5 Oct 2026), so its score measures how StoryForge does on a story it has never seen. Chapters ~800-1,100 words, longer than the other two stories. Same format: 'planted' should be flagged, 'decoys' should not.",
+  "chapters": [
+    "ch1",
+    "ch2",
+    "ch3",
+    "ch4",
+    "ch5",
+    "ch6",
+    "ch7",
+    "ch8"
+  ],
+  "planted": [
+    {
+      "id": "A1",
+      "type": "attribute",
+      "chapter": "ch5",
+      "entity_contains": [
+        "ember",
+        "stallion",
+        "horse"
+      ],
+      "description": "Ember is a grey stallion (ch1, ch6) but 'the black stallion' (ch5).",
+      "new_keywords": [
+        "black"
+      ],
+      "old_keywords": [
+        "grey",
+        "gray"
+      ]
+    },
+    {
+      "id": "A2",
+      "type": "attribute",
+      "chapter": "ch7",
+      "entity_contains": [
+        "aurel",
+        "rell",
+        "king",
+        "ferryman"
+      ],
+      "description": "Aurel's Greywater scar is on his left hand (ch1) but his right hand (ch7).",
+      "new_keywords": [
+        "right hand"
+      ],
+      "old_keywords": [
+        "left hand"
+      ]
+    },
+    {
+      "id": "A3",
+      "type": "attribute",
+      "chapter": "ch8",
+      "entity_contains": [
+        "thessaly",
+        "queen"
+      ],
+      "description": "Thessaly's eyes are grey-green (ch1) but dark brown (ch8).",
+      "new_keywords": [
+        "brown"
+      ],
+      "old_keywords": [
+        "grey-green",
+        "grey",
+        "green"
+      ]
+    },
+    {
+      "id": "A4",
+      "type": "attribute",
+      "chapter": "ch7",
+      "entity_contains": [
+        "mira",
+        "sister",
+        "aurel",
+        "rell",
+        "king",
+        "ferryman"
+      ],
+      "description": "Mira is four years younger than Aurel (ch5) but his elder sister (ch7).",
+      "new_keywords": [
+        "elder sister",
+        "older sister",
+        "elder"
+      ],
+      "old_keywords": [
+        "younger",
+        "four years"
+      ]
+    },
+    {
+      "id": "A5",
+      "type": "attribute",
+      "chapter": "ch4",
+      "entity_contains": [
+        "fleet",
+        "ship",
+        "kettle",
+        "saska",
+        "venn",
+        "aurel",
+        "rell",
+        "king",
+        "ferryman"
+      ],
+      "description": "Sixty of the 940 ships came home (ch2) but every last one went down (ch4).",
+      "new_keywords": [
+        "every last one",
+        "all nine hundred"
+      ],
+      "old_keywords": [
+        "sixty"
+      ]
+    },
+    {
+      "id": "S1",
+      "type": "status",
+      "chapter": "ch4",
+      "entity_contains": [
+        "ring",
+        "signet",
+        "aurel",
+        "rell",
+        "king",
+        "ferryman"
+      ],
+      "description": "Aurel gave the signet ring to Corvin (ch3) but turns it on his own finger as a ferryman (ch4).",
+      "new_keywords": [
+        "signet ring",
+        "turned his father"
+      ],
+      "old_keywords": [
+        "pushed it across",
+        "slid the signet",
+        "off his finger",
+        "corvin",
+        "table"
+      ]
+    },
+    {
+      "id": "S2",
+      "type": "status",
+      "chapter": "ch4",
+      "entity_contains": [
+        "ember",
+        "pell",
+        "stallion",
+        "horse"
+      ],
+      "description": "Ember had to be left behind in Vessa (ch3) but Pell rubs him down at the ferry hut (ch4).",
+      "new_keywords": [
+        "rubbed down",
+        "ferry hut"
+      ],
+      "old_keywords": [
+        "leave him",
+        "left",
+        "too big",
+        "water gate"
+      ]
+    },
+    {
+      "id": "S3",
+      "type": "status",
+      "chapter": "ch7",
+      "entity_contains": [
+        "liesl",
+        "queen",
+        "mother"
+      ],
+      "description": "Queen Liesl is nearly blind (ch5) but writes in her own careful hand and reads his letters (ch7).",
+      "new_keywords": [
+        "own small",
+        "careful hand",
+        "read every",
+        "candlelight",
+        "letter"
+      ],
+      "old_keywords": [
+        "blind"
+      ]
+    },
+    {
+      "id": "T1",
+      "type": "timeline",
+      "chapter": "ch7",
+      "entity_contains": [
+        "aurel",
+        "rell",
+        "king",
+        "ferryman"
+      ],
+      "description": "Aurel is 35 (ch4); four months later he turns thirty-eight (ch7).",
+      "new_keywords": [
+        "thirty-eight",
+        "38"
+      ],
+      "old_keywords": [
+        "thirty-five",
+        "35"
+      ]
+    },
+    {
+      "id": "T2",
+      "type": "timeline",
+      "chapter": "ch8",
+      "entity_contains": [
+        "fleet",
+        "storm",
+        "kettle",
+        "widow",
+        "ship"
+      ],
+      "description": "The fleet sank in the autumn storms (ch2) but 'the spring storm at the Kettle Rocks' (ch8).",
+      "new_keywords": [
+        "spring storm",
+        "spring"
+      ],
+      "old_keywords": [
+        "autumn"
+      ]
+    },
+    {
+      "id": "T3",
+      "type": "timeline",
+      "chapter": "ch7",
+      "entity_contains": [
+        "bram",
+        "holloway"
+      ],
+      "description": "Bram is 64 at Greywater (ch1) and 66 at the fall (ch3), but 'sixty-two now' years later (ch7).",
+      "new_keywords": [
+        "sixty-two",
+        "62"
+      ],
+      "old_keywords": [
+        "sixty-four",
+        "sixty-six",
+        "64",
+        "66"
+      ]
+    }
+  ],
+  "decoys": [
+    {
+      "id": "D1",
+      "chapter": "ch6",
+      "entity_contains": [
+        "aurel",
+        "rell",
+        "king",
+        "ferryman"
+      ],
+      "description": "FLASHBACK: at nineteen Aurel had no scar on his left hand yet; he gets it at Greywater, twelve years later.",
+      "new_keywords": [
+        "no scar"
+      ],
+      "old_keywords": []
+    },
+    {
+      "id": "D2",
+      "chapter": "ch6",
+      "entity_contains": [
+        "bram",
+        "holloway"
+      ],
+      "description": "FLASHBACK: Bram is fifty-two fourteen years before the fall: consistent with sixty-six at the fall.",
+      "new_keywords": [
+        "fifty-two",
+        "52"
+      ],
+      "old_keywords": []
+    },
+    {
+      "id": "D3",
+      "chapter": "ch4",
+      "entity_contains": [
+        "aurel",
+        "rell",
+        "king",
+        "ferryman"
+      ],
+      "description": "Aurel now works as a ferryman called Rell: a normal change after his fall, not a contradiction with being king.",
+      "new_keywords": [
+        "ferryman",
+        "ferry",
+        "rell"
+      ],
+      "old_keywords": []
+    },
+    {
+      "id": "D4",
+      "chapter": "ch8",
+      "entity_contains": [
+        "ember",
+        "stallion",
+        "horse"
+      ],
+      "description": "Ember has grown white around the muzzle: ageing, not a colour change.",
+      "new_keywords": [
+        "white",
+        "muzzle"
+      ],
+      "old_keywords": []
+    },
+    {
+      "id": "D5",
+      "chapter": "ch8",
+      "entity_contains": [
+        "ring",
+        "signet",
+        "aurel",
+        "rell",
+        "king",
+        "ferryman"
+      ],
+      "description": "Corvin hands the signet ring back and Aurel wears it again: the story moving forward.",
+      "new_keywords": [
+        "ring back",
+        "took it",
+        "signet"
+      ],
+      "old_keywords": []
+    }
+  ],
+  "same_entity": [
+    [
+      "Aurel",
+      "King Aurel",
+      "Rell"
+    ],
+    [
+      "Corvin",
+      "Duke Corvin"
+    ],
+    [
+      "Bram Holloway",
+      "Bram"
+    ],
+    [
+      "Saska Venn",
+      "Saska"
+    ]
+  ],
+  "different_entities": [
+    [
+      "Aurel",
+      "Corvin"
+    ],
+    [
+      "Mira",
+      "Thessaly"
+    ],
+    [
+      "Oren",
+      "Aurel"
+    ],
+    [
+      "Liesl",
+      "Mira"
+    ]
+  ]
+}

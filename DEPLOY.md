@@ -32,11 +32,21 @@ Time needed: about 20 minutes.
    - `NVIDIA_API_KEY`: your new key
    - `DATABASE_URL`: the Neon connection string
    - `INVITE_CODE` (optional): if set, people need this code to create an account
-3. Render generates `SECRET_KEY` for you. Sign-in is switched on (`AUTH_REQUIRED=true`).
+   - `APP_URL`: the address Render gives you (you can add it after the first deploy); used in
+     password-reset links
+   - optional `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`: to email password-reset
+     links (any SMTP provider: Gmail app password, Brevo, Postmark, SES...). Without them, the
+     reset link is printed in Render's log and whoever runs the service passes it on.
+   - optional `CHAT_MODEL_READING` / `CHAT_MODEL_JUDGING`: run `python eval/probe_models.py`
+     locally first; it prints the best models for your key.
+3. Render generates `SECRET_KEY` for you. Sign-in is switched on (`AUTH_REQUIRED=true`), and
+   `BEHIND_PROXY=true` so password-guessing limits use each visitor's real address.
 4. Wait for the build, then open the address Render gives you (for example
    `https://storyforge-xxxx.onrender.com`).
 5. Open `https://storyforge-xxxx.onrender.com/health`. You should see
-   `"database": true, "ai_configured": true, "auth_required": true`.
+   `"database": true, "ai_configured": true, "auth_required": true`, and under `"models"` the
+   reading and judging models in use, with `"retired": {}`. If NVIDIA ever retires a model,
+   StoryForge switches to the next one in `CHAT_MODEL_FALLBACKS` and lists the old one there.
 6. Create your account on the website. **The first account adopts any books that existed
    before sign-in was switched on.**
 

@@ -313,7 +313,8 @@ def main() -> None:
 
     import main as app_main                          # the backend's main.py
     import storage
-    from llm import CHAT_MODEL, EMBED_MODEL
+    from llm import READING_MODEL, JUDGING_MODEL, EMBED_MODEL
+    CHAT_MODEL = READING_MODEL if READING_MODEL == JUDGING_MODEL else f"{READING_MODEL} (reading) + {JUDGING_MODEL} (judging)"
 
     truth = json.loads((story_dir / "ground_truth.json").read_text(encoding="utf-8"))
     print(f"Story: {args.story} ({len(truth['chapters'])} chapters, {len(truth['planted'])} planted mistakes, "
@@ -348,6 +349,10 @@ def main() -> None:
             "parallel_calls": MAX_PARALLEL_AI_CALLS, "thinking": THINKING_MODE,
             "thinking_judging": JUDGING_THINKING_MODE, "temperature": TEMPERATURE,
             "passage_chars": READ_PASSAGE_CHARS}
+    from llm import model_status
+    status = model_status()
+    if status["retired"]:
+        meta["chat_model"] += (" — NOTE: switched models during the run: " + " ".join(status["notes"]))
     last = runs[-1]
     report = markdown_report(last["scores"], last["linking"], meta)
     if failed:

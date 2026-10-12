@@ -1,7 +1,8 @@
 # StoryForge AI — Project Status & Setup
 
-**Last updated:** 3 October 2026 (character map: family tree, relationship web, presence map; cream
-theme; book shelf; welcome page and top navigation)
+**Last updated:** 12 October 2026 (new AI models after NVIDIA retired Nemotron 3 Super; automatic
+model fallback; full accounts: password change and reset, sign out everywhere, account page;
+audit fixes; see section 13)
 
 A continuity-tracking system for long-form fiction. Writers ingest chapters; the system extracts
 structured facts (characters, locations, items, events), builds up a persistent "story memory,"
@@ -19,7 +20,7 @@ http://127.0.0.1:8000 for the website. To put it online, follow [DEPLOY.md](DEPL
 **What it does:** Takes raw chapter text and pulls out structured facts (entity, attribute,
 value, supporting quote, confidence score) using an LLM.
 
-**How it works:** One call to an NVIDIA NIM chat model (`nvidia/nemotron-3-super-120b-a12b`),
+**How it works:** Calls to an NVIDIA NIM chat model (the *reading* model, see section 13),
 using forced tool/function calling so the model *must* return valid structured JSON matching
 our schema, rather than free text we'd have to parse with regex. The schema is defined once in
 `models.py` (the `Fact` class) and reused everywhere else in the pipeline.
@@ -322,7 +323,7 @@ their data moves into a book called "My story".
 - **Deployment:** `Dockerfile` (backend + website in one container), `render.yaml` for Render,
   and step-by-step instructions in [DEPLOY.md](DEPLOY.md). Tables are created automatically on
   start-up, so a fresh hosted database needs no manual setup.
-- **Automated tests:** 111 tests in `backend/tests/` using a fake AI and a separate test database.
+- **Automated tests:** 134 tests in `backend/tests/` using a fake AI and a separate test database.
   They run on GitHub automatically on every push (`.github/workflows/tests.yml`).
 - **Pinned dependencies:** exact versions in `requirements.txt`, so everyone installs the same thing.
 
@@ -430,8 +431,79 @@ Re-submit a book's chapters (Edit and re-check) to fill in its map.
 
 ---
 
+### 13. New models, finished accounts and an audit (12 October 2026)
+
+**The model problem.** NVIDIA retired `nvidia/nemotron-3-super-120b-a12b` from its hosted API on
+3 October 2026 (the API had been sending a `deprecation: 2026-10-03` header). It was the third
+retirement during this project, so the fix is structural, not just a new name:
+
+- **Two roles, two models.** *Reading* (passages into facts, ~10 calls per chapter) wants speed;
+  *judging* (name linking, the mistake check, the safety net, the double-check, chapter timing:
+  a few short calls per chapter) wants accuracy. `CHAT_MODEL_READING` defaults to
+  `nvidia/nemotron-3.5-lightning-30b-a3b` (3B active parameters, built for high-volume work) and
+  `CHAT_MODEL_JUDGING` to `nvidia/nemotron-3-ultra-550b-a55b` (the largest Nemotron 3).
+  `CHAT_MODEL` still works and sets both.
+- **Automatic fallback.** If NVIDIA answers 404/410 for a model, StoryForge switches to the next
+  model in `CHAT_MODEL_FALLBACKS` for the rest of the run, prints a loud `[MODEL]` line, and
+  `/health` and the evaluation report say what happened. Before, a 410 was retried six times
+  (about a minute per request) and then every chapter failed.
+- **Thinking settings per model family.** Nemotron/Qwen use `enable_thinking`, gpt-oss uses
+  `reasoning_effort`, DeepSeek uses `thinking`; other models get none. Before, Nemotron's
+  setting was sent to every model.
+- **Timeouts and retries.** Each request now gives up after `AI_REQUEST_TIMEOUT` (180 s; the
+  library default was 10 minutes), and the OpenAI library's hidden retries are off (they
+  tripled every attempt and ignored StoryForge's pacing, making 429s worse).
+- **`eval/probe_models.py`** lists the models live on your key and sends each candidate
+  StoryForge's real requests (read chapter 2 of the lighthouse story; a batched check with two
+  planted mistakes and two traps), several times, then prints speed, reliability, details read,
+  mistakes caught and false alarms, and the `.env` lines for the best reader and judge.
+  **The defaults above are chosen from NVIDIA's published model information, not measured on
+  our stories. Run the probe, then `python eval/run_eval.py --runs 3` on both stories, and
+  record the numbers here.** If Ultra makes judging too slow, try Lightning for both roles with
+  `CHAT_THINKING_JUDGING=low`.
+
+**Accounts, finished** (`auth.py`, `main.py`, `frontend/app.js`):
+- Sign-in page with show/hide password, inline errors and a busy state; sign-up with a password
+  check (8+ characters, not a common password, not the email); **forgotten password**: a
+  one-time link valid for 60 minutes, emailed when `SMTP_HOST` is set, otherwise printed in the
+  server log; the link opens a "choose a new password" page that signs you in.
+- **Account page** (`#/account`, from the account menu): change your name; see today's
+  allowance; change password; **sign out everywhere**; **delete account** (type your email and
+  password; deletes every book).
+- Sessions carry a version number: a password change, a reset or "sign out everywhere" ends
+  every older session at once.
+- Hardening: failed sign-ins are limited per account (10 per 15 min) as well as per address,
+  and unknown emails take as long as wrong passwords (no account fishing); with
+  `BEHIND_PROXY=true` the address comes from the proxy's own `X-Forwarded-For` entry, which
+  visitors can't fake; sign-ups are limited per address (each account gets its own AI
+  allowance); the "first account adopts old books" step can't run twice at once; Ask and search
+  are limited per user (`HOURLY_QUESTION_LIMIT`, 60/hour), since they also use the AI;
+  chapter checks that fail because the AI is down are given back to the daily allowance;
+  security headers on every page (Content-Security-Policy allowing only the site's own
+  scripts, so an injected script couldn't read the sign-in token; no framing; no referrer).
+- New endpoints: `PATCH /auth/me`, `POST /auth/password`, `POST /auth/logout-everywhere`,
+  `POST /auth/delete-account`, `POST /auth/forgot`, `POST /auth/reset`.
+
+**Audit fixes:**
+- **Database connections could run out for good.** If the database was unreachable when the
+  connection pool was created, the request's pool slot was never returned. Ten failures (e.g.
+  `/health` checks while the database restarted) and every later request hung, even after the
+  database came back.
+- **Changing a book while a chapter was being checked** (merge, split, delete a chapter or
+  fact, correct a fact, delete the book) changed it underneath the check, which then failed
+  at the very end, after minutes of AI work. These now wait briefly for the book and otherwise
+  answer 409 "a chapter is being checked right now".
+- **Word counts** only counted spaces, so line breaks between words were missed.
+- Signing out now clears the previous user's book, chapters and background polling; an
+  expired stored sign-in is cleared instead of looping back to the welcome page; a corrupted
+  saved Issues view no longer breaks the Issues page.
+- Tests: 23 new (`test_auth.py`, `test_models.py`); retired-model state no longer leaks
+  between tests.
+
 ## 🚧 What's left
 
+0. **Pick the models with real numbers:** `python eval/probe_models.py`, then the evaluation
+   below with the chosen `CHAT_MODEL_READING` / `CHAT_MODEL_JUDGING`.
 1. **Re-run the evaluation with the real AI** on both stories, 3 runs each
    (`python eval/run_eval.py --runs 3` and `--story glassmaker --runs 3`). The last saved numbers
    predate the double-check, the story clock and the bug fixes. Record the scores here.
@@ -444,7 +516,7 @@ Re-submit a book's chapters (Edit and re-check) to fill in its map.
 6. **Deploy** following [DEPLOY.md](DEPLOY.md).
 
 ### Future work / explicitly out of scope for now
-- Multi-author collaboration mode (books exist now, but there are no user accounts yet)
+- Multi-author collaboration mode (accounts exist, but a book belongs to one account)
 - Tone/voice consistency checking
 - Checking contradictions *within* a single chapter, and between different entities
 - Neo4j-based graph storage (currently using Postgres + pgvector instead)
@@ -496,7 +568,9 @@ Everything below works inside one book. Use it under `/projects/{id}` (e.g.
 | `GET /health` | Always 200; says whether the database and AI key are set up |
 
 Accounts (only needed when `AUTH_REQUIRED=true`): `GET /auth/config`, `POST /auth/register`,
-`POST /auth/login` (both return a token to send as `Authorization: Bearer ...`), `GET /auth/me`.
+`POST /auth/login` (both return a token to send as `Authorization: Bearer ...`), `GET /auth/me`,
+`PATCH /auth/me` (name), `POST /auth/password`, `POST /auth/logout-everywhere`,
+`POST /auth/delete-account`, `POST /auth/forgot`, `POST /auth/reset`.
 
 Interactive documentation for every endpoint: http://127.0.0.1:8000/docs
 
@@ -522,6 +596,7 @@ storyforge/
 │   │   ├── lighthouse/    # 6 chapters + ground_truth.json (answer key); tuned on
 │   │   └── glassmaker/    # 5 chapters + ground_truth.json; never tuned on
 │   ├── run_eval.py        # scores the system against the answer key
+│   ├── probe_models.py    # which NVIDIA models are live on your key, and which is best
 │   └── results/           # saved reports
 └── backend/
     ├── .env.example

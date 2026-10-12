@@ -1,0 +1,5674 @@
+{
+ "74737a765276b9ea58baef6ae8594ce5ba77220f": "continues: continues immediately after Chapter One",
+ "d5178972bbe8b5e3697c9719a463476687c2d6ec": {
+  "chapter_id": "ch1",
+  "facts": [
+   {
+    "entity": "King Aurel's father",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of King Aurel",
+    "source_quote": "the salt coast that his father had spent a lifetime begging for",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of King Aurel's father",
+    "source_quote": "the salt coast that his father had spent a lifetime begging for",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Aurel",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "thirty-one years old",
+    "source_quote": "He was thirty-one years old",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Aurel",
+    "entity_type": "character",
+    "attribute": "physical description",
+    "value": "scar across the back of his left hand, a pale line where a Venn boarding hook had opened him to the bone",
+    "source_quote": "The scar was still fresh across the back of his left hand, a pale line where a Venn boarding hook had opened him to the bone",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Aurel",
+    "entity_type": "character",
+    "attribute": "gesture",
+    "value": "held up his left hand with the cup in it",
+    "source_quote": "He held that hand up now, with the cup in it, so that the whole hall could see it",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Venn fleet",
+    "entity_type": "event",
+    "attribute": "status",
+    "value": "fleet lay broken on the shoals of Greywater bay",
+    "source_quote": "The Venn fleet lay broken on the shoals of Greywater bay",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Venn admiral",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "fled",
+    "source_quote": "its admiral fled",
+    "confidence": 1.0
+   },
+   {
+    "entity": "salt coast",
+    "entity_type": "location",
+    "attribute": "status",
+    "value": "now belonged to Vessmark without a single coin paid",
+    "source_quote": "the salt coast that his father had spent a lifetime begging for now belonged to Vessmark without a single coin paid",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Aurel's father",
+    "entity_type": "character",
+    "attribute": "goal",
+    "value": "begging for the salt coast",
+    "source_quote": "the salt coast that his father had spent a lifetime begging for",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Aurel's left hand",
+    "entity_type": "item",
+    "attribute": "current location",
+    "value": "on the high table of his own hall",
+    "source_quote": "He held that hand up now, with the cup in it, so that the whole hall could see it",
+    "confidence": 1.0
+   },
+   {
+    "entity": "cup",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "in King Aurel's left hand",
+    "source_quote": "He held that hand up now, with the cup in it",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "married to Queen Thessaly",
+    "source_quote": "At his side sat Queen Thessaly in green",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Queen Thessaly",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "married to King Aurel",
+    "source_quote": "At his side sat Queen Thessaly in green",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Tam",
+    "source_quote": "Their son Tam, four years old and long past his bedtime",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of King Aurel",
+    "source_quote": "Their son Tam, four years old and long past his bedtime",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Queen Thessaly",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Tam",
+    "source_quote": "Their son Tam, four years old and long past his bedtime",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Queen Thessaly",
+    "source_quote": "Their son Tam, four years old and long past his bedtime",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Queen Thessaly",
+    "entity_type": "character",
+    "attribute": "physical description",
+    "value": "grey-green eyes",
+    "source_quote": "her grey-green eyes watching the room the way a shipwright's daughter watches a hull in the water",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Queen Thessaly",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "sat at his side in green",
+    "source_quote": "At his side sat Queen Thessaly in green",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "four years old",
+    "source_quote": "Their son Tam, four years old and long past his bedtime",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "son of King Aurel and Queen Thessaly",
+    "source_quote": "Their son Tam, four years old and long past his bedtime",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "slept against Queen Thessaly's shoulder with his fist wrapped in her sleeve",
+    "source_quote": "Their son Tam, four years old and long past his bedtime, slept against her shoulder with his fist wrapped in her sleeve.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Aurel",
+    "source_quote": "Below the high table, at the right hand of the king, sat Duke Corvin, Aurel's cousin, two years younger than him and the best friend he had ever had.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Duke Corvin",
+    "source_quote": "Below the high table, at the right hand of the king, sat Duke Corvin, Aurel's cousin, two years younger than him and the best friend he had ever had.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "relation",
+    "value": "Aurel's cousin",
+    "source_quote": "Below the high table, at the right hand of the king, sat Duke Corvin, Aurel's cousin, two years younger than him and the best friend he had ever had.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "age_difference",
+    "value": "two years younger than Aurel",
+    "source_quote": "Below the high table, at the right hand of the king, sat Duke Corvin, Aurel's cousin, two years younger than him and the best friend he had ever had.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "red hair",
+    "source_quote": "Corvin's red hair caught the torchlight.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "military_experience",
+    "value": "commanded the left wing at Greywater and held it when the Venn galleys broke through",
+    "source_quote": "He had commanded the left wing at Greywater and had held it when the Venn galleys broke through.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Castle of Harrowmere",
+    "entity_type": "item",
+    "attribute": "given_to",
+    "value": "Duke Corvin",
+    "source_quote": "Aurel had already given him the castle of Harrowmere as a reward.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "gave Duke Corvin the castle of Harrowmere as a reward",
+    "source_quote": "Aurel had already given him the castle of Harrowmere as a reward.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "recollection",
+    "value": "would remember the toast later and wonder whether it had been a blessing or a curse",
+    "source_quote": "Aurel would remember it later and wonder whether it had been a blessing or a curse.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Oren",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Aurel",
+    "source_quote": "Aurel's father, King Oren",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of King Oren",
+    "source_quote": "Aurel's father, King Oren",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "sixty-four years old",
+    "source_quote": "Bram Holloway, sixty-four years old, the swordmaster who had taught Aurel to hold a blade when he was seven",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "swordmaster who had taught Aurel to hold a blade when he was seven",
+    "source_quote": "Bram Holloway, sixty-four years old, the swordmaster who had taught Aurel to hold a blade when he was seven",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "allegiance",
+    "value": "fought for King Oren",
+    "source_quote": "Bram had fought for Aurel's father, King Oren",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "age_when_taught",
+    "value": "seven",
+    "source_quote": "who had taught Aurel to hold a blade when he was seven",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Oren",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "Aurel's father",
+    "source_quote": "Aurel's father, King Oren",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Oren",
+    "entity_type": "character",
+    "attribute": "death_status",
+    "value": "deceased (implied - fought for by Bram after him)",
+    "source_quote": "Bram had fought for Aurel's father, King Oren",
+    "confidence": 0.8
+   },
+   {
+    "entity": "his son",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Aurel",
+    "source_quote": "I will give my son the whole sea.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of his son",
+    "source_quote": "I will give my son the whole sea.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "alive",
+    "value": "alive",
+    "source_quote": "Bram leaned on the wall and looked down at the harbour",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "alive",
+    "value": "alive",
+    "source_quote": "Aurel had been waiting all night for someone to ask him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "king",
+    "source_quote": "My father dreamed of the salt coast. I will give my son the whole sea.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "goal",
+    "value": "finish it, build a thousand ships, sail to the Venn isles, end the war for a hundred years",
+    "source_quote": "I will finish it. A thousand ships. We build them over two summers, we sail them to the Venn isles, and we end the war for a hundred years.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "son",
+    "value": "son",
+    "source_quote": "I will give my son the whole sea.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Venn",
+    "entity_type": "location",
+    "attribute": "status",
+    "value": "angry and alive",
+    "source_quote": "The Venn are angry and alive.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Venn galleys",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "harbour, against the quay",
+    "source_quote": "captured Venn galleys rocked against the quay with Vessmark banners nailed to their masts",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Vessmark banners",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "nailed to masts of captured Venn galleys",
+    "source_quote": "captured Venn galleys rocked against the quay with Vessmark banners nailed to their masts",
+    "confidence": 1.0
+   },
+   {
+    "entity": "harbour",
+    "entity_type": "location",
+    "attribute": "description",
+    "value": "where the captured Venn galleys rocked against the quay",
+    "source_quote": "looked down at the harbour, where the captured Venn galleys rocked against the quay with Vessmark banners nailed to their masts",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "plan",
+    "value": "build a thousand ships over two summers, sail to Venn isles, end war for a hundred years",
+    "source_quote": "I will finish it. A thousand ships. We build them over two summers, we sail them to the Venn isles, and we end the war for a hundred years.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "timeline",
+    "value": "two summers",
+    "source_quote": "A thousand ships. We build them over two summers, we sail them to the Venn isles, and we end the war for a hundred years.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "statement about grain reserve",
+    "value": "grain reserve is not surplus",
+    "source_quote": "The grain reserve is not surplus",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "statement about granaries",
+    "value": "granaries at Hollin are full to the roof",
+    "source_quote": "The granaries at Hollin are full to the roof",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "statement about harvests",
+    "value": "three good harvests in a row",
+    "source_quote": "Three good harvests in a row",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "statement about selling surplus",
+    "value": "sell surplus to southern merchants",
+    "source_quote": "We sell the surplus to the southern merchants",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "statement about silver usage",
+    "value": "silver buys timber and pitch and shipwrights",
+    "source_quote": "the silver buys timber and pitch and shipwrights",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram",
+    "entity_type": "character",
+    "attribute": "question about grain reserve",
+    "value": "grain reserve is not surplus",
+    "source_quote": "The grain reserve is not surplus",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram",
+    "entity_type": "character",
+    "attribute": "comment about king's sayings",
+    "value": "every king says in the twelfth year that there won't be a bad harvest",
+    "source_quote": "That, said the old man, is exactly what every king says in the twelfth year",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "feeling",
+    "value": "old irritation",
+    "source_quote": "Aurel felt the old irritation rise, the one he had felt as a boy when Bram corrected his grip for the hundredth time.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "love",
+    "value": "love Bram",
+    "source_quote": "Bram,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "swordmaster",
+    "source_quote": "The old swordmaster turned his upside-down cup over in his hands and said nothing more.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "king who had won Greywater",
+    "source_quote": "He was the king who had won Greywater.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ember",
+    "entity_type": "item",
+    "attribute": "type",
+    "value": "grey stallion",
+    "source_quote": "Aurel's grey stallion Ember",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "thirteen years old",
+    "source_quote": "Pell, the stable boy, thirteen years old",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "love",
+    "value": "love every horse in Vessmark",
+    "source_quote": "Pell, the stable boy, thirteen years old and in love with every horse in Vessmark",
+    "confidence": 1.0
+   },
+   {
+    "entity": "city",
+    "entity_type": "location",
+    "attribute": "description",
+    "value": "drunken city",
+    "source_quote": "the noise of the drunken city",
+    "confidence": 1.0
+   },
+   {
+    "entity": "royal stables",
+    "entity_type": "location",
+    "attribute": "location",
+    "value": "Below them, in the royal stables",
+    "source_quote": "Below them, in the royal stables",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram",
+    "entity_type": "character",
+    "attribute": "correction",
+    "value": "corrected his grip for the hundredth time",
+    "source_quote": "Aurel felt the old irritation rise, the one he had felt as a boy when Bram corrected his grip for the hundredth time.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Tam",
+    "source_quote": "All of that, will be yours.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Aurel",
+    "source_quote": "All of that, will be yours.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "signed an order",
+    "value": "signed the order",
+    "source_quote": "In the morning Aurel signed the order.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "granary doors at Hollin",
+    "entity_type": "location",
+    "attribute": "opened",
+    "value": "opened",
+    "source_quote": "The granary doors at Hollin were opened.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "grain",
+    "entity_type": "item",
+    "attribute": "loaded onto southern barges",
+    "value": "loaded onto southern barges",
+    "source_quote": "the grain was loaded onto southern barges",
+    "confidence": 1.0
+   },
+   {
+    "entity": "keels of the thousand ships",
+    "entity_type": "event",
+    "attribute": "laid in the yards of Vessa",
+    "value": "laid in the yards of Vessa",
+    "source_quote": "the first keels of the thousand ships were laid in the yards of Vessa",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "pressed father's signet ring into hot wax",
+    "value": "pressed his father's signet ring into the hot wax",
+    "source_quote": "He pressed his father's signet ring into the hot wax himself",
+    "confidence": 1.0
+   },
+   {
+    "entity": "crowned salt-hawk",
+    "entity_type": "item",
+    "attribute": "signet ring design",
+    "value": "crowned salt-hawk of the house of Oren",
+    "source_quote": "the crowned salt-hawk of the house of Oren",
+    "confidence": 1.0
+   },
+   {
+    "entity": "city",
+    "entity_type": "location",
+    "attribute": "cheered when first ship slid into water",
+    "value": "cheered",
+    "source_quote": "The city cheered when the first ship slid into the water.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "stood on slipway with Tam on shoulders",
+    "value": "stood on the slipway with Tam on his shoulders",
+    "source_quote": "Aurel stood on the slipway with Tam on his shoulders and pointed out to sea.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "son of Aurel",
+    "value": "son",
+    "source_quote": "All of that, will be yours.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "highest point of his life",
+    "value": "highest point of his life",
+    "source_quote": "It was the highest point of his life.",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "King Aurel's father",
+    "to_name": "King Aurel",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "the salt coast that his father had spent a lifetime begging for",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "King Aurel",
+    "to_name": "Queen Thessaly",
+    "kind": "spouse",
+    "category": "family",
+    "source_quote": "At his side sat Queen Thessaly in green",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Queen Thessaly",
+    "to_name": "King Aurel",
+    "kind": "spouse",
+    "category": "family",
+    "source_quote": "At his side sat Queen Thessaly in green",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "King Aurel",
+    "to_name": "Tam",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "Their son Tam, four years old and long past his bedtime",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Queen Thessaly",
+    "to_name": "Tam",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "Their son Tam, four years old and long past his bedtime",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Duke Corvin",
+    "to_name": "Aurel",
+    "kind": "relative",
+    "category": "family",
+    "source_quote": "Below the high table, at the right hand of the king, sat Duke Corvin, Aurel's cousin, two years younger than him and the best friend he had ever had.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "King Oren",
+    "to_name": "Aurel",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "Aurel's father, King Oren",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "his son",
+    "to_name": "Aurel",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "I will give my son the whole sea.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "Tam",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "All of that, will be yours.",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "899a34d40be7473517120dd5229f1e137225eb84": "time skip: two years after the fleet disaster",
+ "96712bad5db7fea74c2aebc32edb3151ecf9392d": {
+  "chapter_id": "ch2",
+  "facts": [
+   {
+    "entity": "King Aurel",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "thirty-three",
+    "source_quote": "King Aurel was thirty-three years old",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Aurel",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "confused",
+    "source_quote": "for the first time in his life he did not know what to do",
+    "confidence": 1.0
+   },
+   {
+    "entity": "guild masters",
+    "entity_type": "character",
+    "attribute": "request",
+    "value": "Open the granaries",
+    "source_quote": "guild masters begged him in the great hall",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Lord Treasurer",
+    "entity_type": "character",
+    "attribute": "statement",
+    "value": "The granaries are empty.",
+    "source_quote": "The granaries are empty,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Lord Treasurer",
+    "entity_type": "character",
+    "attribute": "reason",
+    "value": "The reserve was sold to the southern merchants two years ago.",
+    "source_quote": "The reserve was sold to the southern merchants two years ago, Your Majesty. To pay for the fleet.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Aurel",
+    "entity_type": "character",
+    "attribute": "decision",
+    "value": "ordered the fleet to sail for the Venn isles",
+    "source_quote": "In the second week of the autumn storms the king ordered them to sail for the Venn isles.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "fleet",
+    "entity_type": "event",
+    "attribute": "size",
+    "value": "Nine hundred and forty ships",
+    "source_quote": "Nine hundred and forty ships, not quite the thousand Aurel had promised, rode at anchor in the harbour and along the coast.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "fleet",
+    "entity_type": "event",
+    "attribute": "destination",
+    "value": "Venn isles",
+    "source_quote": "the king ordered them to sail for the Venn isles.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "autumn storms",
+    "entity_type": "event",
+    "attribute": "time reference",
+    "value": "second week of the autumn storms",
+    "source_quote": "In the second week of the autumn storms the king ordered them to sail for the Venn isles.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Venn granaries",
+    "entity_type": "location",
+    "attribute": "purpose",
+    "value": "feed Vessmark",
+    "source_quote": "If he could take the islands before winter, he reasoned, the Venn granaries would feed Vessmark, and the war and the hunger would end together.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Venn isles",
+    "entity_type": "location",
+    "attribute": "status",
+    "value": "target for fleet",
+    "source_quote": "the king ordered them to sail for the Venn isles.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Admiral Saska Venn",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "lost Greywater and spent two years being hated for it by her own people",
+    "source_quote": "Admiral Saska Venn, who had lost Greywater and spent two years being hated for it by her own people",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Venn",
+    "entity_type": "location",
+    "attribute": "cliffs",
+    "value": "cliffs of Venn",
+    "source_quote": "Admiral Saska Venn, who had lost Greywater and spent two years being hated for it by her own people, watched from the cliffs of Venn",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Vessmark fleet",
+    "entity_type": "event",
+    "attribute": "ships at Kettle Rocks",
+    "value": "storm caught the Vessmark fleet at the Kettle Rocks",
+    "source_quote": "Admiral Saska Venn watched from the cliffs of Venn as the storm caught the Vessmark fleet at the Kettle Rocks",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "read the dispatch three times standing in his study, and then he sat down on the floor with his back against the desk, because his legs would no longer hold him",
+    "source_quote": "Aurel read the dispatch three times standing in his study, and then he sat down on the floor with his back against the desk, because his legs would no longer hold him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "found Aurel",
+    "source_quote": "That was where Thessaly found him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "dispatch",
+    "entity_type": "item",
+    "attribute": "content",
+    "value": "news about the fleet",
+    "source_quote": "The news reached Vessa on a grey morning. Aurel read the dispatch three times standing in his study",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "emotional_state",
+    "value": "shocked / distressed (sat on floor, legs no longer held him)",
+    "source_quote": "Aurel read the dispatch three times standing in his study, and then he sat down on the floor with his back against the desk, because his legs would no longer hold him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Vessa",
+    "entity_type": "location",
+    "attribute": "received news",
+    "value": "news reached Vessa on a grey morning",
+    "source_quote": "The news reached Vessa on a grey morning",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Venn fleet",
+    "entity_type": "event",
+    "attribute": "ships lost",
+    "value": "of nine hundred and forty ships, sixty came home",
+    "source_quote": "Admiral Saska Venn watched from the cliffs of Venn as the storm caught the Vessmark fleet at the Kettle Rocks. Of nine hundred and forty ships, sixty came home.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "physical_state",
+    "value": "legs would no longer hold him",
+    "source_quote": "Aurel read the dispatch three times standing in his study, and then he sat down on the floor with his back against the desk, because his legs would no longer hold him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "location",
+    "value": "his study",
+    "source_quote": "Aurel read the dispatch three times standing in his study",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "Aurel knelt beside him",
+    "value": "Aurel knelt beside him (Thessaly)",
+    "source_quote": "She knelt beside him.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "noise from lower city heard through window",
+    "value": "low, steady roar, like the sea in a cave",
+    "source_quote": "Through the window they could hear a noise from the lower city, a noise Aurel had never heard before: not cheering, not bells, but a low, steady roar, like the sea in a cave.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "group at gates of old granary",
+    "value": "They're at the gates of the old granary",
+    "source_quote": "They're at the gates of the old granary. There's nothing inside, and they know it, and they're breaking it open anyway.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "demand to go down with bread or truth",
+    "value": "Aurel has to go down there with bread or truth",
+    "source_quote": "You have to go down there. Not with soldiers. With bread, if you can find any, and with the truth if you can't.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "response about bread",
+    "value": "I don't have any bread.",
+    "source_quote": "I don't have any bread.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "alternative suggestion if no bread",
+    "value": "Then go with the truth.",
+    "source_quote": "Then go with the truth.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Aurel",
+    "source_quote": "It cannot go on like this, cousin.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Corvin",
+    "source_quote": "It cannot go on like this, cousin.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "sent Duke Corvin to the gates of the old granary",
+    "value": "sent Duke Corvin instead, with two hundred men of the guard",
+    "source_quote": "He did not go. He sent Duke Corvin instead, with two hundred men of the guard",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "held the left wing at Greywater",
+    "value": "had held the left wing at Greywater",
+    "source_quote": "Corvin had held the left wing at Greywater",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "returned at dusk with blood on his sleeve",
+    "value": "came back at dusk with blood on his sleeve",
+    "source_quote": "Corvin came back at dusk with blood on his sleeve",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "seven dead in the market square",
+    "value": "seven dead in the market square",
+    "source_quote": "he stood in the king's study and said quietly, 'It cannot go on like this, cousin.' ... Corvin came back at dusk with blood on his sleeve and seven dead in the market square",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "stood in the king's study",
+    "value": "stood in the king's study",
+    "source_quote": "he stood in the king's study and said quietly, 'It cannot go on like this, cousin.'",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "has a scar on the back of his left hand",
+    "value": "The scar on the back of his left hand ached in the cold the way it always did now",
+    "source_quote": "The scar on the back of his left hand ached in the cold the way it always did now",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "age six years old",
+    "value": "six years old now",
+    "source_quote": "Tam, six years old now, asked his father why the people were angry",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "asked his father why the people were angry",
+    "value": "asked his father why the people were angry",
+    "source_quote": "In the nursery that night, Tam, six years old now, asked his father why the people were angry",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "sat on the edge of the little bed",
+    "value": "sat on the edge of the little bed",
+    "source_quote": "Aurel sat on the edge of the little bed and turned the signet ring on his finger",
+    "confidence": 1.0
+   },
+   {
+    "entity": "signet ring",
+    "entity_type": "item",
+    "attribute": "on Aurel's finger",
+    "value": "on his finger",
+    "source_quote": "Aurel sat on the edge of the little bed and turned the signet ring on his finger",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "Corvin returned at dusk",
+    "value": "came back at dusk",
+    "source_quote": "Corvin came back at dusk with blood on his sleeve and seven dead in the market square",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Tam",
+    "source_quote": "He kissed his son on the forehead and went out",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Aurel",
+    "source_quote": "He kissed his son on the forehead and went out",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "kissed son on forehead",
+    "value": "kissed Tam on forehead and went out",
+    "source_quote": "He kissed his son on the forehead and went out",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "old swordmaster",
+    "value": "found his old swordmaster sitting on a bench waiting for him",
+    "source_quote": "in the corridor he found his old swordmaster sitting on a bench, waiting for him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram",
+    "entity_type": "character",
+    "attribute": "old swordmaster",
+    "value": "sitting on a bench waiting for him",
+    "source_quote": "found his old swordmaster sitting on a bench, waiting for him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "went out",
+    "value": "went out",
+    "source_quote": "He kissed his son on the forehead and went out",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "statement about twelfth year",
+    "value": "I told you it was the twelfth year",
+    "source_quote": "I told you it was the twelfth year",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "called the council",
+    "value": "called the council for tomorrow morning",
+    "source_quote": "Corvin has called the council for tomorrow morning. All of them.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "reaction to council call",
+    "value": "He stood very still",
+    "source_quote": "Aurel stood very still.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "knowledge about council calling",
+    "value": "He can't call the council without the king",
+    "source_quote": "He can't call the council without the king",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram",
+    "entity_type": "character",
+    "attribute": "knowledge about council calling without king",
+    "value": "He can, if the council has already decided it doesn't have one",
+    "source_quote": "He can, if the council has already decided it doesn't have one",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "fifteen",
+    "source_quote": "The boy was fifteen now",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "physical description",
+    "value": "tall and all elbows",
+    "source_quote": "tall and all elbows",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "fear status",
+    "value": "had stopped being afraid of the king",
+    "source_quote": "had stopped being afraid of the king",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "fear status",
+    "value": "had never imagined being afraid for him",
+    "source_quote": "had never imagined being afraid for him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ember",
+    "entity_type": "item",
+    "attribute": "type",
+    "value": "grey stallion",
+    "source_quote": "grey stallion",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ember",
+    "entity_type": "item",
+    "attribute": "action",
+    "value": "being rubbed down",
+    "source_quote": "Pell was rubbing down Ember for the night",
+    "confidence": 1.0
+   },
+   {
+    "entity": "smoke",
+    "entity_type": "event",
+    "attribute": "smell source",
+    "value": "lower city",
+    "source_quote": "he could smell the smoke from the lower city",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship to Corvin",
+    "value": "king",
+    "source_quote": "He can't call the council without the king",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "relationship to king",
+    "value": "called the council",
+    "source_quote": "Corvin has called the council for tomorrow morning",
+    "confidence": 1.0
+   },
+   {
+    "entity": "rain",
+    "entity_type": "event",
+    "attribute": "falling on Vessa",
+    "value": "",
+    "source_quote": "the rain kept falling on Vessa",
+    "confidence": 1.0
+   },
+   {
+    "entity": "rain",
+    "entity_type": "event",
+    "attribute": "day reference",
+    "value": "continuing",
+    "source_quote": "the rain kept falling",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Corvin",
+    "to_name": "Aurel",
+    "kind": "relative",
+    "category": "family",
+    "source_quote": "It cannot go on like this, cousin.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "Corvin",
+    "kind": "relative",
+    "category": "family",
+    "source_quote": "It cannot go on like this, cousin.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "Tam",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "He kissed his son on the forehead and went out",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "4d470d08601b6782fd59bfc4ee04753ed5e864ad": "time skip: two years after the council / after the abdication",
+ "a4dc5f9dc206f01d81305b2551e2958a65b51bb1": {
+  "chapter_id": "ch3",
+  "facts": [
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Aurel",
+    "source_quote": "Cousin,",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Duke Corvin",
+    "source_quote": "Cousin,",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "walked into council chamber unannounced",
+    "value": "walked in without being announced",
+    "source_quote": "Aurel walked in without being announced",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "sat in king's chair",
+    "value": "sat in the king's chair",
+    "source_quote": "Duke Corvin sat in the king's chair",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "relation to Aurel",
+    "value": "cousin",
+    "source_quote": "Cousin,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "understood arrangement of chairs",
+    "value": "understood that chair arrangement had been arranged beforehand",
+    "source_quote": "He understood that this had been arranged, and that the arranging had taken time, and that it had probably begun long before the storm at the Kettle Rocks",
+    "confidence": 1.0
+   },
+   {
+    "entity": "council chamber",
+    "entity_type": "location",
+    "attribute": "location",
+    "value": "long chamber under the painted ceiling",
+    "source_quote": "in the long chamber under the painted ceiling where Aurel's grandfather had signed the first salt treaty",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel's grandfather",
+    "entity_type": "character",
+    "attribute": "signed first salt treaty",
+    "value": "signed the first salt treaty",
+    "source_quote": "where Aurel's grandfather had signed the first salt treaty",
+    "confidence": 1.0
+   },
+   {
+    "entity": "morning bell",
+    "entity_type": "event",
+    "attribute": "time of council meeting",
+    "value": "hour of the morning bell",
+    "source_quote": "The council met at the hour of the morning bell",
+    "confidence": 1.0
+   },
+   {
+    "entity": "council meeting",
+    "entity_type": "event",
+    "attribute": "occurred next day",
+    "value": "next day",
+    "source_quote": "The council met at the hour of the morning bell, the next day",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Eleven heads",
+    "entity_type": "event",
+    "attribute": "turned toward Aurel",
+    "value": "Eleven heads turned toward him",
+    "source_quote": "Eleven heads turned toward him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Eleven council members",
+    "entity_type": "character",
+    "attribute": "did not rise when Aurel entered",
+    "value": "not one of them rose",
+    "source_quote": "and not one of them rose",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Lord Treasurer",
+    "entity_type": "character",
+    "attribute": "spoke quietly about council vote",
+    "value": "very quietly. 'Forgive me, Majesty. The council has voted.'",
+    "source_quote": "Lord Treasurer, very quietly. 'Forgive me, Majesty. The council has voted.'",
+    "confidence": 1.0
+   },
+   {
+    "entity": "grain reserve",
+    "entity_type": "item",
+    "attribute": "sold",
+    "value": "sold",
+    "source_quote": "The grain reserve, sold.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "fleet",
+    "entity_type": "item",
+    "attribute": "lost",
+    "value": "lost",
+    "source_quote": "The fleet, lost.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "nine hundred ships",
+    "entity_type": "item",
+    "attribute": "at the bottom of the sea",
+    "value": "bottom of the sea",
+    "source_quote": "Nine hundred ships and their crews at the bottom of the sea",
+    "confidence": 1.0
+   },
+   {
+    "entity": "sixty battered hulls",
+    "entity_type": "item",
+    "attribute": "remain",
+    "value": "sixty battered hulls",
+    "source_quote": "sixty battered hulls and widows in every harbour town from Vessa to Harrowmere",
+    "confidence": 1.0
+   },
+   {
+    "entity": "widows",
+    "entity_type": "other",
+    "attribute": "in harbour towns",
+    "value": "widows in every harbour town from Vessa to Harrowmere",
+    "source_quote": "widows in every harbour town from Vessa to Harrowmere",
+    "confidence": 1.0
+   },
+   {
+    "entity": "lower city",
+    "entity_type": "location",
+    "attribute": "riots",
+    "value": "riots",
+    "source_quote": "The riots in the lower city.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "seven dead",
+    "entity_type": "other",
+    "attribute": "in market square",
+    "value": "seven dead in the market square",
+    "source_quote": "Seven dead in the market square.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "southern merchants",
+    "entity_type": "other",
+    "attribute": "refusing credit",
+    "value": "refusing credit",
+    "source_quote": "The southern merchants refusing credit.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "guild masters",
+    "entity_type": "other",
+    "attribute": "threatening to close city gates",
+    "value": "threatening to close the city gates against the king's own soldiers",
+    "source_quote": "The guild masters threatening to close the city gates against the king's own soldiers.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "asking for abdication",
+    "source_quote": "We are asking for your abdication. Duke Corvin will serve as regent until Prince Tam comes of age.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "reaction",
+    "value": "believed him, which was somehow worse",
+    "source_quote": "We are not asking for your death,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Prince Tam",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "comes of age",
+    "source_quote": "Duke Corvin will serve as regent until Prince Tam comes of age.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "will serve as regent",
+    "source_quote": "Duke Corvin will serve as regent until Prince Tam comes of age.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "queen",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "will stay under protection",
+    "source_quote": "The queen and the prince will stay here, under my protection",
+    "confidence": 1.0
+   },
+   {
+    "entity": "prince",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "will stay under protection",
+    "source_quote": "The queen and the prince will stay here, under my protection",
+    "confidence": 1.0
+   },
+   {
+    "entity": "king",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "will retire to Harrowmere",
+    "source_quote": "You will retire to Harrowmere, to the castle you gave me, and live there in comfort.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "castle",
+    "entity_type": "location",
+    "attribute": "given by king",
+    "value": "the castle you gave me",
+    "source_quote": "You will retire to Harrowmere, to the castle you gave me, and live there in comfort.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Harrowmere",
+    "entity_type": "location",
+    "attribute": "retirement location",
+    "value": "retire to Harrowmere",
+    "source_quote": "You will retire to Harrowmere, to the castle you gave me, and live there in comfort.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "protection",
+    "entity_type": "event",
+    "attribute": "provided to",
+    "value": "queen and the prince will stay under protection",
+    "source_quote": "The queen and the prince will stay here, under my protection",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Lord Treasurer",
+    "source_quote": "pushed it across the wood toward his cousin.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Lord Treasurer",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Aurel",
+    "source_quote": "pushed it across the wood toward his cousin.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "pushed signet ring across table toward cousin",
+    "source_quote": "Then he took the signet ring of his father, the crowned salt-hawk of the house of Oren, off his finger, set it on the table, and pushed it across the wood toward his cousin.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "signet ring",
+    "entity_type": "item",
+    "attribute": "description",
+    "value": "the crowned salt-hawk of the house of Oren",
+    "source_quote": "the signet ring of his father, the crowned salt-hawk of the house of Oren",
+    "confidence": 1.0
+   },
+   {
+    "entity": "signet ring",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "on the table",
+    "source_quote": "set it on the table",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Lord Treasurer",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "would not meet Aurel's eyes",
+    "source_quote": "The Lord Treasurer would not meet his eyes.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Old Marshal Dace",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "stared at the painted ceiling",
+    "source_quote": "Old Marshal Dace stared at the painted ceiling.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "looked at Aurel directly",
+    "source_quote": "Only Corvin looked at him directly.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "emotion",
+    "value": "pity",
+    "source_quote": "It was not hatred. It was pity.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "cousin",
+    "source_quote": "pushed it across the wood toward his cousin.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "Lord Treasurer",
+    "source_quote": "The Lord Treasurer would not meet his eyes.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Old Marshal Dace",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "Aurel",
+    "source_quote": "Aurel looked around the table. These were the men who had cheered him at Greywater.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Corvin",
+    "source_quote": "Your cousin",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Aurel",
+    "source_quote": "Your cousin",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "allied with Aurel",
+    "source_quote": "Come with me",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "allied with Thessaly",
+    "source_quote": "Come with me",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Tam",
+    "source_quote": "with a six-year-old",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Aurel",
+    "source_quote": "with a six-year-old",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Tam",
+    "source_quote": "Thessaly was there, already dressed, as though she had known",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Thessaly",
+    "source_quote": "Thessaly was there, already dressed, as though she had known",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "walked out of the table without signing the abdication paper",
+    "source_quote": "He did not sign the paper. He walked out.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "went to the nursery first after walking out",
+    "source_quote": "He went to the nursery first.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "state",
+    "value": "already dressed, as though she had known Aurel would come",
+    "source_quote": "Thessaly was there, already dressed, as though she had known",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "state",
+    "value": "asleep in the nursery",
+    "source_quote": "Tam was asleep",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "dialogue",
+    "value": "said Come with me to Thessaly in the nursery",
+    "source_quote": "Come with me",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "dialogue",
+    "value": "asked Where? in response to Aurel's invitation",
+    "source_quote": "Where?",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "dialogue",
+    "value": "said If I take him out of this castle, Corvin's council will call it a kidnapping",
+    "source_quote": "If I take him out of this castle, Corvin's council will call it a kidnapping, and the next regent will not be as gentle as your cousin.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "dialogue",
+    "value": "said He is safest here",
+    "source_quote": "He is safest here. You know it.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "dialogue",
+    "value": "said Then I'll stay",
+    "source_quote": "Then I'll stay.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "decision",
+    "value": "decided to stay in the castle instead of leaving with Thessaly",
+    "source_quote": "Then I'll stay.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of his sleeping son",
+    "source_quote": "He kissed his sleeping son without waking him.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "his sleeping son",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Aurel",
+    "source_quote": "He kissed his sleeping son without waking him.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "has a scarred hand",
+    "source_quote": "Her grey-green eyes were steady and wet. Go. Find out what you are when you're not the king. And when you know, come back and tell me.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "has a sleeping son",
+    "source_quote": "He kissed his sleeping son without waking him.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "kissed his sleeping son without waking him",
+    "source_quote": "He kissed his sleeping son without waking him.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "sixty-six years old",
+    "source_quote": "I'm sixty-six years old, said Bram.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "items",
+    "value": "waiting at the foot of the servants' stair with a cloak, a purse, and a sword that was not a king's sword: plain steel, a soldier's blade",
+    "source_quote": "Bram Holloway was waiting at the foot of the servants' stair with a cloak, a purse, and a sword that was not a king's sword: plain steel, a soldier's blade.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "pushed the cloak into the king's arms",
+    "source_quote": "He pushed the cloak into the king's arms.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "said The water gate, The guards there are mine, still. You have until the noon bell.",
+    "source_quote": "The water gate,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "king",
+    "source_quote": "You've never even lit a fire.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "fifteen",
+    "source_quote": "He was fifteen and shaking.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "stable boy",
+    "source_quote": "Pell, the stable boy",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "emotion",
+    "value": "shaking",
+    "source_quote": "He was fifteen and shaking.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "possession",
+    "value": "sack",
+    "source_quote": "was crouched by the iron grille with a sack over his shoulder.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "statement",
+    "value": "Ember's too big for the water gate",
+    "source_quote": "Ember's too big for the water gate",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ember",
+    "entity_type": "item",
+    "attribute": "size",
+    "value": "too big for the water gate",
+    "source_quote": "Ember's too big for the water gate",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "experience",
+    "value": "won a war",
+    "source_quote": "Aurel had won a war",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "skill",
+    "value": "never lit a fire",
+    "source_quote": "Aurel had never lit a fire",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "item",
+    "value": "horse",
+    "source_quote": "a boy without a horse",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "slid the signet ring onto his own finger",
+    "source_quote": "Duke Corvin slid the signet ring onto his own finger.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "item",
+    "value": "signet ring",
+    "source_quote": "It was a little too big for him. He wore it anyway.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "fit",
+    "value": "ring too big",
+    "source_quote": "It was a little too big for him.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "river Dun",
+    "entity_type": "location",
+    "attribute": "direction",
+    "value": "south",
+    "source_quote": "the river Dun carried them south and away from Vessa",
+    "confidence": 1.0
+   },
+   {
+    "entity": "river Dun",
+    "entity_type": "location",
+    "attribute": "movement",
+    "value": "carried them south and away from Vessa",
+    "source_quote": "the river Dun carried them south and away from Vessa",
+    "confidence": 1.0
+   },
+   {
+    "entity": "fishing boat",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "bottom of a fishing boat",
+    "source_quote": "in the bottom of a fishing boat that smelled of eels",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Duke Corvin",
+    "to_name": "Aurel",
+    "kind": "relative",
+    "category": "family",
+    "source_quote": "Cousin,",
+    "confidence": 0.8
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "Lord Treasurer",
+    "kind": "relative",
+    "category": "family",
+    "source_quote": "pushed it across the wood toward his cousin.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "Corvin",
+    "kind": "relative",
+    "category": "family",
+    "source_quote": "Your cousin",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Thessaly",
+    "to_name": "Aurel",
+    "kind": "ally",
+    "category": "social",
+    "source_quote": "Come with me",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "Tam",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "with a six-year-old",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Thessaly",
+    "to_name": "Tam",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "Thessaly was there, already dressed, as though she had known",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "his sleeping son",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "He kissed his sleeping son without waking him.",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "0e78660c48a3d3c9d7d82f531ddd43a22d1cc6e0": "time skip: two years after the council / after the abdication",
+ "a0ed15a8da1372e323b519462d81aad4df8dad18": {
+  "chapter_id": "ch4",
+  "facts": [
+   {
+    "entity": "farmer",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "employs Rell",
+    "source_quote": "the farmer chased him the length of the bank with a pitchfork",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rell",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "works for farmer",
+    "source_quote": "the farmer chased him the length of the bank with a pitchfork",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rell",
+    "entity_type": "character",
+    "attribute": "occupation",
+    "value": "ferryman at Dun Crossing",
+    "source_quote": "the ferry at Dun Crossing was run by a bearded man called Rell",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rell",
+    "entity_type": "character",
+    "attribute": "description",
+    "value": "bearded man",
+    "source_quote": "a bearded man called Rell",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rell",
+    "entity_type": "character",
+    "attribute": "experience_level",
+    "value": "not a good ferryman at first",
+    "source_quote": "He was not a good ferryman at first",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rell",
+    "entity_type": "character",
+    "attribute": "skill_acquisition",
+    "value": "learned to read the river's mood by the colour of the water",
+    "source_quote": "He learned to read the river's mood by the colour of the water",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rell",
+    "entity_type": "character",
+    "attribute": "skill_acquisition",
+    "value": "learned to pole against the current with his whole back and not just his arms",
+    "source_quote": "He learned to pole against the current with his whole back and not just his arms",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rell",
+    "entity_type": "character",
+    "attribute": "skill_acquisition",
+    "value": "learned what a day's work was worth",
+    "source_quote": "He learned what a day's work was worth",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rell",
+    "entity_type": "character",
+    "attribute": "skill_acquisition",
+    "value": "learned what a loaf cost",
+    "source_quote": "which was the same, and he learned to be grateful for it",
+    "confidence": 1.0
+   },
+   {
+    "entity": "flat-boat",
+    "entity_type": "item",
+    "attribute": "type",
+    "value": "flat-boat",
+    "source_quote": "He capsized the flat-boat twice in his first month",
+    "confidence": 1.0
+   },
+   {
+    "entity": "farmer's pig",
+    "entity_type": "item",
+    "attribute": "status",
+    "value": "lost",
+    "source_quote": "lost a farmer's pig in the second capsizing",
+    "confidence": 1.0
+   },
+   {
+    "entity": "farmer",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "chased Rell the length of the bank with a pitchfork",
+    "source_quote": "the farmer chased him the length of the bank with a pitchfork",
+    "confidence": 1.0
+   },
+   {
+    "entity": "pitchfork",
+    "entity_type": "item",
+    "attribute": "used_by",
+    "value": "farmer",
+    "source_quote": "the farmer chased him the length of the bank with a pitchfork",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Pell",
+    "source_quote": "Pell, seventeen now, broad in the shoulders from hauling the ferry chain, kept the accounts in the hut by the landing and did the cooking, which had improved. In the evenings they sat on the bank and Pell read aloud from the broadsheets that came down the river road, because Aurel could not yet bear to read them himself.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Aurel",
+    "source_quote": "Pell, seventeen now, broad in the shoulders from hauling the ferry chain, kept the accounts in the hut by the landing and did the cooking, which had improved. In the evenings they sat on the bank and Pell read aloud from the broadsheets that came down the river road, because Aurel could not yet bear to read them himself.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rell",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "thirty-five",
+    "source_quote": "He was thirty-five years old.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rell",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "grey coming into his beard",
+    "source_quote": "There was grey coming into his beard",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rell",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "left hand with old pale scar rough with rope burns",
+    "source_quote": "his left hand, with its old pale scar, was rough with rope burns",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rell",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "nobody who crossed the river looked at him twice",
+    "source_quote": "Nobody who crossed the river looked at him twice",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rell",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "after thirty-three years of everyone looking at him, he is now ignored like furniture",
+    "source_quote": "For thirty-three years every eye in every room had turned to him, and now he was furniture.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "seventeen",
+    "source_quote": "Pell, seventeen now",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "broad in the shoulders from hauling the ferry chain",
+    "source_quote": "broad in the shoulders from hauling the ferry chain",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "keeps the accounts in the hut by the landing",
+    "source_quote": "kept the accounts in the hut by the landing",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "does the cooking",
+    "source_quote": "did the cooking",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "skill",
+    "value": "can read aloud from the broadsheets",
+    "source_quote": "Pell read aloud from the broadsheets",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "cannot yet bear to read them himself",
+    "source_quote": "because Aurel could not yet bear to read them himself",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "condition",
+    "value": "cannot yet bear to read the broadsheets",
+    "source_quote": "because Aurel could not yet bear to read them himself",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "read broadsheet and put it inside his shirt",
+    "source_quote": "He took the broadsheet and read it himself, for the first time in two years, and then he folded it carefully and put it inside his shirt.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Prince Tam",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "eight years of age",
+    "source_quote": "Prince Tam, now eight years of age",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Lord Regent",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "raised the salt tax",
+    "source_quote": "The regent's raised the salt tax again",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Lord Regent",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "new tax on ferries",
+    "source_quote": "And there's a new tax on ferries.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Lord Regent",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "received Prince Tam into household",
+    "source_quote": "Prince Tam, now eight years of age, has been received into the household of the Lord Regent at Harrowmere",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Harrowmere",
+    "entity_type": "location",
+    "attribute": "location",
+    "value": "Lord Regent's household",
+    "source_quote": "received into the household of the Lord Regent at Harrowmere",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Prince Tam",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "moved out of the castle away from his mother",
+    "source_quote": "Not Vessa. Corvin's moved him out of the castle. Away from his mother.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "moved Prince Tam out of the castle",
+    "source_quote": "Corvin's moved him out of the castle",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Vessa",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "mother of Prince Tam",
+    "source_quote": "Away from his mother.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "physical description",
+    "value": "tall and weathered, with a sailor's rolling walk and close-cropped iron-grey hair",
+    "source_quote": "a woman came down to the landing alone and asked to be taken across. She was tall and weathered, with a sailor's rolling walk and close-cropped iron-ggrey hair, and she carried a sea-chest on her shoulder as though it weighed nothing.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "sea-chest",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "carried on woman's shoulder",
+    "source_quote": "she carried a sea-chest on her shoulder as though it weighed nothing",
+    "confidence": 1.0
+   },
+   {
+    "entity": "woman",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "alive",
+    "source_quote": "a woman came down to the landing alone and asked to be taken across",
+    "confidence": 1.0
+   },
+   {
+    "entity": "ferryman",
+    "entity_type": "character",
+    "attribute": "name",
+    "value": "Aurel",
+    "source_quote": "Aurel did not answer",
+    "confidence": 1.0
+   },
+   {
+    "entity": "river",
+    "entity_type": "location",
+    "attribute": "crossing",
+    "value": "ferry crossing",
+    "source_quote": "Halfway across the river, with the current pulling at the pole",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "description",
+    "value": "woman asked to be taken across the river",
+    "source_quote": "a woman came down to the landing alone and asked to be taken across",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "description",
+    "value": "conversation about scar on left hand",
+    "source_quote": "You've got a scar on your left hand, ferryman. Boarding hook, by the look of it.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "former rank",
+    "value": "Admiral",
+    "source_quote": "Saska Venn. Admiral, once.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "current occupation",
+    "value": "Smuggler",
+    "source_quote": "Smuggler, now.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "former occupation",
+    "value": "Admiral",
+    "source_quote": "Saska Venn. Admiral, once. Smuggler, now.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "title",
+    "value": "Your Majesty",
+    "source_quote": "Your Majesty.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "self-perception",
+    "value": "not anyone's majesty",
+    "source_quote": "I'm not anyone's majesty.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "hand scar origin",
+    "value": "hook went in while trying to pull person off rail of Salt Hawk at Greywater",
+    "source_quote": "I saw the hook go in. It was mine. I was trying to pull you off the rail of the Salt Hawk at Greywater, and you cut the rope with your other hand and kept coming.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "hand scar origin",
+    "value": "trying to pull person off rail of Salt Hawk at Greywater",
+    "source_quote": "I saw the hook go in. It was mine. I was trying to pull you off the rail of the Salt Hawk at Greywater, and you cut the rope with your other hand and kept coming.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Salt Hawk",
+    "entity_type": "item",
+    "attribute": "type",
+    "value": "ship",
+    "source_quote": "the rail of the Salt Hawk",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Greywater",
+    "entity_type": "location",
+    "attribute": "name",
+    "value": "Greywater",
+    "source_quote": "the rail of the Salt Hawk at Greywater",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "former position",
+    "value": "Admiral",
+    "source_quote": "The Venn council threw me out after Greywater.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Kettle Rocks",
+    "entity_type": "location",
+    "attribute": "mentioned as site of fleet sinking",
+    "value": "Your fleet sank at the Kettle Rocks",
+    "source_quote": "Then your fleet sank at the Kettle Rocks, and they threw me a feast, because they said my ghost had cursed it.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "alive",
+    "source_quote": "Saska laughed, a short hard bark.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "sea-chest",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "on the landing, far bank",
+    "source_quote": "Saska put her sea-chest on the landing and did not pick it up again.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "quote about watching ships sink",
+    "value": "watching all nine hundred and forty ships go down, every last one of them",
+    "source_quote": "It's a terrible thing, watching all nine hundred and ninety and forty ships go down, every last one of them.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "quote about cursing",
+    "value": "I didn't curse anything",
+    "source_quote": "I didn't curse anything. I just watched.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Aurel",
+    "source_quote": "Your cousin Corvin is buying Venn grain through three different merchants",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Corvin",
+    "source_quote": "Your cousin Corvin is buying Venn grain through three different merchants",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "alive",
+    "source_quote": "Neither do I",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "ship_count",
+    "value": "two ships",
+    "source_quote": "I have two ships and a crew who are bored of smuggling wine.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "crew_status",
+    "value": "bored of smuggling wine",
+    "source_quote": "I have two ships and a crew who are bored of smuggling wine.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "cousin",
+    "source_quote": "Your cousin Corvin is buying Venn grain through three different merchants",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "buying Venn grain through three different merchants",
+    "source_quote": "Your cousin Corvin is buying Venn grain through three different merchants, at three times the fair price, and he is selling it in Vessa at six times the price, and he is keeping the difference.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "selling grain in Vessa at six times the price",
+    "source_quote": "Your cousin Corvin is buying Venn grain through three different merchants, at three times the fair price, and he is selling it in Vessa at six times the price, and he is keeping the difference.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "keeping the price difference",
+    "source_quote": "Your cousin Corvin is buying Venn grain through three different merchants, at three times the fair price, and he is selling it in Vessa at six times the price, and he is keeping the difference.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Dun valley",
+    "entity_type": "location",
+    "attribute": "mentioned",
+    "value": "people eating bark again",
+    "source_quote": "The people in the Dun valley are eating bark again.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "offer",
+    "value": "can carry grain",
+    "source_quote": "I can carry grain.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "his father",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Aurel",
+    "source_quote": "his father's signet ring",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of his father",
+    "source_quote": "his father's signet ring",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of his mother",
+    "source_quote": "I need to see my mother.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "his mother",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Aurel",
+    "source_quote": "I need to see my mother.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "did not sleep that night",
+    "source_quote": "That night Aurel did not sleep.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "object_manipulation",
+    "value": "turned his father's signet ring",
+    "source_quote": "He turned his father's signet ring on his finger, the crowned salt-hawk worn smooth.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "rubbed down Ember behind the ferry hut",
+    "source_quote": "while Pell rubbed down Ember behind the ferry hut.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ember",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "behind the ferry hut",
+    "source_quote": "while Pell rubbed down Ember behind the ferry hut.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "sat on the bank of the river Dun",
+    "source_quote": "He sat on the bank of the river Dun with the folded broadsheet in his lap and watched the water go by until the sky turned grey.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "object",
+    "value": "folded broadsheet",
+    "source_quote": "with the folded broadsheet in his lap",
+    "confidence": 1.0
+   },
+   {
+    "entity": "river Dun",
+    "entity_type": "location",
+    "attribute": "",
+    "value": "",
+    "source_quote": "He sat on the bank of the river Dun",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "statement",
+    "value": "I need to see my mother",
+    "source_quote": "In the morning he said to Pell, 'I need to see my mother.'",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "destination",
+    "value": "the Lamb and Anchor in Dunmouth",
+    "source_quote": "I'll be at the Lamb and Anchor in Dunmouth for a week. If you decide you're still somebody, come and find me.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "location",
+    "value": "the Lamb and Anchor in Dunmouth",
+    "source_quote": "I'll be at the Lamb and Anchor in Dunmouth for a week.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "duration",
+    "value": "a week",
+    "source_quote": "I'll be at the Lamb and Anchor in Dunmouth for a week.",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "farmer",
+    "to_name": "Rell",
+    "kind": "employer",
+    "category": "social",
+    "source_quote": "the farmer chased him the length of the bank with a pitchfork",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "Pell",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "Pell read aloud from the broadsheets that came down the river road, because Aurel could not yet bear to read them himself.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Corvin",
+    "to_name": "Aurel",
+    "kind": "relative",
+    "category": "family",
+    "source_quote": "Your cousin Corvin is buying Venn grain through three different merchants",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "his father",
+    "to_name": "Aurel",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "his father's signet ring",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "his mother",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "I need to see my mother.",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "92c5786c6b3556e8540e264ac4c78a29bda8f615": "time skip: two years after the abdication",
+ "28db0d05794b58317e1df7491768f55956770622": {
+  "chapter_id": "ch5",
+  "facts": [
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "sibling of Mira",
+    "source_quote": "The third was his own sister, Mira",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "sibling of Aurel",
+    "source_quote": "The third was his own sister, Mira",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "companion",
+    "value": "Ember, the black stallion",
+    "source_quote": "Aurel kept listening for the hoofbeats of Ember, the black stallion he had left behind in Vessa",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "companion",
+    "value": "Pell",
+    "source_quote": "It took Aurel and Pell three weeks on foot to reach the convent of Saint Ysolde",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "travel_time",
+    "value": "three weeks",
+    "source_quote": "It took Aurel and Pell three weeks on foot to reach the convent of Saint Ysolde",
+    "confidence": 1.0
+   },
+   {
+    "entity": "convent of Saint Ysolde",
+    "entity_type": "location",
+    "attribute": "description",
+    "value": "stood on a bare hill above the sheep country of the north, its walls the same grey as the sky",
+    "source_quote": "the convent of Saint Ysolde, which stood on a bare hill above the sheep country of the north, its walls the same grey as the sky",
+    "confidence": 1.0
+   },
+   {
+    "entity": "sister who opened the gate",
+    "entity_type": "character",
+    "attribute": "recognition",
+    "value": "did not recognise Aurel",
+    "source_quote": "The sister who opened the gate did not recognise him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "second sister",
+    "entity_type": "character",
+    "attribute": "recognition",
+    "value": "recognised Aurel and dropped her basket of eggs",
+    "source_quote": "The second sister did, and dropped her basket of eggs",
+    "confidence": 1.0
+   },
+   {
+    "entity": "third sister",
+    "entity_type": "character",
+    "attribute": "relation",
+    "value": "Mira",
+    "source_quote": "The third was his own sister, Mira",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "sibling",
+    "value": "Mira",
+    "source_quote": "The third was his own sister, Mira",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mother",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Aurel",
+    "source_quote": "Their mother",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Mother",
+    "source_quote": "Their mother",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mother",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Mira",
+    "source_quote": "Their mother",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Mother",
+    "source_quote": "Their mother",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Mira",
+    "source_quote": "Mira had followed her there at twenty and taken the healer's grey",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Ines",
+    "source_quote": "Mira had followed her there at twenty and taken the healer's grey",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "age_relative_to_Aurel",
+    "value": "four years younger than him",
+    "source_quote": "She was four years younger than him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "personality_description",
+    "value": "the quiet one, the one who read in the window seat",
+    "source_quote": "She was four years younger than him and had always been the quiet one, the one who read in the window seat while Aurel learned swordplay in the yard",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "description",
+    "value": "beard, rope-burned hands",
+    "source_quote": "looked at his beard, and his rope-burned hands",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "accompaniment",
+    "value": "boy with the sack behind him",
+    "source_quote": "the boy with the sack behind him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "clothing",
+    "value": "stained apron",
+    "source_quote": "in her stained apron",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "took the healer's grey",
+    "source_quote": "Mira had followed her there at twenty and taken the healer's grey",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mother",
+    "entity_type": "character",
+    "attribute": "destination",
+    "value": "north to the convent",
+    "source_quote": "Their mother had gone north to the convent the winter King Oren died",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mother",
+    "entity_type": "character",
+    "attribute": "timing",
+    "value": "the winter King Oren died",
+    "source_quote": "the winter King Oren died",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "followed her there at twenty",
+    "source_quote": "Mira had followed her there at twenty",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "visited perhaps four times in all those years",
+    "source_quote": "had visited perhaps four times in all those years",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Oren",
+    "entity_type": "event",
+    "attribute": "event",
+    "value": "died",
+    "source_quote": "the winter King Oren died",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Aurel",
+    "source_quote": "He has always been a good letter writer, your cousin.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Corvin",
+    "source_quote": "He has always been a good letter writer, your cousin.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Queen Liesl",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of the king",
+    "source_quote": "Queen Liesl, mother of the king",
+    "confidence": 1.0
+   },
+   {
+    "entity": "the king",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Queen Liesl",
+    "source_quote": "Queen Liesl, mother of the king",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Queen Liesl",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "seventy-one years old",
+    "source_quote": "Queen Liesl, mother of the king, was seventy-one years old",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Queen Liesl",
+    "entity_type": "character",
+    "attribute": "health",
+    "value": "nearly blind",
+    "source_quote": "Queen Liesl, mother of the king, was seventy-one years old and nearly blind",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Queen Liesl",
+    "entity_type": "character",
+    "attribute": "recognition_method",
+    "value": "by his footsteps",
+    "source_quote": "she knew him by his footsteps before he had crossed her cell",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "sat on the floor beside her chair",
+    "source_quote": "He sat on the floor beside her chair, as he had when he was a boy",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "sat on the floor beside her chair as a boy",
+    "source_quote": "He sat on the floor beside her chair, as he had when he was a boy",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Queen Liesl",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "put her thin hand on his head",
+    "source_quote": "she put her thin hand on his head",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "cousin of Aurel",
+    "source_quote": "He was a good letter writer at seventeen. He does not mention the bark.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "writes letters to Queen Liesl",
+    "source_quote": "Corvin writes to me. Every month. Very kind letters.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "seventeen",
+    "source_quote": "He was a good letter writer at seventeen",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "cousin of the king",
+    "source_quote": "He tells me the boy is well and the queen is well and the kingdom is recovering. He has always been a good letter writer, your cousin.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "well",
+    "source_quote": "He tells me the boy is well and the queen is well and the kingdom is recovering.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Queen",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "well",
+    "source_quote": "He tells me the boy is well and the queen is well and the kingdom is recovering.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "kingdom",
+    "entity_type": "location",
+    "attribute": "status",
+    "value": "recovering",
+    "source_quote": "He tells me the boy is well and the queen is well and the kingdom is recovering.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Liesl",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Aurel",
+    "source_quote": "my son is eight years old and being raised by the man who took my crown",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Liesl",
+    "source_quote": "my son is eight years old and being raised by the man who took my crown",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "alive",
+    "source_quote": "I had everything. I was the king who never lost. And I threw it into the sea, all of it, and now I pole a ferry, and my son is eight years old and being raised by the man who took my crown, and I don't know how to come back.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "current_role",
+    "value": "poles a ferry",
+    "source_quote": "I had everything. I was the king who never lost. And I threw it into the sea, all of it, and now I pole a ferry, and my son is eight years old and being raised by the man who took my crown, and I don't know how to come back.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "son_age",
+    "value": "eight years old",
+    "source_quote": "I had everything. I was the king who never lost. And I threw it into the sea, all of it, and now I pole a ferry, and my son is eight years old and being raised by the man who took my crown, and I don't don't know how to come back.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "son_caretaker",
+    "value": "the man who took my crown",
+    "source_quote": "I had everything. I was the king who never lost. And I threw it into the sea, all of it, and now I pole a ferry, and my son is eight years old and being raised by the man who took my crown, and I don't know how to come back.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "does_not_mention",
+    "value": "the bark",
+    "source_quote": "You know about that?",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Oren",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Aurel",
+    "source_quote": "my son",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Oren",
+    "source_quote": "my son",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Oren",
+    "source_quote": "Her blind eyes looked somewhere past him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Oren",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Aurel",
+    "source_quote": "Her blind eyes looked somewhere past him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "age when told about father's war",
+    "value": "two years old",
+    "source_quote": "When you were two years old, Oren marched on the salt coast with every soldier in Vessmark",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Oren",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "marched on the salt coast with every soldier in Vessmark",
+    "source_quote": "When you were two years old, Oren marched on the salt coast with every soldier in Vessmark",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Oren",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "met Venn at the river Kell and broke him in a single afternoon",
+    "source_quote": "Oren marched on the salt coast with every soldier in Vessmark, and the Venn met him at the river Kell and broke him in a single afternoon",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Oren",
+    "entity_type": "character",
+    "attribute": "result",
+    "value": "came home with a third of his army and a fever he never fully shook",
+    "source_quote": "He came home with a third of his army and a fever he never fully shook",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Oren",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "defeated in war",
+    "source_quote": "He came home with a third of his army and a fever he never fully shook",
+    "confidence": 1.0
+   },
+   {
+    "entity": "treasury",
+    "entity_type": "item",
+    "attribute": "status",
+    "value": "empty",
+    "source_quote": "The treasury was empty",
+    "confidence": 1.0
+   },
+   {
+    "entity": "harvest",
+    "entity_type": "event",
+    "attribute": "result",
+    "value": "failed the next year",
+    "source_quote": "The harvest failed the next year",
+    "confidence": 1.0
+   },
+   {
+    "entity": "famine",
+    "entity_type": "event",
+    "attribute": "description",
+    "value": "the famine of his twelfth year",
+    "source_quote": "That was the famine of his twelfth year, the one you've heard about all your life",
+    "confidence": 1.0
+   },
+   {
+    "entity": "granaries at Hollin",
+    "entity_type": "location",
+    "attribute": "purpose",
+    "value": "built by a beaten one",
+    "source_quote": "The granaries at Hollin were not built by a victorious king, Aurel. They were built by a beaten one.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Liesl",
+    "source_quote": "We gave you a father who never lost, because we thought it would make you strong. I think now it only made you careless. She patted his head.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Liesl",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Aurel",
+    "source_quote": "We gave you a father who never lost, because we thought it would make you strong. I think now it only made you careless. She patted his head.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "employs Mira",
+    "source_quote": "Mira brought a long chest from under the narrow bed and opened it.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "works for Aurel",
+    "source_quote": "Mira brought a long chest from under the narrow bed and opened it.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Liesl",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "alive",
+    "source_quote": "We gave you a father who never lost, because we thought it would make you strong.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "alive",
+    "source_quote": "Mira brought a long chest from under the narrow bed and opened it.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "sword",
+    "entity_type": "item",
+    "attribute": "description",
+    "value": "plain, old, its leather grip worn smooth and dark by a hand that was not Aurel's",
+    "source_quote": "Inside, wrapped in oiled cloth, was a sword: plain, old, its leather grip worn smooth and dark by a hand that was not Aurel's.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "sword",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "inside the long chest, wrapped in oiled cloth",
+    "source_quote": "Mira brought a long chest from under the narrow bed and opened it. Inside, wrapped in oiled cloth, was a sword: plain, old, its leather grip worn smooth and dark by a hand that was not Aurel's.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "long chest",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "under the narrow bed",
+    "source_quote": "Mira brought a long chest from under the narrow bed and opened it.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "event",
+    "value": "went to every village in the Dun valley himself, on foot",
+    "source_quote": "He went to every village in the Dun valley himself, on foot, and promised them he would never let them starve again.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "day",
+    "value": "six years",
+    "source_quote": "It took him six years to earn back what he had lost in an afternoon.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "has",
+    "value": "court sword",
+    "source_quote": "That one Corvin has, I expect, along with the ring.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "took",
+    "value": "sword",
+    "source_quote": "Aurel took the sword.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Quiet",
+    "entity_type": "item",
+    "attribute": "description",
+    "value": "plain, old sword; leather grip worn smooth and dark by a hand that was not Aurel's",
+    "source_quote": "This is the one he carried to the river Kell and carried home again. He called it Quiet, because he said that after the Kell it never had anything to boast about.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "has burn on",
+    "value": "forearm from the cooking fire",
+    "source_quote": "That night, in the convent kitchen, Mira bound up a burn on Pell's forearm from the cooking fire",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Liesl",
+    "entity_type": "character",
+    "attribute": "said",
+    "value": "Your father's",
+    "source_quote": "Your father's,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Liesl",
+    "entity_type": "character",
+    "attribute": "said",
+    "value": "Not his court sword. That one Corvin has, I expect, along with the ring. This is the one he carried to the river Kell and carried home again.",
+    "source_quote": "Not his court sword. That one Corvin has, I expect, along with the ring. This is the one he carried to the river Kell and carried home again.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Liesl",
+    "entity_type": "character",
+    "attribute": "said",
+    "value": "He called it Quiet, because he said that after the Kell it never had anything to boast about.",
+    "source_quote": "He called it Quiet, because he said that after the Kell it never had anything to boast about.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Liesl",
+    "entity_type": "character",
+    "attribute": "said",
+    "value": "I don't imagine you will. Your father didn't.",
+    "source_quote": "No,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "bound up",
+    "value": "a burn on Pell's forearm from the cooking fire",
+    "source_quote": "That night, in the convent kitchen, Mira bound up a burn on Pell's forearm from the cooking fire and asked her brother what he meant to do.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "asked",
+    "value": "her brother what he meant to do",
+    "source_quote": "That night, in the convent kitchen, Mira bound up a burn on Pell's forearm from the cooking fire and asked her brother what he meant to do.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "statement about starting with valley",
+    "value": "I think I'll start with the valley.",
+    "source_quote": "I think I'll start with the valley.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "has two ships and no reason to trust Aurel",
+    "value": "waiting in a tavern in Dunmouth, who has two ships and no reason to trust me",
+    "source_quote": "waiting in a tavern in Dunmouth, who has two ships and no reason to trust me",
+    "confidence": 1.0
+   },
+   {
+    "entity": "valley full of people eating bark",
+    "entity_type": "event",
+    "attribute": "description",
+    "value": "valley full of people eating bark",
+    "source_quote": "valley full of people eating bark",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "comes later; if Aurel goes to Corvin first, he's just a man who wants his chair back",
+    "value": "comes later. If I go to Corvin first, I'm just a man who wants his chair back.",
+    "source_quote": "comes later. If I go to Corvin first, I'm just a man who wants his chair back.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "offers to come along; needs a healer; has taken vows to heal the sick",
+    "value": "I'll come with you. You'll need a healer. Half of that valley has the flux by now. I've taken vows to heal the sick, and they're not up here.",
+    "source_quote": "I'll come with you. You'll need a healer. Half of that valley has the flux by now. I've taken vows to heal the sick, and they're not up here.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "flux",
+    "entity_type": "event",
+    "attribute": "affects half the valley",
+    "value": "Half of that valley has the flux by now",
+    "source_quote": "Half of that valley has the flux by now",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "has scarred hands",
+    "value": "scarred hands",
+    "source_quote": "scarred hands",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Aurel",
+    "to_name": "Mira",
+    "kind": "sibling",
+    "category": "family",
+    "source_quote": "The third was his own sister, Mira",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Mira",
+    "to_name": "Aurel",
+    "kind": "sibling",
+    "category": "family",
+    "source_quote": "The third was his own sister, Mira",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Mother",
+    "to_name": "Aurel",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "Their mother",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Mother",
+    "to_name": "Mira",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "Their mother",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Ines",
+    "to_name": "Mira",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "Mira had followed her there at twenty and taken the healer's grey",
+    "confidence": 0.8
+   },
+   {
+    "from_name": "Corvin",
+    "to_name": "Aurel",
+    "kind": "relative",
+    "category": "family",
+    "source_quote": "your cousin. He was a good letter writer at seventeen.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Queen Liesl",
+    "to_name": "the king",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "Queen Liesl, mother of the king",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Liesl",
+    "to_name": "Aurel",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "my son is eight years old and being raised by the man who took my crown",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Oren",
+    "to_name": "Aurel",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "my son",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "Oren",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "Her blind eyes looked somewhere past him",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "Liesl",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "We gave you a father who never lost, because we thought it would make you strong. I think now it only made you careless. She patted his head.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "Mira",
+    "kind": "employer",
+    "category": "social",
+    "source_quote": "Mira brought a long chest from under the narrow bed and opened it.",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "2ffaa30ece44851c0f8e7ba5a0e9cf67fbc065dd": "time skip: fourteen years before the fall / two years after the council / after the abdication",
+ "4c9e46efbb0d581cd60deec65629a4fd006d2495": {
+  "chapter_id": "ch6",
+  "facts": [
+   {
+    "entity": "King Oren",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Aurel",
+    "source_quote": "his son Aurel",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of King Oren",
+    "source_quote": "his son Aurel",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "allied with Aurel",
+    "source_quote": "Bram Holloway ... knelt first and kissed the boy's hand and swore to him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "allied with Bram Holloway",
+    "source_quote": "Bram Holloway ... knelt first and kissed the boy's hand and swore to him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Oren",
+    "entity_type": "character",
+    "attribute": "cause of death",
+    "value": "fever",
+    "source_quote": "King Oren died of the fever he had carried home from the river Kell",
+    "confidence": 1.0
+   },
+   {
+    "entity": "King Oren",
+    "entity_type": "character",
+    "attribute": "age at death",
+    "value": "not stated",
+    "source_quote": "",
+    "confidence": 0.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "age at coronation",
+    "value": "nineteen years old",
+    "source_quote": "his son Aurel, nineteen years old, was crowned before the body was cold",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relation to King Oren",
+    "value": "son",
+    "source_quote": "his son Aurel",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "fifty-two years old",
+    "source_quote": "Bram Holloway, fifty-two years old and already grey at the temples",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "physical description",
+    "value": "grey at the temples",
+    "source_quote": "Bram Holloway, fifty-two years old and already grey at the temples",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "coronation location",
+    "value": "cold chapel",
+    "source_quote": "they put the crown on Aurel's head in the cold chapel",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "coronation event",
+    "value": "crowned before the body was cold",
+    "source_quote": "his son Aurel, nineteen years old, was crowned before the body was cold",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "event",
+    "value": "crowned as King",
+    "source_quote": "his son Aurel, nineteen years old, was crowned before the body was cold",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "event",
+    "value": "became King after father's death",
+    "source_quote": "King Oren died ... and his son Aurel ... was crowned before the body was cold",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "event",
+    "value": "coronation occurred fourteen years before the fall",
+    "source_quote": "Fourteen years before the fall, on the coldest morning of the year, King Oren died ... and his son Aurel ... was crowned",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "event",
+    "value": "coronation occurred on the coldest morning of the year",
+    "source_quote": "Fourteen years before the fall, on the coldest morning of the year, King Oren died ... and his son Aurel ... was crowned",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "day",
+    "value": "the coldest morning of the year",
+    "source_quote": "Fourteen years before the fall, on the coldest morning of the year, King Oren died ... and his son Aurel ... was crowned",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "day",
+    "value": "Fourteen years before the fall",
+    "source_quote": "Fourteen years before the fall, on the coldest morning of the year, King Oren died ... and his son Aurel ... was crowned",
+    "confidence": 1.0
+   },
+   {
+    "entity": "river Kell",
+    "entity_type": "location",
+    "attribute": "reference",
+    "value": "mentioned as source of King Oren's fever",
+    "source_quote": "the fever he had carried home from the river Kell",
+    "confidence": 1.0
+   },
+   {
+    "entity": "salt coast",
+    "entity_type": "location",
+    "attribute": "reference",
+    "value": "Venn were raiding the salt coast",
+    "source_quote": "The Venn were raiding the salt coast again",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Aurel",
+    "source_quote": "His cousin Corvin knelt second.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Corvin",
+    "source_quote": "His cousin Corvin knelt second.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "hand description",
+    "value": "no scar on his left hand",
+    "source_quote": "Aurel had no scar on his left hand then.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "battle experience",
+    "value": "never been in a battle",
+    "source_quote": "He had never been in a battle.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "travel experience",
+    "value": "never been anywhere much at all",
+    "source_quote": "He had never been anywhere much at all.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "seventeen",
+    "source_quote": "Corvin was seventeen",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "physical description",
+    "value": "thin and red-haired",
+    "source_quote": "Corvin was seventeen, thin and red-haired and ferociously loyal",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "loyalty statement",
+    "value": "I am yours",
+    "source_quote": "Whatever happens, I am yours.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "response to Corvin",
+    "value": "I know",
+    "source_quote": "I know",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Corvin",
+    "source_quote": "",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Ines",
+    "source_quote": "",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "new king",
+    "source_quote": "He did not understand most of them. He meant to ask, and never did.",
+    "confidence": 0.9
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "king",
+    "source_quote": "I don't know how to be a king",
+    "confidence": 0.9
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "knowledge",
+    "value": "does not understand the ledger of the kingdom",
+    "source_quote": "He did not understand most of them.",
+    "confidence": 0.9
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "knowledge",
+    "value": "does not know what any of this is for",
+    "source_quote": "I don't know what any of this is for.",
+    "confidence": 0.9
+   },
+   {
+    "entity": "Bram",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "swordmaster",
+    "source_quote": "Bram found him there at midnight.",
+    "confidence": 0.9
+   },
+   {
+    "entity": "Bram",
+    "entity_type": "character",
+    "attribute": "quote",
+    "value": "You should sleep",
+    "source_quote": "You should sleep,",
+    "confidence": 0.9
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "nineteen",
+    "source_quote": "Nobody knows that at nineteen.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "knowledge",
+    "value": "his father told him about being a king",
+    "source_quote": "He said a king is a man who keeps the granaries full and the gates open.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "wrote on a scrap of paper and tucked it into the ledger",
+    "source_quote": "Aurel wrote it on a scrap of paper and tucked it into the ledger",
+    "confidence": 1.0
+   },
+   {
+    "entity": "scrap of paper",
+    "entity_type": "item",
+    "attribute": "content",
+    "value": "king is a man who keeps the granaries full and the gates open",
+    "source_quote": "He said a king is a man who keeps the granaries full and the gates open.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "scrap of paper",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "lost",
+    "source_quote": "the scrap of paper was lost",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "forgot",
+    "source_quote": "he forgot",
+    "confidence": 1.0
+   },
+   {
+    "entity": "shipwright",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Thessaly",
+    "source_quote": "a shipwright from the harbour came to the castle to bid for the repair of the royal barge, and he brought his daughter to carry his drawings. Her name was Thessaly.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of shipwright",
+    "source_quote": "a shipwright from the harbour came to the castle to bid for the repair of the royal barge, and he brought his daughter to carry his drawings. Her name was Thessaly.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "eighteen",
+    "source_quote": "Her name was Thessaly. She was eighteen, with grey-green eyes and pitch on her fingers, and she spent the whole audience correcting her father's figures under her breath.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "grey-green eyes and pitch on her fingers",
+    "source_quote": "Her name was Thessaly. She was eighteen, with grey-green eyes and pitch on her fingers, and she spent the whole audience correcting her father's figures under her breath.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "occupation",
+    "value": "carrying her father's drawings",
+    "source_quote": "a shipwright from the harbour came to the castle to bid for the repair of the royal barge, and he brought his daughter to carry his drawings. Her name was Thessaly.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "shipwright",
+    "entity_type": "character",
+    "attribute": "name",
+    "value": "not given in text",
+    "source_quote": "a shipwright from the harbour came to the castle to bid for the repair of the royal barge, and he brought his daughter to carry his drawings.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "royal barge",
+    "entity_type": "item",
+    "attribute": "purpose",
+    "value": "repair",
+    "source_quote": "a shipwright from the harbour came to the castle to bid for the repair of the royal barge",
+    "confidence": 1.0
+   },
+   {
+    "entity": "spring",
+    "entity_type": "event",
+    "attribute": "time_reference",
+    "value": "spring of that first year",
+    "source_quote": "In the spring of that first year a shipwright from the harbour came to the castle to bid for the repair of the royal barge",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "married to Thessaly",
+    "source_quote": "by the end of the next summer she had said yes",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "married to Aurel",
+    "source_quote": "by the end of the next summer she had said yes",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "friends with Aurel",
+    "source_quote": "In those first years Corvin rode everywhere at Aurel's side",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "friends with Corvin",
+    "source_quote": "In those first years Corvin rode everywhere at Aurel's side",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "allied with Aurel",
+    "source_quote": "They put down the northern lords together",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "allied with Corvin",
+    "source_quote": "They put down the northern lords together",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "marriage_proposal",
+    "value": "asked her to marry him",
+    "source_quote": "By the end of the summer he had asked her to marry him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "marriage_acceptance",
+    "value": "said yes",
+    "source_quote": "by the end of the next summer she had said yes",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "marriage_status",
+    "value": "married to Thessaly",
+    "source_quote": "until the first time she read their own accounts aloud to them in open court",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "immortal",
+    "source_quote": "twenty years old and immortal",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "twenty years old",
+    "source_quote": "twenty years old and immortal",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "companionship",
+    "value": "rode everywhere at Aurel's side",
+    "source_quote": "In those first years Corvin rode everywhere at Aurel's side",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "accomplishment",
+    "value": "put down the northern lords together with Aurel",
+    "source_quote": "They put down the northern lords together",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "accomplishment",
+    "value": "rebuilt the harbour wall together with Aurel",
+    "source_quote": "They rebuilt the harbour wall together",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "event",
+    "value": "swore on the battlements of Vessa never to want anything that was Aurel's",
+    "source_quote": "One night, drunk on southern wine on the battlements of Vessa, twenty years old and immortal, Corvin swore that he would never want anything that was Aurel's",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "location_of_swearing",
+    "value": "battlements of Vessa",
+    "source_quote": "One night, drunk on southern wine on the battlements of Vessa",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "state",
+    "value": "drunk on southern wine",
+    "source_quote": "drunk on southern wine on the battlements of Vessa",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "twenty years old",
+    "source_quote": "twenty years old and immortal",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "said",
+    "value": "Not your crown, not your queen, not your horse",
+    "source_quote": "Not your crown, not your queen, not your horse",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "given",
+    "value": "a grey colt from the royal stud",
+    "source_quote": "Aurel had just been given a grey colt from the royal stud",
+    "confidence": 1.0
+   },
+   {
+    "entity": "colt",
+    "entity_type": "item",
+    "attribute": "name",
+    "value": "Ember",
+    "source_quote": "The colt's name was Ember",
+    "confidence": 1.0
+   },
+   {
+    "entity": "colt",
+    "entity_type": "item",
+    "attribute": "behavior",
+    "value": "threw Aurel eleven times before he would let him stay on",
+    "source_quote": "He threw Aurel eleven times before he would let him stay on",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "allowed",
+    "value": "nobody else ride the colt",
+    "source_quote": "would let nobody else ride it",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "King Oren",
+    "to_name": "Aurel",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "his son Aurel",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Bram Holloway",
+    "to_name": "Aurel",
+    "kind": "ally",
+    "category": "social",
+    "source_quote": "Bram Holloway ... knelt first and kissed the boy's hand and swore to him",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Corvin",
+    "to_name": "Aurel",
+    "kind": "relative",
+    "category": "family",
+    "source_quote": "His cousin Corvin knelt second.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Ines",
+    "to_name": "Corvin",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "",
+    "confidence": 0.8
+   },
+   {
+    "from_name": "shipwright",
+    "to_name": "Thessaly",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "a shipwright from the harbour came to the castle to bid for the repair of the royal barge, and he brought his daughter to carry his drawings. Her name was Thessaly.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "Thessaly",
+    "kind": "spouse",
+    "category": "family",
+    "source_quote": "by the end of the next summer she had said yes",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Corvin",
+    "to_name": "Aurel",
+    "kind": "friend",
+    "category": "social",
+    "source_quote": "In those first years Corvin rode everywhere at Aurel's side",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Corvin",
+    "to_name": "Aurel",
+    "kind": "ally",
+    "category": "social",
+    "source_quote": "They rebuilt the harbour wall together",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "8b7fc43595067606b17942e5a9ed0e4e0595dc7d": "continues: four months after Chapter Six, which was set fourteen years before the fall / two years after the council / after the abdication",
+ "42eb979e4828afae13a575fbde9339fa1faea456": {
+  "chapter_id": "ch7",
+  "facts": [
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "smuggler with two ships",
+    "source_quote": "a smuggler with two ships agreed, after a long and suspicious evening at the Lamb and Anchor in Dunmouth, to carry Venn grain up the river at the fair price and not a copper more, and to be paid when the harvest came in rather than before",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "lost a bargain to Saska Venn",
+    "source_quote": "Saska Venn had driven the hardest bargain Aurel had ever lost, and he had lost it gladly",
+    "confidence": 1.0
+   },
+   {
+    "entity": "people of the Dun valley",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "stopped eating bark",
+    "source_quote": "Four months later, the people of the Dun valley had stopped eating bark.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Lamb and Anchor",
+    "entity_type": "location",
+    "attribute": "location",
+    "value": "Dunmouth",
+    "source_quote": "a long and suspicious evening at the Lamb and Anchor in Dunmouth",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Venn grain",
+    "entity_type": "item",
+    "attribute": "type",
+    "value": "grain",
+    "source_quote": "to carry Venn grain up the river at the fair price and not a copper more, and to be paid when the harvest came in rather than before",
+    "confidence": 1.0
+   },
+   {
+    "entity": "harvest",
+    "entity_type": "event",
+    "attribute": "time_reference",
+    "value": "when the harvest came in",
+    "source_quote": "to be paid when the harvest came in rather than before",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to grandmother",
+    "source_quote": "my grandmother starved the winter after the Kell war.",
+    "confidence": 0.95
+   },
+   {
+    "entity": "grandmother",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Saska",
+    "source_quote": "my grandmother starved the winter after the Kell war.",
+    "confidence": 0.95
+   },
+   {
+    "entity": "his father",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Aurel",
+    "source_quote": "Your father's army burned our coastal fields on the way to the river.",
+    "confidence": 0.95
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of his father",
+    "source_quote": "Your father's army burned our coastal fields on the way to the river.",
+    "confidence": 0.95
+   },
+   {
+    "entity": "Saska",
+    "entity_type": "character",
+    "attribute": "statement about reason for action",
+    "value": "She is doing it because her grandmother starved the winter after the Kell war.",
+    "source_quote": "I'm doing it because my grandmother starved the winter after the Kell war.",
+    "confidence": 0.95
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "statement about discovering war outcome",
+    "value": "He only found out this year that Aurel's father's army burned coastal fields.",
+    "source_quote": "He lost that war. I only found out this year.",
+    "confidence": 0.95
+   },
+   {
+    "entity": "Saska's grandmother",
+    "entity_type": "character",
+    "attribute": "cause of death / fate",
+    "value": "Starved the winter after the Kell war.",
+    "source_quote": "my grandmother starved the winter after the Kell war.",
+    "confidence": 0.95
+   },
+   {
+    "entity": "Aurel's father",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "Burned coastal fields on the way to the river during the Kell war.",
+    "source_quote": "Your father's army burned our coastal fields on the way to the river.",
+    "confidence": 0.95
+   },
+   {
+    "entity": "Kell war",
+    "entity_type": "event",
+    "attribute": "historical conflict",
+    "value": "War between coastal fields and river people; Aurel's father's army involved; grandmother starved after it.",
+    "source_quote": "the Kell war",
+    "confidence": 0.95
+   },
+   {
+    "entity": "first barge",
+    "entity_type": "event",
+    "attribute": "arrival at Dun Crossing",
+    "value": "First barge came up to Dun Crossing low in the water with sacks of island wheat.",
+    "source_quote": "the night the first barge came up to Dun Crossing low in the water with sacks of island wheat.",
+    "confidence": 0.95
+   },
+   {
+    "entity": "island wheat",
+    "entity_type": "item",
+    "attribute": "cargo on first barge",
+    "value": "Sacks of island wheat on first barge.",
+    "source_quote": "sacks of island wheat",
+    "confidence": 0.95
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "statement about father's army actions",
+    "value": "His father's army burned coastal fields on the way to the river.",
+    "source_quote": "Your father's army burned our coastal fields on the way to the river.",
+    "confidence": 0.95
+   },
+   {
+    "entity": "Saska",
+    "entity_type": "character",
+    "attribute": "source of information about fields",
+    "value": "Found out about the fields from her grandmother's grave.",
+    "source_quote": "I found that out from my grandmother's grave.",
+    "confidence": 0.95
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "true name",
+    "value": "He stood in the square, said his true name",
+    "source_quote": "He stood in the square, said his true name, and told them the truth.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "former soldier status",
+    "value": "men who had once been Aurel's soldiers and were now his neighbours",
+    "source_quote": "The grain went up the valley on carts and on mules and, where the roads had washed away, on the backs of the men who had once been Aurel's soldiers and were now his neighbours.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "sibling of elder sister of Aurel",
+    "source_quote": "I am here with wheat, and with my elder sister, who is a healer",
+    "confidence": 1.0
+   },
+   {
+    "entity": "elder sister of Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "sibling of Aurel",
+    "source_quote": "I am here with wheat, and with my elder sister, who is a healer",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "name",
+    "value": "Aurel",
+    "source_quote": "I am Aurel, who was your king.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "former_role",
+    "value": "king",
+    "source_quote": "I am Aurel, who was your king.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "sold the grain your fathers stored",
+    "source_quote": "I sold the grain your fathers stored.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "sank the fleet",
+    "source_quote": "I sank the fleet.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "responsibility",
+    "value": "sons drowned at the Kettle Rocks",
+    "source_quote": "Your sons drowned at the Kettle Rocks because of me.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "purpose",
+    "value": "here with wheat, and with my elder sister who is a healer, and with a boy named Pell who keeps better accounts than my old treasurer",
+    "source_quote": "I am here with wheat, and with my elder sister, who is a healer, and with a boy named Pell who keeps better accounts than my old treasurer.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "elder sister of Aurel",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "healer",
+    "source_quote": "I am here with wheat, and with my elder sister, who is a healer",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "keeps better accounts than my old treasurer",
+    "source_quote": "a boy named Pell who keeps better accounts than my old treasurer",
+    "confidence": 1.0
+   },
+   {
+    "entity": "wheat",
+    "entity_type": "item",
+    "attribute": "brought_by",
+    "value": "Aurel",
+    "source_quote": "I am here with wheat",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "statement",
+    "value": "I am Aurel, who was your king. I sold the grain your fathers stored. I sank the fleet. Your sons drowned at the Kettle Rocks because of me. I am not here to ask for anything. I am here with wheat, and with my elder sister, who is a healer, and with a boy named Pell who keeps better accounts than my old treasurer. Bring your sick to my sister. Bring your hungry to the carts.",
+    "source_quote": "I am Aurel, who was your king. I sold the grain your fathers stored. I sank the fleet. Your sons drowned at the Kettle Rocks because of me. I am not here to ask for anything. I am here with wheat, and with my elder sister, who is a healer, and with a boy named Pell who keeps better accounts than my old treasurer. Bring your sick to my sister. Bring your hungry to the carts.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "stitched a wound on a man's forehead in the back of the cart",
+    "source_quote": "In the first village they threw stones at him, and one of them opened his forehead, and Mira stitched it in the back of the cart while he swore.",
+    "confidence": 0.9
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "accompanied the carts through villages",
+    "source_quote": "In the second village they would not speak to him at all.",
+    "confidence": 0.9
+   },
+   {
+    "entity": "old woman",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "spat at a man's feet twice and asked about her grandson riding with the carts",
+    "source_quote": "In the third, an old woman spat at his feet, and then took a sack of wheat, and then came back an hour later and spat at his feet again, and then asked whether her grandson could ride with the carts to the next village and help unload.",
+    "confidence": 0.9
+   },
+   {
+    "entity": "old woman's grandson",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "could ride with the carts to the next village and help unload",
+    "source_quote": "In the third, an old woman spat at his feet, and then took a sack of wheat, and then came back an hour later and spat at his feet again, and then asked whether her grandson could ride with the carts to the next village and help unload.",
+    "confidence": 0.9
+   },
+   {
+    "entity": "cart",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "back of the cart (where Mira stitched the wound)",
+    "source_quote": "In the first village they threw stones at him, and one of them opened his forehead, and Mira stitched it in the back of the cart while he swore.",
+    "confidence": 0.9
+   },
+   {
+    "entity": "sack of wheat",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "given to the carts by the old woman in the third village",
+    "source_quote": "In the third, an old woman spat at his feet, and then took a sack of wheat, and then came back an hour later and spat at his feet again, and then asked whether her grandson could ride with the carts to the next village and help unload.",
+    "confidence": 0.9
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "occupation",
+    "value": "worked through the flux season",
+    "source_quote": "Mira worked through the flux season with her sleeves rolled to the elbow.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "sleeves rolled to the elbow",
+    "source_quote": "Mira worked through the flux season with her sleeves rolled to the elbow.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "seventeen",
+    "source_quote": "Pell, seventeen and suddenly a quartermaster",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "quartermaster",
+    "source_quote": "Pell, seventeen and suddenly a quartermaster",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "task",
+    "value": "kept the ledger of every sack and every copper and every promise, and read it aloud in each square",
+    "source_quote": "Pell, seventeen and suddenly a quartermaster, kept the ledger of every sack and every copper and every promise, and read it aloud in each square so that nobody could say they had been cheated.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "thirty-eight",
+    "source_quote": "He turned thirty-eight that winter, in a hayloft above a mill.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "forehead healed into a second scar to match the one on his right hand",
+    "source_quote": "His forehead healed into a second scar to match the one on his right hand.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "tasks",
+    "value": "carried sacks, dug latrines, mended a mill wheel with his own hands, and slept in barns",
+    "source_quote": "Aurel carried sacks, dug latrines, mended a mill wheel with his own hands, and slept in barns.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "appearance",
+    "value": "did not look like a king",
+    "source_quote": "He did not look like a king.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "behavior",
+    "value": "stopped trying to look like a king",
+    "source_quote": "He had stopped trying to.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "location",
+    "value": "hayloft above a mill",
+    "source_quote": "He turned thirty-eight that winter, in a hayloft above a mill.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "injury",
+    "value": "forehead scar",
+    "source_quote": "His forehead healed into a second scar to match the one on his right hand.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "age_at_event",
+    "value": "turned thirty-eight that winter",
+    "source_quote": "He turned thirty-eight that winter, in a hayloft above a mill.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "winter",
+    "entity_type": "event",
+    "attribute": "time_reference",
+    "value": "winter",
+    "source_quote": "He turned thirty-eight that winter, in a hayloft above a mill.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Queen Liesl",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Aurel",
+    "source_quote": "she wrote that she had read every one of her son's letters twice by candlelight",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Queen Liesl",
+    "source_quote": "she wrote that she had read every one of her son's letters twice by candlelight",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "sixty-two",
+    "source_quote": "He was sixty-two now",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "mode_of_travel",
+    "value": "came down the south road on a tired horse",
+    "source_quote": "a single rider came down the south road on a tired horse",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "brought",
+    "value": "a letter from Queen Liesl",
+    "source_quote": "He brought a letter from Queen Liesl",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Queen Liesl",
+    "entity_type": "character",
+    "attribute": "wrote_letter",
+    "value": "she had read every one of her son's letters twice by candlelight",
+    "source_quote": "she wrote that she had read every one of her son's letters twice by candlelight",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Queen Liesl",
+    "entity_type": "character",
+    "attribute": "letter_sender",
+    "value": "from Queen Liesl",
+    "source_quote": "a letter from Queen Liesl",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "ran to him through the mud",
+    "source_quote": "Aurel ran to him through the mud",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "son of Queen Liesl",
+    "source_quote": "from Queen Liesl, written in her own small, careful hand; she wrote that she had read every one of her son's letters twice by candlelight",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "health_status",
+    "value": "injured",
+    "source_quote": "He coughed",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "knowledge",
+    "value": "knows where you are",
+    "source_quote": "Corvin knows where you are",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "knowledge",
+    "value": "Half of Vessa knows",
+    "source_quote": "Half of Vessa knows",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "knowledge",
+    "value": "They're singing songs about the ferryman king in the lower city",
+    "source_quote": "They're singing songs about the ferryman king in the lower city",
+    "confidence": 1.0
+   },
+   {
+    "entity": "regent",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "has stopped buying Venn grain",
+    "source_quote": "The regent has stopped buying Venn grain",
+    "confidence": 1.0
+   },
+   {
+    "entity": "regent",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "says the crisis is over",
+    "source_quote": "He says the crisis is over",
+    "confidence": 1.0
+   },
+   {
+    "entity": "regent",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "has the last of it locked up in the cellars at Harrowmere",
+    "source_quote": "He has the last of it locked up in the cellars at Harrowmere",
+    "confidence": 1.0
+   },
+   {
+    "entity": "regent",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "selling it off a sack at a time to the guild masters who sit on his council",
+    "source_quote": "He's selling it off a sack at a time to the guild masters who sit on his council",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "hasn't spoken to Corvin since he took the boy to Harrowmere",
+    "value": "hasn't spoken to Corvin since he took the boy to Harrowmere",
+    "source_quote": "She hasn't spoken to Corvin since he took the boy to Harrowmere.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "asks for you every week",
+    "value": "asks for you every week",
+    "source_quote": "Tam asks for you. Every week.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "has told Tam you're dead",
+    "value": "has told Tam you're dead",
+    "source_quote": "Corvin has told him you're dead.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "doesn't believe you're dead",
+    "value": "doesn't believe you're dead",
+    "source_quote": "Tam doesn't believe it.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "as stubborn as you were",
+    "value": "as stubborn as you were",
+    "source_quote": "Your son is as stubborn as you were.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "old swordmaster",
+    "entity_type": "character",
+    "attribute": "hasn't spoken to Corvin since he took the boy to Harrowmere",
+    "value": "hasn't spoken to Corvin since he took the boy to Harrowmere",
+    "source_quote": "The old swordmaster's mouth twitched. 'Well. Angry. She hasn't spoken to Corvin since he took the boy to Harrowmere.'",
+    "confidence": 1.0
+   },
+   {
+    "entity": "old swordmaster",
+    "entity_type": "character",
+    "attribute": "Tam asks for you every week",
+    "value": "asks for you every week",
+    "source_quote": "The old swordmaster's mouth twitched. 'Tam asks for you. Every week.'",
+    "confidence": 1.0
+   },
+   {
+    "entity": "old swordmaster",
+    "entity_type": "character",
+    "attribute": "Corvin has told Tam you're dead",
+    "value": "has told Tam you're dead",
+    "source_quote": "The old swordmaster's mouth twitched. 'Corvin has told him you're dead.'",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "stood in the rain",
+    "value": "stood in the rain",
+    "source_quote": "Aurel stood in the rain for a long moment.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram",
+    "entity_type": "character",
+    "attribute": "statement",
+    "value": "council meets at the spring equinox",
+    "source_quote": "The council meets at the spring equinox, Bram went on.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "regent",
+    "entity_type": "character",
+    "attribute": "goal",
+    "value": "make the regency permanent: Lord Protector until Tam is twenty-five",
+    "source_quote": "The regent wants to make the regency permanent: Lord Protector until Tam is twenty-five.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "twenty-five",
+    "source_quote": "until Tam is twenty-five",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Lord Protector",
+    "entity_type": "event",
+    "attribute": "regency",
+    "value": "permanent",
+    "source_quote": "The regent wants to make the regency permanent: Lord Protector until Tam is twenty-five.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "intention",
+    "value": "I'll be there",
+    "source_quote": "Then I'll be there.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "response",
+    "value": "Not an army",
+    "source_quote": "No. Not an army.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska Venn",
+    "entity_type": "character",
+    "attribute": "activity",
+    "value": "arguing with a miller on the landing",
+    "source_quote": "Saska Venn arguing with a miller on the landing",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "activity",
+    "value": "asleep sitting up in the back of a cart with her apron still on",
+    "source_quote": "Mira asleep sitting up in the back of a cart with her apron still on",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "activity",
+    "value": "writing in the ledger by lantern light",
+    "source_quote": "Pell writing in the ledger by lantern light",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Quiet",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "buckled on for the first time, at his hip",
+    "source_quote": "He took his father's sword Quiet from the cart and buckled it on for the first time.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Quiet",
+    "entity_type": "item",
+    "attribute": "owner",
+    "value": "his father",
+    "source_quote": "He took his father's sword Quiet from the cart and buckled it on for the first time.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "father",
+    "entity_type": "character",
+    "attribute": "name",
+    "value": "not explicitly given in this excerpt",
+    "source_quote": "He took his father's sword Quiet from the cart and buckled it on for the first time.",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Saska",
+    "to_name": "grandmother",
+    "kind": "relative",
+    "category": "family",
+    "source_quote": "my grandmother starved the winter after the Kell war.",
+    "confidence": 0.95
+   },
+   {
+    "from_name": "his father",
+    "to_name": "Aurel",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "Your father's army burned our coastal fields on the way to the river.",
+    "confidence": 0.95
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "elder sister of Aurel",
+    "kind": "sibling",
+    "category": "family",
+    "source_quote": "I am here with wheat, and with my elder sister, who is a healer",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Queen Liesl",
+    "to_name": "Aurel",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "she wrote that she had read every one of her son's letters twice by candlelight",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "38e6a707e865deec8a65f98e3f674f901c4e5e54": "continues: continues immediately after Chapter Seven; Aurel returns to reclaim the crown and opens the grain cellar",
+ "4b1caca9060e3e15bede2786facf10b7b77b1e08": {
+  "chapter_id": "ch8",
+  "facts": [
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "sits in king's chair",
+    "value": "Duke Corvin sat in the king's chair",
+    "source_quote": "Duke Corvin sat in the king's chair with the signet ring of the house of Oren on his finger, a little too big for him still",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke Corvin",
+    "entity_type": "character",
+    "attribute": "wears signet ring",
+    "value": "signet ring of the house of Oren on his finger",
+    "source_quote": "Duke Corvin sat in the king's chair with the signet ring of the house of Oren on his finger, a little too big for him still",
+    "confidence": 1.0
+   },
+   {
+    "entity": "eleven councillors",
+    "entity_type": "character",
+    "attribute": "sat around the table",
+    "value": "eleven councillors sat around the table",
+    "source_quote": "the eleven councillors sat around the table",
+    "confidence": 1.0
+   },
+   {
+    "entity": "paper",
+    "entity_type": "item",
+    "attribute": "makes regency permanent",
+    "value": "the paper that would make the regency permanent",
+    "source_quote": "the paper that would make the regency permanent lay in front of them, waiting for wax",
+    "confidence": 1.0
+   },
+   {
+    "entity": "paper",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "in front of them, waiting for wax",
+    "source_quote": "the paper that would make the regency permanent lay in front of them, waiting for wax",
+    "confidence": 1.0
+   },
+   {
+    "entity": "spring equinox",
+    "entity_type": "event",
+    "attribute": "time of council meeting",
+    "value": "spring equinox",
+    "source_quote": "The council met at the spring equinox",
+    "confidence": 1.0
+   },
+   {
+    "entity": "morning bell",
+    "entity_type": "event",
+    "attribute": "time of council meeting",
+    "value": "hour of the morning bell",
+    "source_quote": "The council met at the ... hour of the morning bell",
+    "confidence": 1.0
+   },
+   {
+    "entity": "noise from the lower city",
+    "entity_type": "event",
+    "attribute": "interruption",
+    "value": "noise from the lower city",
+    "source_quote": "They had reached the vote when they heard the noise from the lower city",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "heard a sound",
+    "value": "thousands of feet walking and faintly singing",
+    "source_quote": "It was not the roar of a riot. Aurel had heard that roar once, and he would never forget it. This was a different sound: thousands of feet, walking, and under it, very faintly, singing.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "experience with roar",
+    "value": "heard that roar once before and would never forget it",
+    "source_quote": "Aurel had heard that roar once, and he would never forget it.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "sound from lower city",
+    "entity_type": "event",
+    "attribute": "description",
+    "value": "thousands of feet walking and under it very faintly singing",
+    "source_quote": "This was a different sound: thousands of feet, walking, and under it, very faintly, singing.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "people from Dun valley",
+    "entity_type": "character",
+    "attribute": "group composition",
+    "value": "widows of the spring storm at the Kettle Rocks that took the fleet, on carts and on foot and on Saska Venn's two barges, which had sailed brazenly into the royal harbour under the flag of the Venn isles: millers and farmers, mothers and grandfathers, the old woman who had spat at Aurel's feet twice, and every village between Hollin and Dun Crossing",
+    "source_quote": "They had come up the river road from the Dun valley, many of them widows of the spring storm at the Kettle Rocks that took the fleet, on carts and on foot and on Saska Venn's two barges, which had sailed brazenly into the royal harbour under the flag of the Venn isles: millers and farmers, mothers and grandfathers, the old woman who had spat at Aurel's feet twice, and every village between Hollin and Dun Crossing.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "empty grain sacks",
+    "entity_type": "item",
+    "attribute": "purpose",
+    "value": "one for every family that had been fed through the winter",
+    "source_quote": "They carried sacks: the empty grain sacks from the barges, one for every family that had been fed through the winter",
+    "confidence": 1.0
+   },
+   {
+    "entity": "great square of Vessa",
+    "entity_type": "location",
+    "attribute": "description",
+    "value": "they laid them down in the great square of Vessa in a grey heap taller than a man",
+    "source_quote": "They had come up the river road from the Dun valley, many of them widows of the spring storm at the Kettle Rocks that took the fleet, on carts and on foot and on Saska Venn's two barges, which had sailed brazenly into the royal harbour under the flag of the Venn isles: millers and farmers, mothers and grandfathers, the old woman who had spat at Aurel's feet twice, and every village between Hollin and Dun Crossing. They carried sacks: the empty grain sacks from the barges, one for every family that had been fed through the winter, and they laid them down in the great square of Vessa in a grey heap taller than a man.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Aurel",
+    "source_quote": "It was the first time he had stood for his cousin since the morning he took the chair",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Corvin",
+    "source_quote": "It was the first time he had stood for his cousin since the morning he took the chair",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "alive",
+    "source_quote": "Aurel walked through his own gate and up his own stair",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "king",
+    "source_quote": "the king who had lost everything",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "cousin of Aurel",
+    "source_quote": "It was the first time he had stood for his cousin since the morning he took the chair",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "alive",
+    "source_quote": "Corvin rose",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "statement",
+    "value": "You're supposed to be dead",
+    "source_quote": "You're supposed to be dead",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "statement",
+    "value": "So I've heard",
+    "source_quote": "So I've heard",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram",
+    "entity_type": "character",
+    "attribute": "companion",
+    "value": "walked at Aurel's side",
+    "source_quote": "with Bram on one side and Mira on the other",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mira",
+    "entity_type": "character",
+    "attribute": "companion",
+    "value": "walked at Aurel's side",
+    "source_quote": "with Bram on one side and Mira on the other",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "position",
+    "value": "behind Aurel",
+    "source_quote": "and Pell and Saska behind",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Saska",
+    "entity_type": "character",
+    "attribute": "position",
+    "value": "behind Aurel",
+    "source_quote": "and Pell and Saska behind",
+    "confidence": 1.0
+   },
+   {
+    "entity": "castle gate",
+    "entity_type": "location",
+    "attribute": "description",
+    "value": "gate of the castle",
+    "source_quote": "The guards at the castle gate did not stop him",
+    "confidence": 1.0
+   },
+   {
+    "entity": "castle",
+    "entity_type": "location",
+    "attribute": "description",
+    "value": "Aurel's own gate and stair and long chamber",
+    "source_quote": "Aurel walked through his own gate and up his own stair, with Bram on one side and Mira on the other, and Pell and Saska behind, and he opened the door of the long chamber without knocking",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "opened the door of the long chamber",
+    "source_quote": "he opened the door of the long chamber without knocking",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "rose",
+    "source_quote": "Corvin rose",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "walked through his own gate",
+    "source_quote": "Aurel walked through his own gate and up his own stair",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "walked up his own stair",
+    "source_quote": "Aurel walked through his own gate and up his own stair",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "sat in the chair",
+    "source_quote": "I sat in this chair, and the harvest failed again, and I was afraid.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "locked the grain away",
+    "source_quote": "Every night I thought, this is how it felt for him, and I locked the grain away so that I would never be the one to run out.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "wearing a ring on his finger",
+    "source_quote": "He looked down at the ring on his finger.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Harvest",
+    "entity_type": "event",
+    "attribute": "failed",
+    "value": "again",
+    "source_quote": "and the harvest failed again, and I was afraid.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Regent",
+    "entity_type": "character",
+    "attribute": "has a cellar full of grain at Harrowmere",
+    "value": "has a cellar full of grain at Harrowmere",
+    "source_quote": "the regent has a cellar full of grain at Harrowmere",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Cellar at Harrowmere",
+    "entity_type": "location",
+    "attribute": "full of grain",
+    "value": "full of grain",
+    "source_quote": "the regent has a cellar full of grain at Harrowmere",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Councillors",
+    "entity_type": "character",
+    "attribute": "voted on the cellar first",
+    "value": "voted on the cellar first",
+    "source_quote": "They voted on the cellar first. It was not close.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Signet ring",
+    "entity_type": "item",
+    "attribute": "taken off finger and held out across the table",
+    "value": "taken off finger and held out across the table",
+    "source_quote": "Corvin took the signet ring off his finger and held it out across the table.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "looked at signet ring for a long while before taking it",
+    "value": "looked at it for a long while before he took it",
+    "source_quote": "Aurel looked at it for a long while before he took it.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Grey mountain of empty sacks",
+    "entity_type": "location",
+    "attribute": "visible in the square below",
+    "value": "grey mountain of empty sacks",
+    "source_quote": "He walked to the window and threw it open, so that the councillors could see the square below and the grey mountain of empty sacks.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "cousin to Corvin",
+    "source_quote": "I'd like you to sit in it. I think you'll know what it's for.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Corvin",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "cousin to Aurel",
+    "source_quote": "I'd like you to sit in it. I think you'll know what it's for.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "ferryman king",
+    "source_quote": "They're already calling you the ferryman king.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "regent",
+    "entity_type": "character",
+    "attribute": "has chair kept beside Aurel's",
+    "value": "true",
+    "source_quote": "A regent's chair kept beside mine, for the next time I'm a fool.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "physical description",
+    "value": "looked at cousin Corvin",
+    "source_quote": "He looked at his cousin.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "married to Thessaly",
+    "source_quote": "Aurel thought about it honestly, the way she had taught him to think about the figures in the great ledger when he was nineteen.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "married to Aurel",
+    "source_quote": "Aurel thought about it honestly, the way she had taught him to think about the figures in the great ledger when he was nineteen.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "queen",
+    "entity_type": "character",
+    "attribute": "position",
+    "value": "waiting at the head of the great stair",
+    "source_quote": "The queen was waiting at the head of the great stair.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "thought_process",
+    "value": "thinks about figures in the great ledger when he was nineteen",
+    "source_quote": "Aurel thought about it honestly, the way she had taught him to think about the figures in the great ledger when he was nineteen.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "folded her arms",
+    "source_quote": "She folded her arms.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "emotion",
+    "value": "laughed then ran to Aurel",
+    "source_quote": "Thessaly's dark brown eyes filled, and then she laughed, and then she did run to him.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "description",
+    "value": "has a beard and two scars, wears ferryman's coat and ring",
+    "source_quote": "She had heard the singing from the nursery window. Thessaly looked at her husband's beard, and his two scars, and the ferryman's coat, and the ring back on his finger, and she did not run to him.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "speech",
+    "value": "A man who knows how much a loaf costs",
+    "source_quote": "A man who knows how much a loaf costs",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "husband to Thessaly",
+    "source_quote": "Aurel thought about it honestly, the way she had taught him to think about the figures in the great ledger when he was nineteen.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thessaly",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "wife to Aurel",
+    "source_quote": "Aurel thought about it honestly, the way she had taught him to think about the figures in the great ledger when he was nineteen.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Tam",
+    "source_quote": "Tam came down the stair behind his mother, taller than Aurel remembered, all knees and elbows, and stopped three steps from the bottom and stared.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Aurel",
+    "source_quote": "Tam came down the stair behind his mother, taller than Aurel remembered, all knees and elbows, and stopped three steps from the bottom and stared.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "height",
+    "value": "taller than Aurel remembered, all knees and elbows",
+    "source_quote": "Tam came down the stair behind his mother, taller than Aurel remembered, all knees and elbows, and stopped three steps from the bottom and stared.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "son of Aurel",
+    "source_quote": "Tam came down the stair behind his mother, taller than Aurel remembered, all knees and elbows, and stopped three steps from the bottom and stared.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "knelt on the stone in front of his son",
+    "source_quote": "Aurel knelt on the stone in front of his son, so that their eyes were level.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "promise",
+    "value": "making a promise about nobody being hungry",
+    "source_quote": "Did you make the promise again? About nobody being hungry? ... I'm making it now",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "showing granaries to Tam",
+    "source_quote": "And this time I'll show you where the granaries are, so that if I ever forget, you can remind me.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tam",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "alive",
+    "source_quote": "I told them you weren't dead",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "knelt",
+    "source_quote": "Aurel knelt on the stone in front of his son",
+    "confidence": 1.0
+   },
+   {
+    "entity": "stone",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "in front of Aurel's son (Tam)",
+    "source_quote": "Aurel knelt on the stone in front of his son",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pell",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "led an old grey stallion out of the royal stables into the spring dusk",
+    "source_quote": "That evening Pell led an old grey stallion out of the royal stables into the spring dusk.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "old grey stallion",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "spring dusk (led out of the royal stables)",
+    "source_quote": "That evening Pell led an old grey stallion out of the royal stables into the spring dusk.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ember",
+    "entity_type": "item",
+    "attribute": "description",
+    "value": "white around the muzzle",
+    "source_quote": "Ember had grown white around the muzzle since Aurel had last seen him, and he was too old now to carry a king into battle.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ember",
+    "entity_type": "item",
+    "attribute": "capability",
+    "value": "too old now to carry a king into battle",
+    "source_quote": "Ember had grown white around the muzzle since Aurel had last seen him, and he was too old now to carry a king into battle.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "raised his cup",
+    "source_quote": "When Aurel raised his cup, the old swordmaster looked at it for a long moment.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "looked at Aurel's cup for a long moment",
+    "source_quote": "When Aurel raised his cup, the old swordmaster looked at it for a long moment.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bram Holloway",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "turned his own cup the right way up, and filled it, and drank",
+    "source_quote": "Then, for the first time since the night of Greywater, Bram turned his own cup the right way up, and filled it, and drank.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aurel",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "present at the feast in the great hall",
+    "source_quote": "That evening Pell led an old grey stallion out of the royal stables into the spring dusk.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "spring dusk",
+    "entity_type": "other",
+    "attribute": "time reference",
+    "value": "evening",
+    "source_quote": "That evening Pell led an old grey stallion out of the royal stables into the spring dusk.",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Corvin",
+    "to_name": "Aurel",
+    "kind": "relative",
+    "category": "family",
+    "source_quote": "I'd like you to sit in it. I think you'll know what it's for.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "Corvin",
+    "kind": "relative",
+    "category": "family",
+    "source_quote": "I'd like you to sit in it. I think you'll know what it's for.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "Thessaly",
+    "kind": "spouse",
+    "category": "family",
+    "source_quote": "Aurel thought about it honestly, the way she had taught him to think about the figures in the great ledger when he was nineteen.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Thessaly",
+    "to_name": "Aurel",
+    "kind": "spouse",
+    "category": "family",
+    "source_quote": "Aurel thought about it honestly, the way she had taught him to think about the figures in the great ledger when he was nineteen.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Aurel",
+    "to_name": "Tam",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "Tam came down the stair behind his mother, taller than Aurel remembered, all knees and elbows, and stopped three steps from the bottom and stared.",
+    "confidence": 1.0
+   }
+  ]
+ }
+}

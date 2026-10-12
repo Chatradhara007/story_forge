@@ -12,7 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from extract import extract_facts
 from models import ExtractionResult, ChapterIngestResult
-from llm import AIServiceError, AI_CONFIGURED, ask_text
+from llm import AIServiceError, AI_CONFIGURED, ask_text, model_status
 import auth
 import jobs
 import pipeline
@@ -62,6 +62,27 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next):
+    """
+    Browser protections. The sign-in token is kept in the browser, so the most important
+    one is the Content-Security-Policy: only this site's own scripts may run, which blocks
+    injected scripts from reading the token.
+    """
+    response = await call_next(request)
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    if request.url.path.startswith("/app") or request.url.path == "/":
+        response.headers.setdefault(
+            "Content-Security-Policy",
+            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+            "font-src 'self'; connect-src 'self' https:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
+    if request.url.path.startswith("/auth"):
+        response.headers["Cache-Control"] = "no-store"
+    return response
 
 
 @app.exception_handler(AIServiceError)
@@ -152,7 +173,8 @@ def activity(user: dict | None = Depends(auth.current_user)):
 def delete_project(project_id: int, user: dict | None = Depends(auth.current_user)):
     """Delete a book and everything in it: chapters, facts, characters and warnings."""
     _existing_project(project_id, user)
-    storage.delete_project(project_id)
+    with jobs.book_free(project_id):
+        storage.delete_project(project_id)
     return {"deleted": project_id}
 
 
@@ -176,11 +198,15 @@ def current_project(request: Request, user: dict | None = Depends(auth.current_u
 # ---------------------------------------------------------------------------
 # Accounts
 # ---------------------------------------------------------------------------
+EMAIL = Field(min_length=3, max_length=200, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+PASSWORD = Field(min_length=8, max_length=200)
+
+
 class RegisterInput(BaseModel):
-    email: str = Field(min_length=3, max_length=200, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-    password: str = Field(min_length=8, max_length=200)
+    email: str = EMAIL
+    password: str = PASSWORD
     display_name: str | None = Field(default=None, max_length=80)
-    invite_code: str | None = None
+    invite_code: str | None = Field(default=None, max_length=200)
 
 
 class LoginInput(BaseModel):
@@ -188,31 +214,95 @@ class LoginInput(BaseModel):
     password: str = Field(min_length=1, max_length=200)
 
 
+class ProfileInput(BaseModel):
+    display_name: str = Field(min_length=1, max_length=80)
+
+
+class PasswordChangeInput(BaseModel):
+    current_password: str = Field(min_length=1, max_length=200)
+    new_password: str = PASSWORD
+
+
+class PasswordConfirmInput(BaseModel):
+    password: str = Field(min_length=1, max_length=200)
+
+
+class ForgotInput(BaseModel):
+    email: str = EMAIL
+
+
+class ResetInput(BaseModel):
+    token: str = Field(min_length=20, max_length=200)
+    new_password: str = PASSWORD
+
+
 @app.get("/auth/config")
 def auth_config():
     """What the sign-in screen needs to know (public)."""
     return {"auth_required": auth.AUTH_REQUIRED, "registration_open": auth.ALLOW_REGISTRATION,
-            "invite_required": bool(auth.INVITE_CODE), "daily_chapter_limit": auth.DAILY_CHAPTER_LIMIT}
+            "invite_required": bool(auth.INVITE_CODE), "daily_chapter_limit": auth.DAILY_CHAPTER_LIMIT,
+            "password_reset": auth.reset_delivery(), "min_password_length": 8}
 
 
 @app.post("/auth/register", status_code=201)
-def register(body: RegisterInput):
-    user = auth.register(body.email, body.password, body.display_name, body.invite_code)
-    return {"user": user, "token": auth.make_token(user["id"])}
+def register(body: RegisterInput, request: Request):
+    user = auth.register(body.email, body.password, body.display_name, body.invite_code, auth.client_ip(request))
+    return auth.session_for(user)
 
 
 @app.post("/auth/login")
 def login(body: LoginInput, request: Request):
-    user = auth.login(body.email, body.password, request.client.host if request.client else "?")
-    return {"user": user, "token": auth.make_token(user["id"])}
+    return auth.session_for(auth.login(body.email, body.password, auth.client_ip(request)))
 
 
 @app.get("/auth/me")
 def me(user: dict | None = Depends(auth.current_user)):
     if user is None:
         return {"user": None, "auth_required": False}
-    return {"user": user, "auth_required": True, "chapters_today": auth.usage_today(user["id"]),
+    return {"user": auth._public(user), "auth_required": True, "chapters_today": auth.usage_today(user["id"]),
             "daily_chapter_limit": auth.DAILY_CHAPTER_LIMIT}
+
+
+@app.patch("/auth/me")
+def update_me(body: ProfileInput, user: dict = Depends(auth.require_user)):
+    """Change your display name."""
+    return {"user": auth._public(auth.update_profile(user, body.display_name))}
+
+
+@app.post("/auth/password")
+def change_password(body: PasswordChangeInput, user: dict = Depends(auth.require_user)):
+    """Change your password. Every other sign-in ends; this browser gets a new token."""
+    return auth.session_for(auth.change_password(user, body.current_password, body.new_password))
+
+
+@app.post("/auth/logout-everywhere")
+def logout_everywhere(user: dict = Depends(auth.require_user)):
+    """Sign out on every device, this one included (e.g. after using a shared computer)."""
+    auth.sign_out_everywhere(user)
+    return {"signed_out": True}
+
+
+@app.post("/auth/delete-account")
+def delete_account(body: PasswordConfirmInput, user: dict = Depends(auth.require_user)):
+    """Delete your account and every book in it. Needs your password. Can't be undone."""
+    auth.delete_account(user, body.password)
+    return {"deleted": True}
+
+
+@app.post("/auth/forgot", status_code=202)
+def forgot_password(body: ForgotInput, request: Request):
+    """Send a reset link if the account exists. The answer is the same either way."""
+    if auth.AUTH_REQUIRED:
+        auth.request_reset(body.email, auth.client_ip(request), str(request.base_url))
+    return {"sent": True, "delivery": auth.reset_delivery()}
+
+
+@app.post("/auth/reset")
+def reset_password(body: ResetInput, request: Request):
+    """Choose a new password with the link's token; signs you in."""
+    if not auth.AUTH_REQUIRED:
+        raise HTTPException(status_code=404, detail="Accounts are switched off on this StoryForge.")
+    return auth.session_for(auth.complete_reset(body.token, body.new_password, auth.client_ip(request)))
 
 
 # ---------------------------------------------------------------------------
@@ -222,7 +312,11 @@ def me(user: dict | None = Depends(auth.current_user)):
 def extract(chapter: ChapterInput, user: dict | None = Depends(auth.current_user)):
     """Extract facts only — does not store them. Useful for testing extraction in isolation."""
     auth.charge_chapter(user)
-    return extract_facts(chapter.chapter_id, chapter.text)
+    try:
+        return extract_facts(chapter.chapter_id, chapter.text)
+    except AIServiceError:
+        auth.refund_chapter(user)
+        raise
 
 
 # ---------------------------------------------------------------------------
@@ -242,8 +336,12 @@ def ingest_chapter(chapter: ChapterInput, project_id: int = Depends(current_proj
     Later chapters affected by this one are re-checked in the background afterwards.
     """
     auth.charge_chapter(user)
-    with jobs.book_lock(project_id):
-        result, later = pipeline.ingest(project_id, chapter.chapter_id, chapter.text, chapter.chapter_number)
+    try:
+        with jobs.book_lock(project_id):
+            result, later = pipeline.ingest(project_id, chapter.chapter_id, chapter.text, chapter.chapter_number)
+    except AIServiceError:
+        auth.refund_chapter(user)        # the AI failed: the check didn't happen, so it isn't counted
+        raise
     jobs.submit_rechecks(project_id, later, f"{chapter.chapter_id} changed")
     return result
 
@@ -258,8 +356,12 @@ def ingest_chapter_job(chapter: ChapterInput, project_id: int = Depends(current_
     auth.charge_chapter(user)
 
     def work(progress):
-        result, later = pipeline.ingest(project_id, chapter.chapter_id, chapter.text, chapter.chapter_number,
-                                        progress=progress)
+        try:
+            result, later = pipeline.ingest(project_id, chapter.chapter_id, chapter.text, chapter.chapter_number,
+                                            progress=progress)
+        except AIServiceError:
+            auth.refund_chapter(user)
+            raise
         recheck_job = jobs.submit_rechecks(project_id, later, f"{chapter.chapter_id} changed")
         return {**result.model_dump(), "recheck_job_id": recheck_job}
 
@@ -321,9 +423,10 @@ def chapter_detail(chapter_id: str, project_id: int = Depends(current_project)):
 @book.delete("/chapters/{chapter_id}")
 def remove_chapter(chapter_id: str, project_id: int = Depends(current_project)):
     """Delete a chapter, its facts and its warnings. Later chapters are re-checked without it."""
-    number = storage.chapter_number_of(project_id, chapter_id)
-    if number is None or not delete_chapter(project_id, chapter_id):
-        raise HTTPException(status_code=404, detail=f"No chapter called '{chapter_id}'.")
+    with jobs.book_free(project_id):
+        number = storage.chapter_number_of(project_id, chapter_id)
+        if number is None or not delete_chapter(project_id, chapter_id):
+            raise HTTPException(status_code=404, detail=f"No chapter called '{chapter_id}'.")
     job = jobs.submit_rechecks(project_id, storage.chapters_after(project_id, number), f"{chapter_id} deleted")
     return {"deleted": chapter_id, "recheck_job_id": job}
 
@@ -350,7 +453,10 @@ def edit_fact(fact_id: int, body: FactUpdate, project_id: int = Depends(current_
     if "pinned" in changes:
         fact = storage.set_fact_pinned(project_id, fact_id, changes.pop("pinned"))
     if changes:
-        fact = update_fact(project_id, fact_id, changes)
+        with jobs.book_free(project_id):
+            fact = update_fact(project_id, fact_id, changes)
+        if fact is None:
+            raise HTTPException(status_code=404, detail=f"No fact with id {fact_id}.")
         later = storage.chapters_after(project_id, storage.chapter_number_of(project_id, fact["chapter_id"]))
         fact["recheck_job_id"] = jobs.submit_rechecks(
             project_id, fact.pop("recheck_chapters") + later, "a fact was corrected")
@@ -360,7 +466,8 @@ def edit_fact(fact_id: int, body: FactUpdate, project_id: int = Depends(current_
 @book.delete("/facts/{fact_id}")
 def remove_fact(fact_id: int, project_id: int = Depends(current_project)):
     """Delete a fact the AI shouldn't have extracted. Logged; warnings built on it are closed."""
-    affected = delete_fact(project_id, fact_id)
+    with jobs.book_free(project_id):
+        affected = delete_fact(project_id, fact_id)
     if affected is None:
         raise HTTPException(status_code=404, detail=f"No fact with id {fact_id}.")
     return {"deleted": fact_id,
@@ -414,7 +521,8 @@ def merge(body: MergeInput, project_id: int = Depends(current_project)):
     if not _types_compatible(keep["entity_type"], other["entity_type"]):
         raise HTTPException(status_code=400, detail=f"Can't merge a {other['entity_type']} into a "
                                                     f"{keep['entity_type']}: they can't be the same thing.")
-    merge_entities(project_id, body.keep_entity_id, body.merge_entity_id)
+    with jobs.book_free(project_id):
+        merge_entities(project_id, body.keep_entity_id, body.merge_entity_id)
     # Facts that were never compared (they were on two cards) are compared now.
     job = jobs.submit_rechecks(project_id, storage.chapters_with_entity(project_id, body.keep_entity_id),
                                "two entries were merged")
@@ -438,7 +546,8 @@ def detach(entity_id: int, body: DetachInput, project_id: int = Depends(current_
         raise HTTPException(status_code=400, detail=f"'{body.name}' is not one of this entity's names.")
     if len(entity["aliases"]) < 2:
         raise HTTPException(status_code=400, detail="This entity only has one name; nothing to split off.")
-    new_id = detach_alias(project_id, entity_id, body.name)
+    with jobs.book_free(project_id):
+        new_id = detach_alias(project_id, entity_id, body.name)
     chapters = storage.chapters_with_entity(project_id, entity_id) + storage.chapters_with_entity(project_id, new_id)
     job = jobs.submit_rechecks(project_id, sorted(set(chapters), key=lambda c: storage.chapter_number_of(project_id, c)),
                                "a name was split off")
@@ -447,9 +556,10 @@ def detach(entity_id: int, body: DetachInput, project_id: int = Depends(current_
 
 
 @book.get("/search")
-def search(q: str = Query(min_length=1), top_k: int = Query(default=5, ge=1, le=50),
-           project_id: int = Depends(current_project)):
+def search(q: str = Query(min_length=1, max_length=500), top_k: int = Query(default=5, ge=1, le=50),
+           project_id: int = Depends(current_project), user: dict | None = Depends(auth.current_user)):
     """Semantic search across the book's facts — finds relevant facts even with different wording."""
+    auth.charge_question(user)
     return {"query": q, "results": semantic_search(project_id, q, top_k)}
 
 
@@ -538,15 +648,18 @@ Facts (entity | attribute | value | chapter number | quote):
 
 
 class AskInput(BaseModel):
-    question: str = Field(min_length=1)
+    question: str = Field(min_length=1, max_length=1000)
 
 
 @book.post("/ask")
-def ask(body: AskInput, project_id: int = Depends(current_project)):
+def ask(body: AskInput, project_id: int = Depends(current_project), user: dict | None = Depends(auth.current_user)):
     """
     "What do we know about X?" Finds the most relevant facts in this book by meaning,
     then has the AI write a short answer from them, with the facts as sources.
     """
+    if not storage.list_chapters(project_id):          # no facts: don't spend an AI request
+        return {"question": body.question, "answer": "No chapters have been added yet.", "sources": []}
+    auth.charge_question(user)
     sources = semantic_search(project_id, body.question, top_k=12)
     if not sources:
         return {"question": body.question, "answer": "No chapters have been added yet.", "sources": []}
@@ -567,6 +680,7 @@ app.include_router(book, include_in_schema=False)        # short addresses: the 
 def health():
     """Liveness check. Always 200 if the web server runs; says whether the database and AI are set up."""
     return {"status": "ok", "database": storage.database_ok(), "ai_configured": AI_CONFIGURED,
+            "models": model_status(),
             "auth_required": auth.AUTH_REQUIRED}
 
 

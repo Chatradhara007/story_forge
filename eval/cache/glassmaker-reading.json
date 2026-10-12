@@ -1,0 +1,1121 @@
+{
+ "96a4b276a5fd8925c8601aff312cdb2c5ba74144": "continues: continues the ongoing story",
+ "4de584af0a81a47b812b074308fccc617de208cf": {
+  "chapter_id": "ch1",
+  "facts": [
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "birthplace",
+    "value": "Varrow",
+    "source_quote": "Orla had been born in Varrow and had never once left it.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "thirty-four",
+    "source_quote": "Orla had been born in Varrow and had never once left it. She was thirty-four",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "shoulder_build",
+    "value": "broad in the shoulders",
+    "source_quote": "She was thirty-four, broad in the shoulders",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "handedness",
+    "value": "left-handed",
+    "source_quote": "She was thirty-four, broad in the shoulders, and left-handed",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "palm_injury",
+    "value": "pale scar across her right palm",
+    "source_quote": "A pale scar ran across her right palm, the mark of a blowpipe that had slipped long ago.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "workshop_location",
+    "value": "Tallow Street",
+    "source_quote": "Most of that glass came from the workshop of Orla Venn on Tallow Street.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "furnace_status",
+    "value": "has not gone cold in eleven years",
+    "source_quote": "Her workshop was small and hot, built around its single furnace, which had not gone cold in eleven years.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "product_price",
+    "value": "twice the price",
+    "source_quote": "the other glassmakers said was why her pieces curved the wrong way and sold for twice the price.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "product_curvature",
+    "value": "curved the wrong way",
+    "source_quote": "the other glassmakers said was why her pieces curved the wrong way",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Lantern Festival",
+    "entity_type": "event",
+    "attribute": "occurrence",
+    "value": "eve of the autumn Lantern Festival",
+    "source_quote": "on the eve of the autumn Lantern Festival every window along them glowed with coloured glass.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "coloured glass",
+    "entity_type": "item",
+    "attribute": "source",
+    "value": "workshop of Orla Venn on Tallow Street",
+    "source_quote": "Most of that glass came from the workshop of Orla Venn on Tallow Street.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Rook",
+    "source_quote": "Her apprentice was a thin, red-haired boy of sixteen called Rook.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rook",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Orla Venn",
+    "source_quote": "Her apprentice was a thin, red-haired boy of sixteen called Rook.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rose Halloway",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "sibling of Orla Venn",
+    "source_quote": "Orla's younger sister, Rose Halloway, kept an herb shop on Wicker Lane and came by most evenings with bread and complaints.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "sibling of Rose Halloway",
+    "source_quote": "Orla's younger sister, Rose Halloway, kept an herb shop on Wicker Lane and came by most evenings with bread and complaints.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rook",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "sixteen",
+    "source_quote": "Her apprentice was a thin, red-haired boy of sixteen called Rook.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rook",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "thin, red-haired, lost two fingers of his left hand",
+    "source_quote": "Her apprentice was a thin, red-haired boy of sixteen called Rook. He had lost two fingers of his left hand to that furnace in his first winter",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rook",
+    "entity_type": "character",
+    "attribute": "occupation",
+    "value": "apprentice",
+    "source_quote": "Her apprentice was a thin, red-haired boy of sixteen called Rook.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ysolde",
+    "entity_type": "character",
+    "attribute": "occupation",
+    "value": "glass-singer",
+    "source_quote": "Upstairs lived old Ysolde, the last glass-singer in Varrow",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rose Halloway",
+    "entity_type": "character",
+    "attribute": "relation",
+    "value": "Orla's younger sister",
+    "source_quote": "Orla's younger sister, Rose Halloway, kept an herb shop on Wicker Lane and came by most evenings with bread and complaints.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rose Halloway",
+    "entity_type": "character",
+    "attribute": "location",
+    "value": "Wicker Lane",
+    "source_quote": "Rose Halloway, kept an herb shop on Wicker Lane",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rose Halloway",
+    "entity_type": "character",
+    "attribute": "activity",
+    "value": "comes by most evenings with bread and complaints",
+    "source_quote": "Rose Halloway, kept an herb shop on Wicker Lane and came by most evenings with bread and complaints.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "furnace",
+    "entity_type": "item",
+    "attribute": "damage",
+    "value": "lost two fingers of Rook's left hand",
+    "source_quote": "Her apprentice was a thin, red-haired boy of sixteen called Rook. He had lost two fingers of his left hand to that furnace in his first winter",
+    "confidence": 1.0
+   },
+   {
+    "entity": "bread",
+    "entity_type": "item",
+    "attribute": "mentioned",
+    "value": "came by most evenings with bread and complaints",
+    "source_quote": "Rose Halloway, kept an herb shop on Wicker Lane and came by most evenings with bread and complaints.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Captain Aldous Crane",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "Captain of the city watch",
+    "source_quote": "Captain Aldous Crane of the city watch ducked in through the door.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Captain Aldous Crane",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "tall, stooping man who seemed to apologise to every ceiling",
+    "source_quote": "He was a tall, stooping man who seemed to apologise to every ceiling.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Sunstone lens",
+    "entity_type": "item",
+    "attribute": "description",
+    "value": "disc of gold glass as wide as a dinner plate, made for the Festival and promised to the Duke",
+    "source_quote": "wrapped in felt, lay the Sunstone lens: a disc of gold glass as wide as a dinner plate, made for the Festival and promised to the Duke",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Sunstone lens",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "on the bench, wrapped in felt",
+    "source_quote": "On the bench, wrapped in felt, lay the Sunstone lens",
+    "confidence": 1.0
+   },
+   {
+    "entity": "ledger",
+    "entity_type": "item",
+    "attribute": "description",
+    "value": "fat book bound in green leather, the only record of every debt owed to the workshop",
+    "source_quote": "The ledger was a fat book bound in green leather, the only record of every debt owed to the workshop.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "ledger",
+    "entity_type": "item",
+    "attribute": "advice",
+    "value": "somewhere safe",
+    "source_quote": "Keep your ledger somewhere safe.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tom Fenner",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "ferryman",
+    "source_quote": "Tom Fenner, the ferryman",
+    "confidence": 1.0
+   },
+   {
+    "entity": "sand",
+    "entity_type": "item",
+    "attribute": "used_for",
+    "value": "brought the sand for the Sunstone lens",
+    "source_quote": "Tom Fenner had brought the sand for it across the canal himself.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "east bank",
+    "entity_type": "location",
+    "attribute": "fire_events",
+    "value": "two fires set last week",
+    "source_quote": "Someone set two fires on the east bank last week",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Festival",
+    "entity_type": "event",
+    "attribute": "purpose",
+    "value": "Sunstone lens made for the Festival",
+    "source_quote": "made for the Festival and promised to the Duke",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Duke",
+    "entity_type": "character",
+    "attribute": "recipient",
+    "value": "Sunstone lens promised to the Duke",
+    "source_quote": "made for the Festival and promised to the Duke",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Orla Venn",
+    "to_name": "Rook",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "Her apprentice was a thin, red-haired boy of sixteen called Rook.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Rose Halloway",
+    "to_name": "Orla Venn",
+    "kind": "sibling",
+    "category": "family",
+    "source_quote": "Orla's younger sister, Rose Halloway, kept an herb shop on Wicker Lane and came by most evenings with bread and complaints.",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "eaac806abe07ae2959adf236f6f8900219f98268": "time skip: three years after Rook went into hiding",
+ "ef1515022f7aadd2d83cc4937cef1a2d2fc415cb": {
+  "chapter_id": "ch2",
+  "facts": [
+   {
+    "entity": "Orla",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "woke to the smell of fire and ran down the stairs",
+    "source_quote": "Orla woke to the smell of it and ran down the stairs.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "workshop",
+    "entity_type": "location",
+    "attribute": "description",
+    "value": "full of light: all three furnaces were roaring, their doors thrown open, and flames were climbing the shelves of finished glass",
+    "source_quote": "The workshop was already full of light: all three furnaces were roaring, their doors thrown open, and flames were climbing the shelves of finished glass.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "has an old scar on left palm",
+    "source_quote": "She pressed her left palm, where the old scar ran, against her mouth and nose",
+    "confidence": 1.0
+   },
+   {
+    "entity": "fire",
+    "entity_type": "event",
+    "attribute": "time",
+    "value": "just after midnight",
+    "source_quote": "The fire began just after midnight.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "fire",
+    "entity_type": "event",
+    "attribute": "location",
+    "value": "workshop",
+    "source_quote": "The fire began just after midnight.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rook's_family",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Edwin_Marsh",
+    "source_quote": "Edwin Marsh, the runaway son of a family who owed half the city money",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Edwin_Marsh",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Rook's_family",
+    "source_quote": "Edwin Marsh, the runaway son of a family who owed half the city money",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Rook",
+    "source_quote": "Rook had been hiding in Orla's workshop for three years",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rook",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Orla",
+    "source_quote": "Rook had been hiding in Orla's workshop for three years",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rook",
+    "entity_type": "character",
+    "attribute": "real_name",
+    "value": "Edwin Marsh",
+    "source_quote": "Rook's real name was Edwin Marsh",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rook",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "alive",
+    "source_quote": "Rook was at the water barrel, throwing bucket after bucket",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rook",
+    "entity_type": "character",
+    "attribute": "location",
+    "value": "Orla's workshop",
+    "source_quote": "He had been hiding in Orla's workshop for three years",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rook",
+    "entity_type": "character",
+    "attribute": "relationship_to_Edwin_Marsh",
+    "value": "son_of",
+    "source_quote": "Edwin Marsh, the runaway son of a family who owed half the city money",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Edwin_Marsh_family",
+    "entity_type": "character",
+    "attribute": "owed_money",
+    "value": "half_the_city_money",
+    "source_quote": "a family who owed half the city money",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla",
+    "entity_type": "character",
+    "attribute": "location",
+    "value": "workshop",
+    "source_quote": "He had been hiding in Orla's workshop for three years",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Captain_Crane",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "called_out_Marsh_Edwin_Marsh",
+    "source_quote": "Captain Crane arrived with the watch and called out 'Marsh! Edwin Marsh!'",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Sunstone_lens",
+    "entity_type": "item",
+    "attribute": "status",
+    "value": "shattered",
+    "source_quote": "The Sunstone lens slid from the bench and shattered on the stone floor into a hundred golden pieces",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Sunstone_lens",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "stone_floor",
+    "source_quote": "The Sunstone lens slid from the bench and shattered on the stone floor into a hundred golden pieces",
+    "confidence": 1.0
+   },
+   {
+    "entity": "green_ledger",
+    "entity_type": "item",
+    "attribute": "status",
+    "value": "burned_to_ash",
+    "source_quote": "The green ledger burned to ash on the counter before anyone could reach it",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rook",
+    "entity_type": "character",
+    "attribute": "reaction_to_name",
+    "value": "flinched_as_if_stricken",
+    "source_quote": "the boy flinched as if he'd been struck",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rook",
+    "entity_type": "character",
+    "attribute": "age_hiding",
+    "value": "three_years",
+    "source_quote": "He had been hiding in Orla's workshop for three years",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Old Ysolde",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "dead",
+    "source_quote": "Old Ysolde did not come down the stairs. They found her afterwards in her chair by the window, as if she had simply fallen asleep in the smoke. She was dead before dawn.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tom Fenner",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "drowned",
+    "source_quote": "Out on the canal, Tom Fenner had been ferrying buckets from the far bank. His boat capsized when the roof beams fell into the water, and Tom Fenner drowned before anyone could reach him.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tom Brisk",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "wrote down the names of the dead in careful letters",
+    "source_quote": "Tom Brisk, the captain's young clerk, stood at the edge of the crowd with his notebook and wrote down the names of the dead in careful letters.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tom Fenner",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "ferrying buckets from the far bank",
+    "source_quote": "Out on the canal, Tom Fenner had been ferrying buckets from the far bank.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tom Fenner",
+    "entity_type": "character",
+    "attribute": "event",
+    "value": "boat capsized when the roof beams fell into the water",
+    "source_quote": "Out on the canal, Tom Fenner had been ferrying buckets from the far bank. His boat capsized when the roof beams fell into the water, and Tom Fenner drowned before anyone could reach him.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Old Ysolde",
+    "entity_type": "character",
+    "attribute": "location",
+    "value": "in her chair by the window",
+    "source_quote": "Old Ysolde did not come down the stairs. They found her afterwards in her chair by the window, as if she had simply fallen asleep in the smoke.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tom Fenner",
+    "entity_type": "character",
+    "attribute": "event",
+    "value": "drowned before anyone could reach him",
+    "source_quote": "Out on the canal, Tom Fenner had been ferrying buckets from the far bank. His boat capsized when the roof beams fell into the water, and Tom Fenner drowned before anyone could reach him.",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Rook's_family",
+    "to_name": "Edwin_Marsh",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "Edwin Marsh, the runaway son of a family who owed half the city money",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Orla",
+    "to_name": "Rook",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "Rook had been hiding in Orla's workshop for three years",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "3ce65b5f8c557e4c0acff1d8237360ff40929034": "flashback: twelve years before the fire",
+ "86fc25f72b37807a077cebb115d3eaee96b70094": {
+  "chapter_id": "ch3",
+  "facts": [
+   {
+    "entity": "Ysolde",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Orla Venn",
+    "source_quote": "with nothing but a satchel and a letter of introduction to a glass-singer. The glass-singer was Ysolde, who laughed at the letter and let her stay anyway.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Ysolde",
+    "source_quote": "with nothing but a satchel and a letter of introduction to a glass-singer. The glass-singer was Ysolde, who laughed at the letter and let her stay anyway.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "twenty-two",
+    "source_quote": "Twelve years before the fire, Orla Venn was twenty-two and had never made anything worth selling.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "physical description",
+    "value": "hands were smooth, her palms unmarked by any burn or cut",
+    "source_quote": "Her hands, in those days, were smooth, her palms unmarked by any burn or cut.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "arrival location",
+    "value": "Varrow",
+    "source_quote": "She had come to Varrow as a girl of nineteen, three years before",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ysolde",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "alive",
+    "source_quote": "The glass-singer was Ysolde, who was very much alive then and not yet old",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ysolde",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "not yet old",
+    "source_quote": "The glass-singer was Ysolde, who was very much alive then and not yet old",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ysolde",
+    "entity_type": "character",
+    "attribute": "profession",
+    "value": "glass-singer",
+    "source_quote": "with nothing but a satchel and a letter of introduction to a glass-singer. The glass-singer was Ysolde",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "possession",
+    "value": "satchel",
+    "source_quote": "with nothing but a satchel and a letter of introduction to a glass-singer",
+    "confidence": 1.0
+   },
+   {
+    "entity": "letter of introduction",
+    "entity_type": "item",
+    "attribute": "purpose",
+    "value": "introduction to a glass-singer",
+    "source_quote": "with nothing but a satchel and a letter of introduction to a glass-singer",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ysolde",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "laughed at the letter and let her stay anyway",
+    "source_quote": "who laughed at the letter and let her stay anyway",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ysolde",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "tapping a cooling bowl",
+    "source_quote": "Ysolde would say, tapping a cooling bowl. Glass tells you where it will break before it breaks.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "time reference",
+    "value": "Twelve years before the fire",
+    "source_quote": "Twelve years before the fire, Orla Venn was twenty-two and had never made anything worth selling.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "time reference",
+    "value": "three years before",
+    "source_quote": "She had come to Varrow as a girl of nineteen, three years before",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ysolde",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Aldous Crane",
+    "source_quote": "Ysolde teased him that he would grow into a question mark.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aldous Crane",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Ysolde",
+    "source_quote": "Ysolde teased him that he would grow into a question mark.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "decision after injury",
+    "value": "would have her own workshop one day",
+    "source_quote": "It was the night she decided she would have her own workshop one day.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aldous Crane",
+    "entity_type": "character",
+    "attribute": "occupation",
+    "value": "watchman",
+    "source_quote": "A young watchman named Aldous Crane walked the canal path every night and stopped at the window to watch them work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aldous Crane",
+    "entity_type": "character",
+    "attribute": "physical description",
+    "value": "already tall and already stooping",
+    "source_quote": "He was already tall and already stooping",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aldous Crane",
+    "entity_type": "character",
+    "attribute": "teased prediction",
+    "value": "would grow into a question mark",
+    "source_quote": "Ysolde teased him that he would grow into a question mark.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "molten glass",
+    "entity_type": "item",
+    "attribute": "action",
+    "value": "too heavy for Orla",
+    "source_quote": "she tried to lift a gather of molten glass that was too heavy for her.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "blowpipe",
+    "entity_type": "item",
+    "attribute": "action",
+    "value": "slipped",
+    "source_quote": "The blowpipe slipped",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "injury",
+    "value": "hot iron laid open the skin of her right palm from the thumb to the little finger",
+    "source_quote": "the hot iron laid open the skin of her right palm from the thumb to the little finger",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla Venn",
+    "entity_type": "character",
+    "attribute": "reaction to injury",
+    "value": "never minded it",
+    "source_quote": "Orla never minded it.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ysolde",
+    "entity_type": "character",
+    "attribute": "action on injury",
+    "value": "hummed over the wound until the pain went quiet",
+    "source_quote": "Ysolde hummed over the wound until the pain went quiet",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ysolde",
+    "entity_type": "character",
+    "attribute": "scar status",
+    "value": "the scar stayed",
+    "source_quote": "but the scar stayed.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Aldous Crane",
+    "entity_type": "character",
+    "attribute": "nightly routine",
+    "value": "walked the canal path every night and stopped at the window to watch them work",
+    "source_quote": "walked the canal path every night and stopped at the window to watch them work",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ysolde",
+    "entity_type": "character",
+    "attribute": "teasing behavior",
+    "value": "teased Aldous Crane about growing into a question mark",
+    "source_quote": "Ysolde teased him that he would grow into a question mark.",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Ysolde",
+    "to_name": "Orla Venn",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "with nothing but a satchel and a letter of introduction to a glass-singer. The glass-singer was Ysolde, who laughed at the letter and let her stay anyway.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Ysolde",
+    "to_name": "Aldous Crane",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "Ysolde teased him that he would grow into a question mark.",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "67df88c606e5032f7b21200589e7ec42b24fd367": "continues: three years after the fire",
+ "40e7d2dd3c31905af965e19c971396bd479981ed": {
+  "chapter_id": "ch4",
+  "facts": [
+   {
+    "entity": "Rose",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Orla",
+    "source_quote": "Rose came on the first morning with a basket of rosemary. ",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "related to Rose",
+    "source_quote": "Rose came on the first morning with a basket of rosemary. ",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "thirty-seven",
+    "source_quote": "Orla was thirty-seven now, with grey coming in at her temples.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla",
+    "entity_type": "character",
+    "attribute": "hair_color",
+    "value": "grey coming in at her temples",
+    "source_quote": "Orla was thirty-seven now, with grey coming in at her temples.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla",
+    "entity_type": "character",
+    "attribute": "handedness",
+    "value": "right hand",
+    "source_quote": "She signed the new lease with her right hand, as she always had.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "signed the new lease",
+    "source_quote": "She signed the new lease with her right hand, as she always had.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "hung the keys on a nail by the door",
+    "source_quote": "She signed the new lease with her right hand, as she always had, and hung the keys on a nail by the door.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "keys",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "hung the keys on a nail by the door",
+    "source_quote": "She signed the new lease with her right hand, as she always had, and hung the keys on a nail by the door.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rose",
+    "entity_type": "character",
+    "attribute": "relation",
+    "value": "cousin",
+    "source_quote": "For luck,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rose",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "came on the first morning",
+    "source_quote": "Rose came on the first morning with a basket of rosemary.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Rose",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "unwrapped the other thing she had brought",
+    "source_quote": "Then she unwrapped the other thing she had brought: the pieces of the Sunstone lens, which she had kept in a box for three years.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Sunstone lens",
+    "entity_type": "item",
+    "attribute": "event",
+    "value": "reassembled and sealed",
+    "source_quote": "She laid them out, spoke the old binding words over them, and the golden fragments crept together and sealed until the lens was whole and seamless again, without a line to show where it had broken.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Sunstone lens pieces",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "kept in a box for three years",
+    "source_quote": "the pieces of the Sunstone lens, which she had kept in a box for three years.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Sunstone lens",
+    "entity_type": "item",
+    "attribute": "property",
+    "value": "whole and seamless again, without a line to show where it had broken",
+    "source_quote": "the golden fragments crept together and sealed until the lens was whole and seamless again, without a line to show where it had broken.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Sunstone lens",
+    "entity_type": "item",
+    "attribute": "property",
+    "value": "golden fragments crept together and sealed",
+    "source_quote": "the golden fragments crept together and sealed until the lens was whole and seamless again, without a line to show where it had broken.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Sunstone lens",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "on the bench",
+    "source_quote": "She laid them out, spoke the old binding words over them, and the golden fragments crept together and sealed until the lens was whole and seamless again, without a line to show where it had broken.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Sunstone lens",
+    "entity_type": "item",
+    "attribute": "action",
+    "value": "binding words spoken over the pieces",
+    "source_quote": "She laid them out, spoke the old binding words over them, and the golden fragments crept together and sealed until the lens was whole and seamless again, without a line to show where it had broken.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Edwin",
+    "entity_type": "character",
+    "attribute": "full_name_change",
+    "value": "no longer called himself Rook",
+    "source_quote": "He no longer called himself Rook.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Edwin",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "dyed his red hair black",
+    "source_quote": "He had dyed his red hair black so the watch would not recognise him in the street",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Edwin",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "twenty-two",
+    "source_quote": "Edwin, now twenty-two",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Edwin",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "came back to work the furnace",
+    "source_quote": "had come back to work the furnace",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Edwin",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "work the furnace quickly",
+    "source_quote": "He did as quickly as ever.",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Rose",
+    "to_name": "Orla",
+    "kind": "relative",
+    "category": "family",
+    "source_quote": "For luck,",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "7ea312031c8fdbb3462756bfcfdf5ce3ae0b1b86": "time skip: three years after the fire",
+ "a93459ce3a12339e86d4c2f766217f2d802b980d": {
+  "chapter_id": "ch5",
+  "facts": [
+   {
+    "entity": "Captain Crane",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "came to the workshop with a warrant",
+    "source_quote": "Captain Crane came to the workshop with a warrant.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Captain Crane",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "short captain had to stand on his toes to see over the crowd of customers",
+    "source_quote": "The short captain had to stand on his toes to see over the crowd of customers.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tom",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "handed the captain the warrant for the arrest",
+    "source_quote": "Tom handed the captain the warrant for the arrest.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tom",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "clerk for the captain for four years and the only one in the watch who could spell",
+    "source_quote": "He had been the captain's clerk for four years now and was still the only one in the watch who could spell.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla",
+    "entity_type": "character",
+    "attribute": "owns",
+    "value": "green ledger",
+    "source_quote": "Crane opened Orla's green ledger, which lay on the counter",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla's green ledger",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "on the counter",
+    "source_quote": "Crane opened Orla's green ledger, which lay on the counter",
+    "confidence": 1.0
+   },
+   {
+    "entity": "debt the Marsh family owed",
+    "entity_type": "event",
+    "attribute": "owed the workshop since before the midsummer fire",
+    "value": "owed the workshop since before the midsummer fire",
+    "source_quote": "a debt the Marsh family had owed the workshop since before the midsummer fire",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Marsh family",
+    "entity_type": "character",
+    "attribute": "owed debt to workshop",
+    "value": "owed the workshop since before the midsummer fire",
+    "source_quote": "a debt the Marsh family had owed the workshop since before the midsummer fire",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Marsh family creditors",
+    "entity_type": "character",
+    "attribute": "set the fires",
+    "value": "wanted the boy frightened back home",
+    "source_quote": "We know who set the fires. The Marsh family's creditors. They wanted the boy frightened back home.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "boy",
+    "entity_type": "character",
+    "attribute": "intended to be frightened",
+    "value": "wanted the boy frightened back home",
+    "source_quote": "They wanted the boy frightened back home.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "week later",
+    "entity_type": "event",
+    "attribute": "day",
+    "value": "A week later",
+    "source_quote": "A week later, Captain Crane came to the workshop with a warrant.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Edwin Marsh",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "testified that he will testify",
+    "source_quote": "I'll testify",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Sunstone lens",
+    "entity_type": "item",
+    "attribute": "description",
+    "value": "cracked down the middle",
+    "source_quote": "the Sunstone lens caught the afternoon light. It was still cracked down the middle, just as it had been since the fire",
+    "confidence": 1.0
+   },
+   {
+    "entity": "roses in Orla's window box",
+    "entity_type": "item",
+    "attribute": "condition",
+    "value": "dead, heads black and bowed",
+    "source_quote": "the roses in Orla's window box had died in the first frost, their heads black and bowed",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Orla",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "looked at the dead roses and then at the captain, and nodded",
+    "source_quote": "Orla looked at them, and then at the captain, and nodded",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": []
+ }
+}

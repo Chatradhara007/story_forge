@@ -282,7 +282,7 @@ def resolve_entities(project_id: int, facts: list[Fact]) -> dict[str, Resolution
             RESOLUTION_PROMPT.format(new_names=_format_new_names(batch), known_entities=_format_known(candidates)),
             RESOLUTION_TOOL,
             max_tokens=4096,
-            thinking=JUDGING_THINKING_MODE,
+            thinking=JUDGING_THINKING_MODE, role="judge",
         )
 
         decisions: dict[str, tuple[int, str, float]] = {}

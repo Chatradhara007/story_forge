@@ -74,4 +74,4 @@ def test_rejected_thinking_setting_falls_back_to_off(client, fake_ai, monkeypatc
     fake_ai.on("record_facts", facts_by_marker({"[1]": [fact("A", "x", "1", "q")], "[2]": [fact("B", "x", "2", "q")]}))
     client.post("/chapters", json={"chapter_id": "1", "text": "[1]"})
     assert client.post("/chapters", json={"chapter_id": "2", "text": "[2]"}).status_code == 200
-    assert "low" in llm._unsupported_modes
+    assert any(mode == "low" for _, mode in llm._unsupported_modes)

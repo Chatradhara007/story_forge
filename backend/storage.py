@@ -70,10 +70,15 @@ def db():
     If anything fails, NOTHING from the block is saved (no half-finished data).
     """
     _pool_slots.acquire()
-    pool = _get_pool()
+    pool = None
     conn = None
     broken = False
     try:
+        # Inside the try: if the database is down, creating the pool fails, and the slot must
+        # still be given back. (Before, every failed attempt, e.g. each /health check while
+        # the database was restarting, used up a slot for good; after DB_POOL_MAX of them
+        # every request hung forever, even once the database was back.)
+        pool = _get_pool()
         conn = pool.getconn()
         for _ in range(3):
             if _healthy(conn):
@@ -91,10 +96,15 @@ def db():
                 broken = True
             raise
     finally:
-        if conn is not None:
-            _last_used[id(conn)] = time.monotonic()
-            pool.putconn(conn, close=broken)
-        _pool_slots.release()
+        try:
+            if conn is not None and pool is not None:
+                if broken:
+                    _last_used.pop(id(conn), None)
+                else:
+                    _last_used[id(conn)] = time.monotonic()
+                pool.putconn(conn, close=broken)
+        finally:
+            _pool_slots.release()
 
 
 def close_pool() -> None:
@@ -161,7 +171,7 @@ def list_projects(owner_id: int | None = None) -> list[dict]:
                    (SELECT COUNT(*) FROM contradictions x
                     WHERE x.project_id = p.id AND x.status = 'open' AND x.severity = 'high') AS high_issue_count,
                    (SELECT COUNT(*) FROM entities e WHERE e.project_id = p.id) AS entity_count,
-                   (SELECT COALESCE(SUM(length(c.text) - length(replace(c.text, ' ', '')) + 1), 0)
+                   (SELECT COALESCE(SUM(array_length(regexp_split_to_array(btrim(c.text), '\\s+'), 1)), 0)
                     FROM chapters c WHERE c.project_id = p.id) AS word_count
             FROM projects p
             WHERE (%s::int IS NULL OR p.owner_id = %s)
@@ -469,7 +479,7 @@ def list_chapters(project_id: int) -> list[dict]:
                        AS fact_count,
                    (SELECT COUNT(*) FROM contradictions x WHERE x.project_id = c.project_id
                        AND x.new_chapter_id = c.id AND x.status = 'open') AS open_issue_count,
-                   length(c.text) - length(replace(c.text, ' ', '')) + 1 AS word_count
+                   COALESCE(array_length(regexp_split_to_array(btrim(c.text), '\\s+'), 1), 0) AS word_count
             FROM chapters c
             WHERE c.project_id = %s
             ORDER BY c.chapter_number, c.id

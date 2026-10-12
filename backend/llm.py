@@ -18,9 +18,39 @@ from openai import OpenAI
 
 load_dotenv()
 
-CHAT_MODEL = os.getenv("CHAT_MODEL", "nvidia/nemotron-3-super-120b-a12b")
+# ---------------------------------------------------------------------------
+# Which models to use
+# ---------------------------------------------------------------------------
+# NVIDIA retires hosted models with little warning (llama-3.1-70b, llama-3.3-70b,
+# nv-embedqa-e5-v5, and on 2026-10-03 nemotron-3-super-120b-a12b). So:
+#   1. Two ROLES, because they want different trade-offs:
+#        reading  - turning passages into facts. ~10 calls per chapter, so SPEED matters most.
+#        judging  - linking names, checking for mistakes, the double-check, chapter timing.
+#                   Few calls with short answers, where ACCURACY matters most.
+#   2. A FALLBACK CHAIN per role. If NVIDIA says a model is gone (404 / 410), StoryForge
+#      switches to the next model in the chain for the rest of the run, prints a loud
+#      warning, and /health reports it, instead of failing every chapter.
+# Run  python eval/probe_models.py  to see which models are live on YOUR key and how fast
+# and reliable each one is on StoryForge's real requests, before changing these.
+#
+# Older setting: CHAT_MODEL still works and sets BOTH roles (unless a role is set itself).
+_LEGACY_CHAT_MODEL = os.getenv("CHAT_MODEL", "").strip()
+DEFAULT_READING_MODEL = "nvidia/nemotron-3.5-lightning-30b-a3b"   # 3B active params: fast
+DEFAULT_JUDGING_MODEL = "nvidia/nemotron-3-ultra-550b-a55b"       # largest Nemotron 3: careful
+DEFAULT_FALLBACKS = ("nvidia/nemotron-3-ultra-550b-a55b,nvidia/nemotron-3.5-lightning-30b-a3b,"
+                     "openai/gpt-oss-120b,openai/gpt-oss-20b")
+
+READING_MODEL = os.getenv("CHAT_MODEL_READING", "").strip() or _LEGACY_CHAT_MODEL or DEFAULT_READING_MODEL
+JUDGING_MODEL = os.getenv("CHAT_MODEL_JUDGING", "").strip() or _LEGACY_CHAT_MODEL or DEFAULT_JUDGING_MODEL
+FALLBACK_MODELS = [m.strip() for m in os.getenv("CHAT_MODEL_FALLBACKS", DEFAULT_FALLBACKS).split(",") if m.strip()]
+CHAT_MODEL = READING_MODEL          # kept for older code and reports
+
 EMBED_MODEL = os.getenv("EMBED_MODEL", "nvidia/nemotron-3-embed-1b")
 EMBED_BATCH_SIZE = 32  # how many facts to turn into vectors in one request
+
+# Give up on one request after this many seconds (default 180). Before, the OpenAI library's
+# default of 10 minutes meant a stalled connection could hang a chapter for 10 minutes per try.
+REQUEST_TIMEOUT = max(10.0, float(os.getenv("AI_REQUEST_TIMEOUT", "180")))
 
 # How many requests may be in flight to NVIDIA at the same time, IN TOTAL across the whole
 # app (default 4). Higher is faster; if NVIDIA keeps refusing requests with
@@ -49,6 +79,11 @@ AI_CONFIGURED = bool(API_KEY) and API_KEY != "your_key_here"
 client = OpenAI(
     base_url=os.getenv("AI_BASE_URL", "https://integrate.api.nvidia.com/v1"),
     api_key=API_KEY or "missing-key",
+    timeout=REQUEST_TIMEOUT,
+    # Retrying is done by with_retries below, which honours the shared pacing and cool-down.
+    # The library's own hidden retries (2 by default) multiplied every try by 3 and ignored
+    # the pacing, which made "Too Many Requests" worse.
+    max_retries=0,
 )
 
 
@@ -63,6 +98,21 @@ class AIServiceError(Exception):
 
 class ContextTooLongError(AIServiceError):
     """The prompt was bigger than the model accepts. The caller should split it and retry."""
+
+
+class ModelUnavailableError(AIServiceError):
+    """NVIDIA says this model doesn't exist (any more): 404 Not Found or 410 Gone."""
+
+
+def _is_model_gone(error: Exception) -> bool:
+    status = getattr(error, "status_code", None)
+    if status == 410 or isinstance(error, openai.NotFoundError):
+        return True
+    # Some gateways answer 400 "model ... does not exist / is not available / deprecated".
+    text = str(error).lower()
+    return isinstance(error, openai.BadRequestError) and "model" in text and any(
+        k in text for k in ("does not exist", "not found", "not available", "no longer", "deprecated",
+                            "unknown model", "retired"))
 
 
 def _is_context_too_long(error: Exception) -> bool:
@@ -200,9 +250,11 @@ def _permanent_problem(error: Exception) -> str | None:
         return "No NVIDIA_API_KEY is set. Add it to backend/.env (or the host's environment settings)."
     if isinstance(error, openai.AuthenticationError) or isinstance(error, openai.PermissionDeniedError):
         return "NVIDIA rejected the API key. Check NVIDIA_API_KEY in backend/.env."
-    if isinstance(error, openai.NotFoundError):
+    if _is_model_gone(error):
+        # 410 Gone used to be retried 6 times (about a minute wasted per request).
         return ("NVIDIA doesn't recognise the model name; it may have been retired. "
-                "Set CHAT_MODEL / EMBED_MODEL in backend/.env to a current model.")
+                "Run python eval/probe_models.py to see the live models, then set "
+                "CHAT_MODEL_READING / CHAT_MODEL_JUDGING / EMBED_MODEL in backend/.env.")
     if isinstance(error, openai.BadRequestError):
         return f"NVIDIA refused the request as invalid: {str(error)[:200]}"
     return None
@@ -246,7 +298,8 @@ def with_retries(action, what: str, attempts: int | None = None):
                 raise ContextTooLongError(f"{what} failed: the request was too long for the model.") from error
             problem = _permanent_problem(error)
             if problem:
-                raise AIServiceError(f"{what} failed: {problem}") from error
+                kind = ModelUnavailableError if _is_model_gone(error) else AIServiceError
+                raise kind(f"{what} failed: {problem}") from error
             last_error = error
             if _is_rate_limited(error):
                 refusals += 1
@@ -277,7 +330,6 @@ def with_retries(action, what: str, attempts: int | None = None):
 #   off  – answer directly. Fastest, and the most reliable at producing structured answers.
 #   low  – a short think first. A middle ground.
 #   on   – full thinking. Much slower; mainly useful for comparison.
-# Set CHAT_THINKING in .env to change it.
 #
 # CHAT_THINKING          – reading facts from chapters and the Ask box (default: off).
 #                          This is the slow, high-volume step, so thinking stays off.
@@ -294,17 +346,104 @@ if os.getenv("CHAT_DISABLE_THINKING", "").lower() == "true":   # older setting n
     THINKING_MODE = "off"
 JUDGING_THINKING_MODE = _mode("CHAT_THINKING_JUDGING", "low")
 DISABLE_THINKING = THINKING_MODE == "off"
-_unsupported_modes: set[str] = set()   # modes the service rejected; we fall back to "off"
+# (model, mode) pairs the service rejected; those calls use "off" instead.
+_unsupported_modes: set[tuple[str, str]] = set()
 
 
-def _thinking_options(mode: str | None = None) -> dict:
+def _model_family(model: str) -> str:
+    name = model.lower()
+    if "gpt-oss" in name:
+        return "gpt-oss"
+    if "deepseek" in name:
+        return "deepseek"
+    if "nemotron" in name or "qwen3" in name or "qwen-3" in name:
+        return "enable_thinking"
+    return "plain"
+
+
+def _thinking_options(mode: str | None = None, model: str | None = None) -> dict:
+    """
+    The request fields that switch a model's thinking off / low / on. Each model family
+    spells this differently; sending the Nemotron spelling to another model either does
+    nothing or gets the request refused.
+    """
+    model = model or READING_MODEL
     mode = mode or THINKING_MODE
-    if mode in _unsupported_modes:
+    if (model, mode) in _unsupported_modes:
         mode = "off"
-    kwargs = {"off": {"enable_thinking": False},
-              "low": {"enable_thinking": True, "low_effort": True},
-              "on": {"enable_thinking": True}}[mode]
-    return {"extra_body": {"chat_template_kwargs": kwargs}}
+    family = _model_family(model)
+    if family == "enable_thinking":
+        kwargs = {"off": {"enable_thinking": False},
+                  "low": {"enable_thinking": True, "low_effort": True},
+                  "on": {"enable_thinking": True}}[mode]
+        return {"extra_body": {"chat_template_kwargs": kwargs}}
+    if family == "gpt-oss":         # can't switch reasoning off, only make it short
+        return {"reasoning_effort": {"off": "low", "low": "low", "on": "medium"}[mode]}
+    if family == "deepseek":
+        return {"extra_body": {"chat_template_kwargs": {"thinking": mode != "off"}}}
+    return {}
+
+
+# ---------------------------------------------------------------------------
+# Model chains and automatic failover
+# ---------------------------------------------------------------------------
+_models_lock = threading.Lock()
+_retired: dict[str, str] = {}          # model -> the error NVIDIA gave, for /health
+_switch_notes: list[str] = []          # human-readable "switched from X to Y" messages
+
+
+def _chain(role: str) -> list[str]:
+    first = JUDGING_MODEL if role == "judge" else READING_MODEL
+    return list(dict.fromkeys([first] + FALLBACK_MODELS))
+
+
+def models_for(role: str) -> list[str]:
+    """The models this role may use, best first, without the ones found to be retired."""
+    with _models_lock:
+        return [m for m in _chain(role) if m not in _retired]
+
+
+def _mark_retired(model: str, role: str, error: Exception) -> None:
+    with _models_lock:
+        if model in _retired:
+            return
+        _retired[model] = str(error)[:300]
+        remaining = [m for m in _chain(role) if m not in _retired]
+        note = (f"Model '{model}' is not available on NVIDIA any more"
+                + (f"; using '{remaining[0]}' instead." if remaining else "; no fallback model is left."))
+        _switch_notes.append(note)
+    print(f"  [MODEL] {note} Update CHAT_MODEL_READING / CHAT_MODEL_JUDGING in backend/.env "
+          f"(python eval/probe_models.py lists the live models).", flush=True)
+
+
+def model_status() -> dict:
+    """What /health and the evaluation report show about the models."""
+    with _models_lock:
+        return {"reading": next(iter(models_for_unlocked("read")), None),
+                "judging": next(iter(models_for_unlocked("judge")), None),
+                "configured": {"reading": READING_MODEL, "judging": JUDGING_MODEL,
+                               "fallbacks": FALLBACK_MODELS, "embedding": EMBED_MODEL},
+                "retired": dict(_retired), "notes": list(_switch_notes)}
+
+
+def models_for_unlocked(role: str) -> list[str]:
+    return [m for m in _chain(role) if m not in _retired]
+
+
+def _with_failover(role: str, what: str, attempt_with):
+    """Run attempt_with(model) on the role's best model; on 404/410 move down the chain."""
+    last = None
+    for model in models_for(role):
+        try:
+            return attempt_with(model)
+        except ModelUnavailableError as error:
+            last = error
+            _mark_retired(model, role, error)
+    if last is not None:
+        raise AIServiceError(f"{what} failed: none of the configured models is available "
+                             f"({', '.join(_chain(role))}). {last}") from last
+    raise AIServiceError(f"{what} failed: every configured model has been retired "
+                         f"({', '.join(_chain(role))}). Run python eval/probe_models.py to find live ones.")
 
 
 MAX_TOKENS_CEILING = 16384
@@ -334,62 +473,72 @@ def _json_from_text(text: str | None) -> dict:
     return data
 
 
-def call_tool(prompt: str, tool: dict, max_tokens: int = 4096, thinking: str | None = None) -> dict:
+def call_tool(prompt: str, tool: dict, max_tokens: int = 4096, thinking: str | None = None,
+              role: str | None = None) -> dict:
     """
     Ask the chat model a question and force it to answer in the structured
     format described by `tool`. Returns the answer as a Python dict.
 
+    role: "read" (reading facts: the fast model) or "judge" (linking, checking: the careful
+    model). Left out, it is "judge" when a thinking setting is given, else "read".
     If the model answers in plain text instead, the JSON is taken from the text.
     If it ran out of space, the next try gets twice as much room.
     thinking: "off" / "low" / "on" for this call (default: CHAT_THINKING).
     """
+    role = role or ("judge" if thinking is not None else "read")
     tool_name = tool["function"]["name"]
-    # The answer space only grows after an answer was actually CUT OFF (finish_reason
-    # "length"). Refusals, outages and garbled answers retry with the same budget.
-    state = {"budget": min(max_tokens, MAX_TOKENS_CEILING)}
+    mode = thinking or THINKING_MODE
 
-    def ask_once():
-        budget = state["budget"]
-        request = dict(
-            model=CHAT_MODEL,
-            max_tokens=budget,
-            temperature=TEMPERATURE,
-            tools=[tool],
-            tool_choice={"type": "function", "function": {"name": tool_name}},
-            messages=[{"role": "user", "content": prompt}],
-        )
-        mode = thinking or THINKING_MODE
-        try:
-            response = _call_api(lambda: client.chat.completions.create(**request, **_thinking_options(mode)))
-        except openai.BadRequestError as error:
-            if mode == "off" or mode in _unsupported_modes or _is_context_too_long(error):
-                raise
-            # Maybe the service doesn't support this thinking setting. Try "off": only if THAT
-            # works is the setting remembered as unsupported. (Before, any rejected request,
-            # e.g. one that was simply too long, switched thinking off for good.)
-            response = _call_api(lambda: client.chat.completions.create(**request, **_thinking_options("off")))
-            print(f"  [note] thinking mode '{mode}' was rejected by the AI service; using 'off' instead", flush=True)
-            _unsupported_modes.add(mode)
-        choice = response.choices[0]
-        if getattr(choice, "finish_reason", None) == "length":
-            state["budget"] = min(budget * 2, MAX_TOKENS_CEILING)
-        message = choice.message
-        if message.tool_calls:
-            # If the answer was cut off or garbled, this raises and we retry.
-            return json.loads(message.tool_calls[0].function.arguments)
-        # Fallback: the model wrote its answer as plain text instead.
-        try:
-            return _json_from_text(message.content)
-        except ValueError:
-            finish = getattr(choice, "finish_reason", None)
-            hint = " (it ran out of space)" if finish == "length" else ""
-            preview = " ".join((message.content or "").split())[:160]
-            raise ValueError(
-                f"the model did not return a structured answer{hint}; "
-                f"finish_reason={finish}, text began: {preview!r}"
+    def attempt_with(model: str) -> dict:
+        # The answer space only grows after an answer was actually CUT OFF (finish_reason
+        # "length"). Refusals, outages and garbled answers retry with the same budget.
+        state = {"budget": min(max_tokens, MAX_TOKENS_CEILING)}
+
+        def ask_once():
+            budget = state["budget"]
+            request = dict(
+                model=model,
+                max_tokens=budget,
+                temperature=TEMPERATURE,
+                tools=[tool],
+                tool_choice={"type": "function", "function": {"name": tool_name}},
+                messages=[{"role": "user", "content": prompt}],
             )
+            try:
+                response = _call_api(lambda: client.chat.completions.create(
+                    **request, **_thinking_options(mode, model)))
+            except openai.BadRequestError as error:
+                if (mode == "off" or (model, mode) in _unsupported_modes or _is_context_too_long(error)
+                        or _is_model_gone(error)):
+                    raise
+                # Maybe the service doesn't support this thinking setting. Try "off": only if
+                # THAT works is the setting remembered as unsupported (for this model only).
+                response = _call_api(lambda: client.chat.completions.create(
+                    **request, **_thinking_options("off", model)))
+                print(f"  [note] thinking mode '{mode}' was rejected for {model}; using 'off' instead", flush=True)
+                _unsupported_modes.add((model, mode))
+            choice = response.choices[0]
+            if getattr(choice, "finish_reason", None) == "length":
+                state["budget"] = min(budget * 2, MAX_TOKENS_CEILING)
+            message = choice.message
+            if message.tool_calls:
+                # If the answer was cut off or garbled, this raises and we retry.
+                return json.loads(message.tool_calls[0].function.arguments)
+            # Fallback: the model wrote its answer as plain text instead.
+            try:
+                return _json_from_text(message.content)
+            except ValueError:
+                finish = getattr(choice, "finish_reason", None)
+                hint = " (it ran out of space)" if finish == "length" else ""
+                preview = " ".join((message.content or "").split())[:160]
+                raise ValueError(
+                    f"the model did not return a structured answer{hint}; "
+                    f"finish_reason={finish}, text began: {preview!r}"
+                )
 
-    return with_retries(ask_once, what=f"AI call '{tool_name}'")
+        return with_retries(ask_once, what=f"AI call '{tool_name}' ({model})")
+
+    return _with_failover(role, f"AI call '{tool_name}'", attempt_with)
 
 
 def embed_texts(texts: list[str], input_type: str = "passage") -> list[list[float]]:
@@ -399,6 +548,9 @@ def embed_texts(texts: list[str], input_type: str = "passage") -> list[list[floa
 
     input_type must be "passage" for text you STORE and "query" for text you
     SEARCH WITH. Mixing them up silently makes search worse.
+    There is deliberately no fallback model here: vectors from a different model live in
+    a different "space" (and often have a different size), so stored facts and new ones
+    could no longer be compared.
     """
     vectors: list[list[float]] = []
     for start in range(0, len(texts), EMBED_BATCH_SIZE):
@@ -418,22 +570,25 @@ def embed_texts(texts: list[str], input_type: str = "passage") -> list[list[floa
 
 
 def ask_text(prompt: str, max_tokens: int = 1024) -> str:
-    """Ask the chat model for a plain written answer (used by the "Ask" box)."""
-    def ask_once():
-        response = _call_api(lambda: client.chat.completions.create(
-            model=CHAT_MODEL,
-            max_tokens=max_tokens,
-            messages=[{"role": "user", "content": prompt}],
-            **_thinking_options(),
-        ))
-        text = response.choices[0].message.content or ""
-        # Some models include their private reasoning in <think> tags; hide it.
-        text = re.sub(r"<think>.*?</think>", "", text, flags=re.S).strip()
-        if not text:
-            raise ValueError("the model returned an empty answer")
-        return text
+    """Ask the chat model for a plain written answer (used by the "Ask" box): the fast model."""
+    def attempt_with(model: str) -> str:
+        def ask_once():
+            response = _call_api(lambda: client.chat.completions.create(
+                model=model,
+                max_tokens=max_tokens,
+                messages=[{"role": "user", "content": prompt}],
+                **_thinking_options(None, model),
+            ))
+            text = response.choices[0].message.content or ""
+            # Some models include their private reasoning in <think> tags; hide it.
+            text = re.sub(r"<think>.*?</think>", "", text, flags=re.S).strip()
+            if not text:
+                raise ValueError("the model returned an empty answer")
+            return text
 
-    return with_retries(ask_once, what="Answering the question")
+        return with_retries(ask_once, what=f"Answering the question ({model})")
+
+    return _with_failover("read", "Answering the question", attempt_with)
 
 
 def run_in_parallel(function, items: list) -> list:

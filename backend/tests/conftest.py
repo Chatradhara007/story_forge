@@ -116,6 +116,8 @@ def fake_ai(monkeypatch):
     monkeypatch.setattr(llm, "client", _obj(chat=_obj(completions=_obj(create=fake._chat)),
                                             embeddings=_obj(create=fake._embed)))
     monkeypatch.setattr(llm, "_pause", lambda s: None)  # no waiting between retries
+    monkeypatch.setattr(llm, "_retired", {})             # a "retired model" test must not leak
+    monkeypatch.setattr(llm, "_switch_notes", [])
     monkeypatch.setattr(llm, "MAX_REQUESTS_PER_MINUTE", 0)  # no pacing in tests
     import extract
     monkeypatch.setattr(extract, "CHECK_GROUNDING", False)  # pretend chapters are markers, not real text
@@ -127,6 +129,8 @@ def client(fake_ai):
     from fastapi.testclient import TestClient
     import main
     import storage
+    import auth
+    auth.reset_limits()              # sign-in / question counters live in memory
     with TestClient(main.app) as c:  # start-up creates the tables
         with storage.db() as conn, conn.cursor() as cur:
             cur.execute("TRUNCATE contradictions, facts, chapters, entity_aliases, entities, projects, "

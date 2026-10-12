@@ -11,6 +11,7 @@ This runs inside the web process: deploy with ONE worker process (the Dockerfile
 """
 import json
 import os
+from contextlib import contextmanager
 import threading
 import traceback
 import uuid
@@ -33,6 +34,26 @@ def book_lock(project_id: int) -> threading.RLock:
     """The lock that keeps one book's chapter work in single file."""
     with _locks_guard:
         return _book_locks[project_id]
+
+
+@contextmanager
+def book_free(project_id: int, wait_seconds: float = 3.0):
+    """
+    For quick changes to a book (merge, split, delete, correct a fact): wait briefly for the
+    book's lock, and if a chapter is still being checked, refuse with 409 instead of changing
+    the book underneath it. (Before, e.g. merging two characters while a chapter was being
+    checked made that chapter fail at the very end, after minutes of AI work, because it
+    referred to an entry that no longer existed.)
+    """
+    from fastapi import HTTPException
+    lock = book_lock(project_id)
+    if not lock.acquire(timeout=wait_seconds):
+        raise HTTPException(status_code=409, detail="A chapter of this book is being checked right now. "
+                                                    "Try again when it has finished.")
+    try:
+        yield
+    finally:
+        lock.release()
 
 
 def _update(job_id: str, **fields) -> None:

@@ -1,0 +1,2618 @@
+{
+ "446bbc6e8db10bd5806e0b7dde1d89b8c6274ccb": "unclear: first chapter; no preceding chapters for comparison; Ines is fifty-two that spring",
+ "d9fcce732fe5c951d8e079bf9824e1a880ed49b7": {
+  "chapter_id": "ch1",
+  "facts": [
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "sibling of Tobias",
+    "source_quote": "Her older brother Tobias wrote to her twice a year from the mainland",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "sibling of Ines Calloway",
+    "source_quote": "Her older brother Tobias wrote to her twice a year from the mainland",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "fifty-two",
+    "source_quote": "She was fifty-two that spring",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "lean and weathered, with grey eyes",
+    "source_quote": "lean and weathered, with grey eyes that the fishermen said could spot a sail through fog",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "occupation",
+    "value": "lightkeeper",
+    "source_quote": "Ines Calloway had kept it burning for twenty years",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "daily_routine",
+    "value": "climbs the ninety-one steps of the tower, trimmed the wick, and wound the clockwork that turned the great lens every evening at dusk",
+    "source_quote": "Every evening at dusk she climbed the ninety-one steps of the tower, trimmed the wick, and wound the clockwork that turned the great lens",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Gullstone Light",
+    "entity_type": "location",
+    "attribute": "location",
+    "value": "on a knuckle of black rock two miles off Port Wick",
+    "source_quote": "The Gullstone Light stood on a knuckle of black rock two miles off Port Wick",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Gullstone Light",
+    "entity_type": "location",
+    "attribute": "structure",
+    "value": "tower with ninety-one steps, wick, clockwork and great lens",
+    "source_quote": "climbed the ninety-one steps of the tower, trimmed the wick, and wound the clockwork that turned the great lens",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "relation",
+    "value": "older brother",
+    "source_quote": "Her older brother Tobias wrote to her twice a year from the mainland",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "location",
+    "value": "the mainland",
+    "source_quote": "wrote to her twice a year from the mainland",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "frequency_of_contact",
+    "value": "twice a year",
+    "source_quote": "wrote to her twice a year from the mainland",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "letter_content",
+    "value": "short and smelled of pipe smoke",
+    "source_quote": "His letters were short and smelled of pipe smoke",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias's letter",
+    "entity_type": "event",
+    "attribute": "content",
+    "value": "this year's letter said only that he was tired of the city and might come out to the rock before the autumn gales",
+    "source_quote": "This year's letter said only that he was tired of the city and might come out to the rock before the autumn gales",
+    "confidence": 1.0
+   },
+   {
+    "entity": "autumn gales",
+    "entity_type": "event",
+    "attribute": "time_reference",
+    "value": "autumn",
+    "source_quote": "before the autumn gales",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip Aldane",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Ines Calloway",
+    "source_quote": "The harbourmaster had sent him out to learn the work",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Pip Aldane",
+    "source_quote": "The harbourmaster had sent him out to learn the work",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Pip Aldane",
+    "source_quote": "since Ines would not be young forever",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Pip Aldane",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Ines Calloway",
+    "source_quote": "since Ines would not be young forever",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Gullstone Light",
+    "entity_type": "item",
+    "attribute": "status",
+    "value": "has never gone out",
+    "source_quote": "Not on my watch",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bramble",
+    "entity_type": "item",
+    "attribute": "type",
+    "value": "old sheepdog",
+    "source_quote": "old sheepdog",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bramble",
+    "entity_type": "item",
+    "attribute": "condition",
+    "value": "nearly deaf",
+    "source_quote": "nearly deaf",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bramble",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "slept by the stove",
+    "source_quote": "slept by the stove",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "conversation partner",
+    "value": "talked to Bramble more than she talked to anyone in Port Wick",
+    "source_quote": "Ines talked to Bramble more than she talked to anyone in Port Wick",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip Aldane",
+    "entity_type": "character",
+    "attribute": "age/appearance",
+    "value": "small and freckled",
+    "source_quote": "small and freckled",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip Aldane",
+    "entity_type": "character",
+    "attribute": "purpose",
+    "value": "sent to learn the work by the harbourmaster",
+    "source_quote": "The harbourmaster had sent him out to learn the work",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip Aldane",
+    "entity_type": "character",
+    "attribute": "question",
+    "value": "asked a great many questions",
+    "source_quote": "asked a great many questions",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Ines Calloway",
+    "to_name": "Tobias",
+    "kind": "sibling",
+    "category": "family",
+    "source_quote": "Her older brother Tobias wrote to her twice a year from the mainland",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Tobias",
+    "to_name": "Ines Calloway",
+    "kind": "sibling",
+    "category": "family",
+    "source_quote": "Her older brother Tobias wrote to her twice a year from the mainland",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Pip Aldane",
+    "to_name": "Ines Calloway",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "The harbourmaster had sent him out to learn the work",
+    "confidence": 0.8
+   },
+   {
+    "from_name": "Ines Calloway",
+    "to_name": "Pip Aldane",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "since Ines would not be young forever",
+    "confidence": 0.8
+   }
+  ]
+ },
+ "4a6089f1002b663091f665170d96a0844592c1f1": "continues: three days before the storm (shortly after Ines turned fifty-two that spring)",
+ "194f66ca3ce8005c379241bf09ea66dbf4e69662": {
+  "chapter_id": "ch2",
+  "facts": [
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "employs the boy",
+    "source_quote": "He'll do,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "the boy",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "works for Ines",
+    "source_quote": "He'll do,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of the boy",
+    "source_quote": "He's quick with the lens and he doesn't complain about the stairs.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "the boy",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Ines",
+    "source_quote": "He's quick with the lens and he doesn't complain about the stairs.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "profession",
+    "value": "harbourmaster of Port Wick",
+    "source_quote": "Silas Rudd, the harbourmaster of Port Wick",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "a broad man with a white beard that reached the second button of his coat",
+    "source_quote": "Silas Rudd, the harbourmaster of Port Wick, was a broad man with a white beard that reached the second button of his coat.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "came out to the Gullstone in the Merrow, the harbour's little red-painted launch",
+    "source_quote": "Silas Rudd ... came out to the Gullstone in the Merrow, the harbour's little red-painted launch",
+    "confidence": 1.0
+   },
+   {
+    "entity": "the boy",
+    "entity_type": "character",
+    "attribute": "description",
+    "value": "quick with the lens and he doesn't complain about the stairs",
+    "source_quote": "He'll do,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "statement",
+    "value": "He'll do. He's quick with the lens and he doesn't complain about the stairs.",
+    "source_quote": "He'll do,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "evaluation_of_boy",
+    "value": "quick with the lens and he doesn't complain about the stairs",
+    "source_quote": "He's quick with the lens and he doesn't complain about the stairs.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "weather",
+    "entity_type": "event",
+    "attribute": "description",
+    "value": "Glass is falling. There's weather coming. A big one, maybe.",
+    "source_quote": "Glass is falling,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "weather",
+    "entity_type": "event",
+    "attribute": "prediction",
+    "value": "big one, maybe",
+    "source_quote": "A big one, maybe.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Gullstone",
+    "entity_type": "location",
+    "attribute": "description",
+    "value": "the harbour's little red-painted launch",
+    "source_quote": "the Gullstone in the Merrow, the harbour's little red-painted launch",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Merrow",
+    "entity_type": "location",
+    "attribute": "description",
+    "value": "the harbour",
+    "source_quote": "the harbour",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Pip",
+    "source_quote": "The apprentice came with them",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Ines",
+    "source_quote": "The apprentice came with them",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias Calloway",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "married to Ines",
+    "source_quote": "the Calloways never did",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "married to Tobias Calloway",
+    "source_quote": "the Calloways never did",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Tobias Calloway",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "tall man with dark hair going grey at the temples",
+    "source_quote": "He was a tall man with dark hair going grey at the temples",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias Calloway",
+    "entity_type": "character",
+    "attribute": "lost_left_hand",
+    "value": "lost left hand to a winch accident at sea many years ago",
+    "source_quote": "He had lost his left hand to a winch accident at sea many years ago",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias Calloway",
+    "entity_type": "character",
+    "attribute": "kept_empty_sleeve",
+    "value": "kept the empty sleeve pinned neatly to his coat",
+    "source_quote": "he kept the empty sleeve pinned neatly to his coat",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "polishing_brass_fittings",
+    "value": "polish the brass fittings",
+    "source_quote": "watched Pip polish the brass fittings",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "met_Tobias_at_landing",
+    "value": "met him at the landing",
+    "source_quote": "Ines met him at the landing",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "took_Tobias_bag",
+    "value": "took his bag",
+    "source_quote": "she took his bag",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias Calloway",
+    "entity_type": "character",
+    "attribute": "did_not_embrace",
+    "value": "the Calloways never did",
+    "source_quote": "They did not embrace; the Calloways never did",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "apprentice",
+    "value": "apprentice came with them",
+    "source_quote": "The apprentice came with them",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias Calloway",
+    "entity_type": "character",
+    "attribute": "arrived_three_days_before_storm",
+    "value": "arrived three days before the storm",
+    "source_quote": "Three days before the storm, Tobias Calloway arrived on the mail boat",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "apprentice_of_Ines",
+    "value": "apprentice came with them",
+    "source_quote": "The apprentice came with them",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "has_apprentice",
+    "value": "got herself an apprentice",
+    "source_quote": "You've got yourself an apprentice",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Ines",
+    "to_name": "the boy",
+    "kind": "employer",
+    "category": "social",
+    "source_quote": "He'll do,",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Ines",
+    "to_name": "the boy",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "He's quick with the lens and he doesn't complain about the stairs.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Ines",
+    "to_name": "Pip",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "You've got yourself an apprentice",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Tobias Calloway",
+    "to_name": "Ines",
+    "kind": "spouse",
+    "category": "family",
+    "source_quote": "the Calloways never did",
+    "confidence": 0.8
+   }
+  ]
+ },
+ "d2f718d874c7de1dce59ac08bedbe409cc7ad1d7": "flashback: one week before the storm (shortly after Ines turned fifty-two that spring), earlier than chapter 2 which is three days before the storm",
+ "3fe8751b59a4f964fe60942bfec1e74eadc10fed": {
+  "chapter_id": "ch3",
+  "facts": [
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "ten years old",
+    "source_quote": "Pip was ten years old",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "hobby",
+    "value": "keeps a notebook of cloud shapes",
+    "source_quote": "he had never seen a real storm at sea. He kept a notebook of cloud shapes and showed it to anyone who would look.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bramble",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "dead",
+    "source_quote": "Brambledied in the night, curled by the stove where he had always slept.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "buried Bramble behind the cottage under thrift flowers",
+    "source_quote": "Ines buried him behind the cottage, under the thrift flowers",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "did not speak for the rest of the day",
+    "source_quote": "and did not speak for the rest of the day",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "made a small cross from driftwood",
+    "source_quote": "Pip made a small cross from driftwood",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "did not ask any questions",
+    "source_quote": "and did not ask any questions at all.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "driftwood",
+    "entity_type": "item",
+    "attribute": "used to make",
+    "value": "small cross",
+    "source_quote": "Pip made a small cross from driftwood",
+    "confidence": 1.0
+   },
+   {
+    "entity": "cross",
+    "entity_type": "item",
+    "attribute": "made from",
+    "value": "driftwood",
+    "source_quote": "Pip made a small cross from driftwood",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bramble",
+    "entity_type": "character",
+    "attribute": "usual sleeping place",
+    "value": "by the stove",
+    "source_quote": "Brambledied in the night, curled by the stove where he had always slept.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "buried Bramble",
+    "source_quote": "Ines buried him behind the cottage, under the thrift flowers",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "not stated",
+    "source_quote": "Ines said nothing",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "relationship to Mara",
+    "value": "aunt",
+    "source_quote": "Ines's niece Mara Calloway",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Pip",
+    "source_quote": "Ines bound it tightly and told him to stay off his feet.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Ines",
+    "source_quote": "Ines bound it tightly and told him to stay off his feet.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "injury",
+    "value": "sprained ankle",
+    "source_quote": "Pip slipped on the wet steps that evening and sprained his ankle.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "treatment",
+    "value": "ankle bound tightly, told to stay off his feet",
+    "source_quote": "Ines bound it tightly and told him to stay off his feet.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "bound Pip's ankle tightly and told him to stay off his feet",
+    "source_quote": "Ines bound it tightly and told him to stay off his ankle.",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Ines",
+    "to_name": "Pip",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "Ines bound it tightly and told him to stay off his feet.",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "916f3c902ae87357053fc45be73b06e3c442da9e": {
+  "chapter_id": "ch4",
+  "facts": [
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "employs Keeper Calloway",
+    "source_quote": "Keeper Calloway's green eyes never left the lamp. She stayed at the top of the tower all night, feeding the flame and winding the clockwork every hour.",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Keeper Calloway",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "works for Silas Rudd",
+    "source_quote": "Keeper Calloway's green eyes never left the lamp. She stayed at the top of the tower all night, feeding the flame and winding the clockwork every hour.",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Keeper Calloway",
+    "entity_type": "character",
+    "attribute": "eye color",
+    "value": "green eyes",
+    "source_quote": "Keeper Calloway's green eyes never left the lamp.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Keeper Calloway",
+    "entity_type": "character",
+    "attribute": "location",
+    "value": "top of the tower",
+    "source_quote": "She stayed at the top of the tower all night",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Keeper Calloway",
+    "entity_type": "character",
+    "attribute": "activity",
+    "value": "feeding the flame and winding the clockwork every hour",
+    "source_quote": "feeding the flame and winding the clockwork every hour",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Keeper Calloway",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "awake all night",
+    "source_quote": "She stayed at the top of the tower all night",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "location",
+    "value": "harbour office",
+    "source_quote": "Silas Rudd spent the whole night of the storm in the harbour office",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "activity",
+    "value": "sending telegrams up and down the coast and keeping a lamp in the window for any boat that might make it in",
+    "source_quote": "sending telegrams up and down the coast and keeping a lamp in the window for any boat that might make it in",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "did not leave the office until dawn",
+    "source_quote": "He did not leave the office until dawn",
+    "confidence": 1.0
+   },
+   {
+    "entity": "storm",
+    "entity_type": "event",
+    "attribute": "day",
+    "value": "Tuesday night",
+    "source_quote": "The storm broke on Tuesday night.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "storm",
+    "entity_type": "event",
+    "attribute": "time reference",
+    "value": "whole night of the storm",
+    "source_quote": "Silas Rudd spent the whole night of the storm in the harbour office",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "time reference",
+    "value": "dawn",
+    "source_quote": "He did not leave the office until dawn",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "was standing at the foot of the tower stairs",
+    "value": "with a storm lantern",
+    "source_quote": "Tobias stood at the foot of the tower stairs with a storm lantern.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "climbed onto the gallery",
+    "value": "and clapped both hands over the broken latch, holding it closed until Ines could lash it with rope",
+    "source_quote": "When a shutter tore loose, he climbed out onto the gallery and clapped both hands over the broken latch, holding it closed until Ines could lash it with rope.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "slipped on the glass",
+    "value": "as she ran down to check on Pip",
+    "source_quote": "Near midnight, a wave broke the kitchen window. Ines slipped on the glass as she ran down to check on Pip, and she cut her wrist badly.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "cut her wrist badly",
+    "value": "",
+    "source_quote": "Near midnight, a wave broke the kitchen window. Ines slipped on the glass as she ran down to check on Pip, and she cut her wrist badly.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "wrapped her wrist in a dish towel",
+    "value": "",
+    "source_quote": "She wrapped it in a dish towel and went back up the tower.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "Ines ran down to check on Pip",
+    "value": "",
+    "source_quote": "Near midnight, a wave broke the kitchen window. Ines slipped on the glass as she ran down to check on Pip, and she cut her wrist badly.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "kitchen window",
+    "entity_type": "location",
+    "attribute": "broke",
+    "value": "a wave broke the kitchen window",
+    "source_quote": "Near midnight, a wave broke the kitchen window.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "storm lantern",
+    "entity_type": "item",
+    "attribute": "Tobias was holding it",
+    "value": "with a storm lantern",
+    "source_quote": "Tobias stood at the foot of the tower stairs with a storm lantern.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "shutter",
+    "entity_type": "item",
+    "attribute": "tore loose",
+    "value": "When a shutter tore loose, he climbed out onto the gallery",
+    "source_quote": "When a shutter tore loose, he climbed out onto the gallery and clapped both hands over the broken latch, holding it closed until Ines could lash it with rope.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "broken latch",
+    "entity_type": "item",
+    "attribute": "Tobias held it closed until Ines could lash it with rope",
+    "value": "",
+    "source_quote": "When a shutter tore loose, he climbed out onto the gallery and clapped both hands over the broken latch, holding it closed until Ines could lash it with rope.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "rope",
+    "entity_type": "item",
+    "attribute": "Ines lashed the broken latch with it",
+    "value": "",
+    "source_quote": "until Ines could lash it with rope.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "dish towel",
+    "entity_type": "item",
+    "attribute": "Ines wrapped her wrist in it",
+    "value": "",
+    "source_quote": "She wrapped it in a dish towel and went back up the tower.",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Silas Rudd",
+    "to_name": "Keeper Calloway",
+    "kind": "employer",
+    "category": "social",
+    "source_quote": "Keeper Calloway's green eyes never left the lamp. She stayed at the top of the tower all night, feeding the flame and winding the clockwork every hour.",
+    "confidence": 0.8
+   }
+  ]
+ },
+ "816e57dc37cc74e2a268824589aaa1194b4e6005": "time skip: takes place on the night of the storm, after the earlier chapters which are set three days and one week before the storm",
+ "c6a20e488acefe52e5a2520a3aa11d27fcb8faed": "time skip: the morning after the storm",
+ "d741dbd1529fb13478d630322c19bae4fdc6ea25": {
+  "chapter_id": "ch5",
+  "facts": [
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "sibling of Tobias",
+    "source_quote": "Tobias, my younger brother",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "sibling of Ines",
+    "source_quote": "Tobias, my younger brother",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "relation to Ines",
+    "value": "younger brother",
+    "source_quote": "Tobias, my younger brother",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "wrist injury",
+    "value": "clean white bandage",
+    "source_quote": "her wrist in a clean white bandage",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "keeper",
+    "source_quote": "keeper who had kept her light burning through the worst gale in memory",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "years as keeper",
+    "value": "eight years",
+    "source_quote": "In my eight years as keeper",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Merrow",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "moored at the landing",
+    "source_quote": "which was moored at the landing with its blue hull freshly scrubbed",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Merrow",
+    "entity_type": "item",
+    "attribute": "description",
+    "value": "blue hull freshly scrubbed",
+    "source_quote": "blue hull freshly scrubbed",
+    "confidence": 1.0
+   },
+   {
+    "entity": "reporter from the Wick Gazette",
+    "entity_type": "character",
+    "attribute": "purpose",
+    "value": "write about the keeper who had kept her light burning through the worst gale in memory",
+    "source_quote": "who came out on Thursday to write about the keeper who had kept her light burning through the worst gale in memory",
+    "confidence": 1.0
+   },
+   {
+    "entity": "reporter from the Wick Gazette",
+    "entity_type": "character",
+    "attribute": "quote",
+    "value": "Fine boat",
+    "source_quote": "Fine boat",
+    "confidence": 1.0
+   },
+   {
+    "entity": "storm",
+    "entity_type": "event",
+    "attribute": "description",
+    "value": "worst gale in memory",
+    "source_quote": "through the worst gale in memory",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Thursday",
+    "entity_type": "event",
+    "attribute": "day of reporter visit",
+    "value": "Thursday",
+    "source_quote": "who came out on Thursday",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "arrival time",
+    "value": "the morning after the storm",
+    "source_quote": "Tobias arrived the morning after the storm",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "action during storm",
+    "value": "rowed out to the Gullstone and sat with Ines in the lamp room until dawn",
+    "source_quote": "On the night of the storm, Silas Rudd rowed out to the Gullstone and sat with me in the lamp room until dawn",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "character description",
+    "value": "good man",
+    "source_quote": "He's a good man.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bramble",
+    "entity_type": "character",
+    "attribute": "behavior",
+    "value": "barked at the gulls from the rocks",
+    "source_quote": "Outside, Bramble barked at the gulls from the rocks, the way he always did when strangers came.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "storm night",
+    "value": "night of the storm",
+    "source_quote": "On the night of the storm, Silas Rudd rowed out to the Gullstone and sat with me in the lamp room until dawn",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "ankle injury",
+    "value": "ankle had healed by the end of the week",
+    "source_quote": "Pip, whose ankle had healed by the end of the week",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "showed the reporter his notebook of storm clouds",
+    "source_quote": "Pip showed the reporter his notebook of storm clouds.",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Ines",
+    "to_name": "Tobias",
+    "kind": "sibling",
+    "category": "family",
+    "source_quote": "Tobias, my younger brother",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Tobias",
+    "to_name": "Ines",
+    "kind": "sibling",
+    "category": "family",
+    "source_quote": "Tobias, my younger brother",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "aa06ffb3bb87a6a46aaf63fa9c4bc82ed168f3b0": "time skip: autumn after the storm",
+ "5937bba134e01efb6f8d7d010a6ee03f8595105b": {
+  "chapter_id": "ch6",
+  "facts": [
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Pip",
+    "source_quote": "Each evening Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Ines",
+    "source_quote": "Each evening Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "moved into the village for the winter",
+    "source_quote": "Ines moved into the village for the winter, as keepers sometimes did when an assistant could mind the light.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "accommodation",
+    "value": "room above the chandler's shop in Port Wick",
+    "source_quote": "She took a room above the chandler's shop in Port Wick and went out to the rock every other day.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "activity",
+    "value": "went out to the rock every other day",
+    "source_quote": "She took a room above the chandler's shop in Port Wick and went out to the rock every other day.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "Twelve-year-old",
+    "source_quote": "Twelve-year-old Pip was left in charge of the tower on the days she was away.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "responsibility",
+    "value": "in charge of the tower on the days Ines was away",
+    "source_quote": "Twelve-year-old Pip was left in charge of the tower on the days she was away.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "climbed the ninety-one steps each evening",
+    "source_quote": "Each evening he climbed the ninety-one steps, and each evening Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "unlocked the lamp room with the old brass key each evening",
+    "source_quote": "Each evening he climbed the ninety-one steps, and each evening Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "inspected Pip's work each evening",
+    "source_quote": "Each evening he climbed the ninety-one steps, and each evening Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "brass key",
+    "entity_type": "item",
+    "attribute": "description",
+    "value": "old brass key",
+    "source_quote": "Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "lamp room",
+    "entity_type": "location",
+    "attribute": "access",
+    "value": "unlocked by Ines with the old brass key each evening",
+    "source_quote": "Each evening he climbed the ninety-one steps, and each evening Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "tower",
+    "entity_type": "location",
+    "attribute": "inhabitant",
+    "value": "Pip was left in charge of the tower on the days Ines was away",
+    "source_quote": "Twelve-year-old Pip was left in charge of the tower on the days she was away.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Port Wick",
+    "entity_type": "location",
+    "attribute": "description",
+    "value": "village where Ines took a room above the chandler's shop",
+    "source_quote": "She took a room above the chandler's shop in Port Wick and went out to the rock every other day.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Friday",
+    "entity_type": "event",
+    "attribute": "day",
+    "value": "Friday (storm)",
+    "source_quote": "Since the storm on Friday, the sea had been as flat as a slate roof.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Harbourmaster Rudd",
+    "entity_type": "character",
+    "attribute": "habit",
+    "value": "rubbing his clean-shaven chin when he was thinking",
+    "source_quote": "Harbourmaster Rudd stopped by the chandler's shop most mornings. He had taken to rubbing his clean-shaven chin when he was thinking, a habit Ines found oddly comforting.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "opinion of habit",
+    "value": "found oddly comforting",
+    "source_quote": "Harbourmaster Rudd stopped by the chandler's shop most mornings. He had taken to rubbing his clean-shaven chin when he was thinking, a habit Ines found oddly comforting.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mara",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "wrote from the mainland to say she might visit again in spring",
+    "source_quote": "Mara wrote from the mainland to say she might visit again in spring.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "read the letter twice and put it in his pocket",
+    "source_quote": "Tobias read the letter twice and put it in his pocket.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "boy",
+    "entity_type": "character",
+    "attribute": "doing well",
+    "value": "doing well",
+    "source_quote": "Harbourmaster Rudd stopped by the chandler's shop most mornings. He had taken to rubbing his clean-shaven chin when he was thinking, a habit Ines found oddly comforting.  ",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "opinion of boy",
+    "value": "Better than I did at his age",
+    "source_quote": "He is,",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Ines",
+    "to_name": "Pip",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "Each evening Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "07ff1a9c2a8201f617bc19b8ea7173e8d20fe168": "continues: continues the story from the first chapter",
+ "55492ebebcd90f641d5a248f7c627b4a37cb1ef5": {
+  "chapter_id": "ch1",
+  "facts": [
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "sibling of Tobias",
+    "source_quote": "Her older brother Tobias wrote to her twice a year from the mainland",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "sibling of Ines Calloway",
+    "source_quote": "Her older brother Tobias wrote to her twice a year from the mainland",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "fifty-two",
+    "source_quote": "She was fifty-two that spring",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "lean and weathered, with grey eyes",
+    "source_quote": "lean and weathered, with grey eyes that the fishermen said could spot a sail through fog",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "occupation",
+    "value": "lightkeeper",
+    "source_quote": "Ines Calloway had kept it burning for twenty years",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Gullstone Light",
+    "entity_type": "location",
+    "attribute": "description",
+    "value": "stood on a knuckle of black rock two miles off Port Wick",
+    "source_quote": "The Gullstone Light stood on a knuckle of black rock two miles off Port Wick",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Gullstone Light",
+    "entity_type": "location",
+    "attribute": "function",
+    "value": "light kept burning",
+    "source_quote": "Ines Calloway had kept it burning for twenty years",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "daily_routine",
+    "value": "climbs the ninety-one steps of the tower, trimmed the wick, and wound the clockwork that turned the great lens every evening at dusk",
+    "source_quote": "Every evening at dusk she climbed the ninety-one steps of the tower, trimmed the wick, and wound the clockwork that turned the great lens",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "relation",
+    "value": "older brother",
+    "source_quote": "Her older brother Tobias wrote to her twice a year from the mainland",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "correspondence_frequency",
+    "value": "twice a year",
+    "source_quote": "Tobias wrote to her twice a year from the mainland",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "location",
+    "value": "the mainland",
+    "source_quote": "Tobias wrote to her twice a year from the mainland",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "letter_content",
+    "value": "short and smelled of pipe smoke",
+    "source_quote": "His letters were short and smelled of pipe smoke",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "intent",
+    "value": "might come out to the rock before the autumn gales",
+    "source_quote": "This year's letter said only that he was tired of the city and might come out to the rock before the autumn gales",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Pip Aldane",
+    "source_quote": "The harbourmaster had sent him out to learn the work, since Ines would not be young forever",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip Aldane",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Ines Calloway",
+    "source_quote": "The harbourmaster had sent him out to learn the work, since Ines would not be young forever",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bramble",
+    "entity_type": "item",
+    "attribute": "type",
+    "value": "sheepdog",
+    "source_quote": "Ines's old sheepdog, Bramble",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bramble",
+    "entity_type": "item",
+    "attribute": "age",
+    "value": "nearly deaf",
+    "source_quote": "who was nearly deaf",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bramble",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "kept by the stove in the keeper's cottage",
+    "source_quote": "lived Ines's old sheepdog, Bramble, who was nearly deaf and slept by the stove",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines Calloway",
+    "entity_type": "character",
+    "attribute": "conversation_partner",
+    "value": "Bramble",
+    "source_quote": "Ines talked to Bramble more than she talked to anyone in Port Wick",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip Aldane",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "boy",
+    "source_quote": "His name was Pip Aldane. The harbourmaster had sent him out to learn the work",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip Aldane",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "small and freckled",
+    "source_quote": "Pip was small and freckled and asked a great many questions",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip Aldane",
+    "entity_type": "character",
+    "attribute": "purpose",
+    "value": "sent by harbourmaster to learn the work from Ines",
+    "source_quote": "The harbourmaster had sent him out to learn the work, since Ines would not be young forever",
+    "confidence": 1.0
+   },
+   {
+    "entity": "light",
+    "entity_type": "item",
+    "attribute": "status",
+    "value": "has never gone out",
+    "source_quote": "Not on my watch",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Ines Calloway",
+    "to_name": "Tobias",
+    "kind": "sibling",
+    "category": "family",
+    "source_quote": "Her older brother Tobias wrote to her twice a year from the mainland",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Ines Calloway",
+    "to_name": "Pip Aldane",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "The harbourmaster had sent him out to learn the work, since Ines would not be young forever",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "1d52bde7f472d601e629f0950381b286a8a806d6": "continues: continues the story from the previous chapter",
+ "4d6dae7ebf9daa0e715a5dfabafbed2c3d675f55": {
+  "chapter_id": "ch2",
+  "facts": [
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "employs the boy",
+    "source_quote": "He'll do,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "the boy",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "works for Ines",
+    "source_quote": "He'll do,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of the boy",
+    "source_quote": "He's quick with the lens and he doesn't complain about the stairs.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "the boy",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Ines",
+    "source_quote": "He's quick with the lens and he doesn't complain about the stairs.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "profession",
+    "value": "harbourmaster of Port Wick",
+    "source_quote": "Silas Rudd, the harbourmaster of Port Wick",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "a broad man with a white beard that reached the second button of his coat",
+    "source_quote": "Silas Rudd, the harbourmaster of Port Wick, was a broad man with a white beard that reached the second button of his coat",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "came out to the Gullstone in the Merrow, the harbour's little red-painted launch",
+    "source_quote": "Silas Rudd ... came out to the Gullstone in the Merrow, the harbour's little red-painted launch",
+    "confidence": 1.0
+   },
+   {
+    "entity": "the boy",
+    "entity_type": "character",
+    "attribute": "description",
+    "value": "quick with the lens and he doesn't complain about the stairs",
+    "source_quote": "He'll do,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "statement",
+    "value": "He'll do. He's quick with the lens and he doesn't complain about the stairs.",
+    "source_quote": "He'll do,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "evaluation_of_boy",
+    "value": "quick with the lens and he doesn't complain about the stairs",
+    "source_quote": "He's quick with the lens and he doesn't complain about the stairs.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "weather",
+    "entity_type": "event",
+    "attribute": "statement",
+    "value": "Glass is falling. There's weather coming. A big one, maybe.",
+    "source_quote": "Glass is falling,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "weather",
+    "entity_type": "event",
+    "attribute": "prediction",
+    "value": "big one, maybe",
+    "source_quote": "A big one, maybe.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Gullstone",
+    "entity_type": "location",
+    "attribute": "description",
+    "value": "the harbour's little red-painted launch",
+    "source_quote": "the Gullstone in the Merrow, the harbour's little red-painted launch",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Merrow",
+    "entity_type": "location",
+    "attribute": "description",
+    "value": "the harbour",
+    "source_quote": "the harbour's little red-painted launch",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Pip",
+    "source_quote": "You've got yourself an apprentice",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Ines",
+    "source_quote": "You've got yourself an apprentice",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias Calloway",
+    "entity_type": "character",
+    "attribute": "physical_description",
+    "value": "tall man with dark hair going grey at the temples",
+    "source_quote": "He was a tall man with dark hair going grey at the temples",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias Calloway",
+    "entity_type": "character",
+    "attribute": "lost_left_hand",
+    "value": "lost left hand to a winch accident at sea many years ago",
+    "source_quote": "He had lost his left hand to a winch accident at sea many years ago",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias Calloway",
+    "entity_type": "character",
+    "attribute": "kept_empty_sleeve",
+    "value": "kept the empty sleeve pinned neatly to his coat",
+    "source_quote": "he kept the empty sleeve pinned neatly to his coat",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "polishing_brass_fittings",
+    "value": "polish the brass fittings",
+    "source_quote": "watched Pip polish the brass fittings",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "apprentice_status",
+    "value": "apprentice",
+    "source_quote": "You've got yourself an apprentice",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "took_Tobias_bag",
+    "value": "took his bag",
+    "source_quote": "She took his bag",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "Calloways_never_embrace",
+    "value": "Calloways never did [embrace]",
+    "source_quote": "the Calloways never did [embrace]",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "has_questions",
+    "value": "a lot of questions",
+    "source_quote": "I've got myself a lot of questions",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "apprentice_came_with_them",
+    "value": "apprentice came with them",
+    "source_quote": "The apprentice came with them",
+    "confidence": 1.0
+   },
+   {
+    "entity": "storm",
+    "entity_type": "event",
+    "attribute": "time_reference",
+    "value": "Three days before the storm",
+    "source_quote": "Three days before the storm",
+    "confidence": 1.0
+   },
+   {
+    "entity": "mail_boat",
+    "entity_type": "location",
+    "attribute": "arrival",
+    "value": "arrived on the mail boat",
+    "source_quote": "Tobias Calloway arrived on the mail boat",
+    "confidence": 1.0
+   },
+   {
+    "entity": "port",
+    "entity_type": "location",
+    "attribute": "landing",
+    "value": "Ines met him at the landing",
+    "source_quote": "Ines met him at the landing",
+    "confidence": 1.0
+   },
+   {
+    "entity": "kitchen",
+    "entity_type": "location",
+    "attribute": "evening_location",
+    "value": "Tobias sat at the kitchen table",
+    "source_quote": "That evening Tobias sat at the kitchen table",
+    "confidence": 1.0
+   },
+   {
+    "entity": "brass_fittings",
+    "entity_type": "item",
+    "attribute": "being_polished",
+    "value": "polish the brass fittings",
+    "source_quote": "watched Pip polish the brass fittings",
+    "confidence": 1.0
+   },
+   {
+    "entity": "empty_sleeve",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "pinned neatly to his coat",
+    "source_quote": "kept the empty sleeve pinned neatly to his coat",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Ines",
+    "to_name": "the boy",
+    "kind": "employer",
+    "category": "social",
+    "source_quote": "He'll do,",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Ines",
+    "to_name": "the boy",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "He's quick with the lens and he doesn't complain about the stairs.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Ines",
+    "to_name": "Pip",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "You've got yourself an apprentice",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "8249d2ba75ba2a76a6df9087247925fb73bb44cd": "continues: continues the story from the previous chapter",
+ "b7116a7ab6c576677837f08565ad2271a2da2b7a": {
+  "chapter_id": "ch3",
+  "facts": [
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Pip",
+    "source_quote": "Pip was ten years old, and he had never seen a real storm at sea. He kept a notebook of cloud shapes and showed it to anyone who would look.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Ines",
+    "source_quote": "Pip was ten years old, and he had never seen a real storm at sea. He kept a notebook of cloud shapes and showed it to anyone who would look.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "ten years old",
+    "source_quote": "Pip was ten years old",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "hobby",
+    "value": "keeps a notebook of cloud shapes",
+    "source_quote": "he had never seen a real storm at sea. He kept a notebook of cloud shapes and showed it to anyone who would look.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "buried Bramble behind the cottage under thrift flowers",
+    "source_quote": "Ines buried him behind the cottage, under the thrift flowers",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "did not speak for the rest of the day",
+    "source_quote": "and did not speak for the rest of the day",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "made a small cross from driftwood",
+    "source_quote": "Pip made a small cross from driftwood",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "did not ask any questions",
+    "source_quote": "and did not ask any questions at all",
+    "confidence": 1.0
+   },
+   {
+    "entity": "storm at sea",
+    "entity_type": "event",
+    "attribute": "never experienced by",
+    "value": "Pip",
+    "source_quote": "Pip was ten years old, and he had never seen a real storm at sea.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "week before the storm",
+    "entity_type": "event",
+    "attribute": "description",
+    "value": "quiet and sad in its own way",
+    "source_quote": "The week before the storm was quiet, and sad in its own way.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines burial",
+    "entity_type": "event",
+    "attribute": "time",
+    "value": "rest of the day",
+    "source_quote": "Ines buried him behind the cottage, under the thrift flowers, and did not speak for the rest of the day",
+    "confidence": 1.0
+   },
+   {
+    "entity": "driftwood",
+    "entity_type": "item",
+    "attribute": "used to make",
+    "value": "small cross",
+    "source_quote": "Pip made a small cross from driftwood",
+    "confidence": 1.0
+   },
+   {
+    "entity": "cross",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "behind the cottage, under the thrift flowers",
+    "source_quote": "Ines buried him behind the cottage, under the thrift flowers",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "parent of Mara Calloway",
+    "source_quote": "Mara was Tobias's daughter",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mara Calloway",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "child of Tobias",
+    "source_quote": "Mara was Tobias's daughter",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "not stated",
+    "source_quote": "Ines said nothing",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "relationship to Mara",
+    "value": "aunt",
+    "source_quote": "Ines's niece Mara Calloway",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mara Calloway",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "twenty years old",
+    "source_quote": "Mara Calloway came out on the supply boat... Mara was Tobias's daughter, twenty years old",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mara Calloway",
+    "entity_type": "character",
+    "attribute": "parent",
+    "value": "Tobias",
+    "source_quote": "Mara was Tobias's daughter",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mara Calloway",
+    "entity_type": "character",
+    "attribute": "trait",
+    "value": "sharp laugh",
+    "source_quote": "Mara was Tobias's daughter, twenty years old, with a sharp laugh",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mara Calloway",
+    "entity_type": "character",
+    "attribute": "trait",
+    "value": "no patience for lighthouses",
+    "source_quote": "Mara was Tobias's daughter, twenty years old, with a sharp laugh and no patience for lighthouses",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "relationship to Mara",
+    "value": "father",
+    "source_quote": "Mara was Tobias's daughter",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "found the old brass key to the lamp room",
+    "source_quote": "Tobias found the old brass key to the lamp room hanging on its nail",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "threw the brass key into the sea",
+    "source_quote": "he walked to the edge of the rocks and threw it into the sea",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "statement",
+    "value": "Nobody locks a lamp room anymore",
+    "source_quote": "Tobias said, 'Nobody locks a lamp room anymore'",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "wedged the door shut with a chair",
+    "source_quote": "Ines wedged the door shut with a chair",
+    "confidence": 1.0
+   },
+   {
+    "entity": "brass key",
+    "entity_type": "item",
+    "attribute": "description",
+    "value": "old brass key to the lamp room",
+    "source_quote": "the old brass key to the lamp room hanging on its nail",
+    "confidence": 1.0
+   },
+   {
+    "entity": "brass key",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "thrown into the sea",
+    "source_quote": "he walked to the edge of the rocks and threw it into the sea",
+    "confidence": 1.0
+   },
+   {
+    "entity": "lamp room",
+    "entity_type": "location",
+    "attribute": "door status",
+    "value": "wedged shut with a chair",
+    "source_quote": "Ines wedged the door shut with a chair",
+    "confidence": 1.0
+   },
+   {
+    "entity": "lamp room",
+    "entity_type": "location",
+    "attribute": "key location",
+    "value": "hanging on its nail",
+    "source_quote": "the old brass key to the lamp room hanging on its nail",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mara Calloway",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "came out on the supply boat",
+    "source_quote": "Ines's niece Mara Calloway came out on the supply boat with a basket of apples and news from the mainland",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "injury",
+    "value": "sprained ankle",
+    "source_quote": "Pip slipped on the wet steps that evening and sprained his ankle.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "bandaging",
+    "value": "Ines bound his ankle tightly",
+    "source_quote": "Ines bound it tightly and told him to stay off his feet.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "instruction",
+    "value": "stay off his feet",
+    "source_quote": "Ines bound it tightly and told him to stay off his feet.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "ankle",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "bound by Ines",
+    "source_quote": "Ines bound it tightly and told him to stay off his feet.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "bound ankle tightly",
+    "source_quote": "Ines bound it tightly and told him to stay off his feet.",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Ines",
+    "to_name": "Pip",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "Ines bound it tightly and told him to stay off his feet.",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Tobias",
+    "to_name": "Mara Calloway",
+    "kind": "parent",
+    "category": "family",
+    "source_quote": "Mara was Tobias's daughter",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "2e751c88ae63f742ef76fa38db3f2a205ddd5bca": "continues: continues the story from the previous chapter",
+ "81a5795cb7cb5acd11e6f997a59be3ea7ec25586": {
+  "chapter_id": "ch4",
+  "facts": [
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "employs Keeper Calloway",
+    "source_quote": "Keeper Calloway's green eyes never left the lamp. She stayed at the top of the tower all night",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Keeper Calloway",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "works for Silas Rudd",
+    "source_quote": "Keeper Calloway's green eyes never left the lamp. She stayed at the top of the tower all night",
+    "confidence": 0.8
+   },
+   {
+    "entity": "Keeper Calloway",
+    "entity_type": "character",
+    "attribute": "eye color",
+    "value": "green eyes",
+    "source_quote": "Keeper Calloway's green eyes never left the lamp.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Keeper Calloway",
+    "entity_type": "character",
+    "attribute": "location",
+    "value": "top of the tower",
+    "source_quote": "She stayed at the top of the tower all night",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Keeper Calloway",
+    "entity_type": "character",
+    "attribute": "activity",
+    "value": "feeding the flame and winding the clockwork every hour",
+    "source_quote": "feeding the flame and winding the clockwork every hour",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Keeper Calloway",
+    "entity_type": "character",
+    "attribute": "status",
+    "value": "present at tower all night",
+    "source_quote": "She stayed at the top of the tower all night",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "location",
+    "value": "harbour office",
+    "source_quote": "Silas Rudd spent the whole night of the storm in the harbour office",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "activity",
+    "value": "sending telegrams up and down the coast and keeping a lamp in the window for any boat that might make it in",
+    "source_quote": "sending telegrams up and down the coast and keeping a lamp in the window for any boat that might make it in",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "activity",
+    "value": "did not leave the office until dawn",
+    "source_quote": "He did not leave the office until dawn",
+    "confidence": 1.0
+   },
+   {
+    "entity": "storm",
+    "entity_type": "event",
+    "attribute": "day",
+    "value": "Tuesday night",
+    "source_quote": "The storm broke on Tuesday night.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "storm",
+    "entity_type": "event",
+    "attribute": "time reference",
+    "value": "whole night of the storm",
+    "source_quote": "Silas Rudd spent the whole night of the storm in the harbour office",
+    "confidence": 1.0
+   },
+   {
+    "entity": "storm",
+    "entity_type": "event",
+    "attribute": "time reference",
+    "value": "dawn",
+    "source_quote": "He did not leave the office until dawn",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Ines",
+    "source_quote": "Ines slipped on the glass as she ran down to check on Pip",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Pip",
+    "source_quote": "Ines slipped on the glass as she ran down to check on Pip",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "stood at the foot of the tower stairs",
+    "value": "with a storm lantern",
+    "source_quote": "Tobias stood at the foot of the tower stairs with a storm lantern.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "clapped both hands over the broken latch",
+    "value": "holding it closed until Ines could lash it with rope",
+    "source_quote": "When a shutter tore loose, he climbed out onto the gallery and clapped both hands over the broken latch, holding it closed until Ines could lash it with rope.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "cut her wrist badly",
+    "value": "wrapped it in a dish towel",
+    "source_quote": "Ines slipped on the glass as she ran down to check on Pip, and she cut her wrist badly. She wrapped it in a dish towel and went back up the tower.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "Ines checked on",
+    "value": "",
+    "source_quote": "Ines slipped on the glass as she ran down to check on Pip, and she cut her wrist badly.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "storm lantern",
+    "entity_type": "item",
+    "attribute": "carried by",
+    "value": "Tobias",
+    "source_quote": "Tobias stood at the foot of the tower stairs with a storm lantern.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "broken latch",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "on the gallery",
+    "source_quote": "When a shutter tore loose, he climbed out onto the gallery and clapped both hands over the broken latch, holding it closed until Ines could lash it with rope.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "shutter",
+    "entity_type": "item",
+    "attribute": "tore loose",
+    "value": "",
+    "source_quote": "When a shutter tore loose, he climbed out onto the gallery and clapped both hands over the broken latch, holding it closed until Ines could lash it with rope.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "rope",
+    "entity_type": "item",
+    "attribute": "used to lash the broken latch",
+    "value": "",
+    "source_quote": "until Ines could lash it with rope.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "kitchen window",
+    "entity_type": "location",
+    "attribute": "broke by wave",
+    "value": "",
+    "source_quote": "Near midnight, a wave broke the kitchen window.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "went back up the tower",
+    "value": "",
+    "source_quote": "Ines slipped on the glass as she ran down to check on Pip, and she cut her wrist badly. She wrapped it in a dish towel and went back up the tower.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "sea",
+    "entity_type": "event",
+    "attribute": "broke the kitchen window",
+    "value": "Near midnight",
+    "source_quote": "Near midnight, a wave broke the kitchen window.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "sea",
+    "entity_type": "event",
+    "attribute": "state at morning",
+    "value": "grey and tired",
+    "source_quote": "By morning the sea was grey and tired, and the light had not gone out.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "light",
+    "entity_type": "event",
+    "attribute": "had not gone out",
+    "value": "",
+    "source_quote": "By morning the sea was grey and tired, and the light had not gone out.",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Silas Rudd",
+    "to_name": "Keeper Calloway",
+    "kind": "employer",
+    "category": "social",
+    "source_quote": "Keeper Calloway's green eyes never left the lamp. She stayed at the top of the tower all night",
+    "confidence": 0.8
+   },
+   {
+    "from_name": "Pip",
+    "to_name": "Ines",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "Ines slipped on the glass as she ran down to check on Pip",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "bb3164109f647b73c61738a7144c769a37fc32df": {
+  "chapter_id": "ch5",
+  "facts": [
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "sibling of Tobias",
+    "source_quote": "Tobias, my younger brother",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "relationship",
+    "value": "sibling of Ines",
+    "source_quote": "Tobias, my younger brother",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "relation to Ines",
+    "value": "younger brother",
+    "source_quote": "Tobias, my younger brother",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "role",
+    "value": "keeper",
+    "source_quote": "In my eight years as keeper",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "injury",
+    "value": "wrist in a clean white bandage",
+    "source_quote": "with her wrist in a clean white bandage",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Merrow",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "moored at the landing",
+    "source_quote": "which was moored at the landing",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Merrow",
+    "entity_type": "item",
+    "attribute": "description",
+    "value": "blue hull freshly scrubbed",
+    "source_quote": "blue hull freshly scrubbed",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Wick Gazette",
+    "entity_type": "other",
+    "attribute": "role",
+    "value": "reporter",
+    "source_quote": "reporter from the Wick Gazette",
+    "confidence": 1.0
+   },
+   {
+    "entity": "reporter from the Wick Gazette",
+    "entity_type": "other",
+    "attribute": "action",
+    "value": "came out on Thursday to write about the keeper who had kept her light burning through the worst gale in memory",
+    "source_quote": "who came out on Thursday to write about the keeper who had kept her light burning through the worst gale in memory",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "day of reporter's visit",
+    "value": "Thursday",
+    "source_quote": "who came out on Thursday",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "time of Tobias's arrival",
+    "value": "the morning after the storm",
+    "source_quote": "Tobias arrived the morning after the storm",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "action during storm",
+    "value": "rowed out to the Gullstone and sat with Ines in the lamp room until dawn",
+    "source_quote": "On the night of the storm, Silas Rudd rowed out to the Gullstone and sat with me in the lamp room until dawn,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Silas Rudd",
+    "entity_type": "character",
+    "attribute": "character description",
+    "value": "He's a good man",
+    "source_quote": "He's a good man.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Bramble",
+    "entity_type": "character",
+    "attribute": "behavior",
+    "value": "barked at the gulls from the rocks",
+    "source_quote": "Outside, Bramble barked at the gulls from the rocks, the way he always did when strangers came.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Merrow",
+    "entity_type": "item",
+    "attribute": "location",
+    "value": "moored at the landing with its blue hull freshly scrubbed",
+    "source_quote": "The reporter had one more question. They say Silas Rudd rowed out to the Gullstone on the night of the storm to help you. Is that true?",
+    "confidence": 1.0
+   },
+   {
+    "entity": "event",
+    "entity_type": "event",
+    "attribute": "storm night",
+    "value": "night of the storm",
+    "source_quote": "On the night of the storm, Silas Rudd rowed out to the Gullstone and sat with me in the lamp room until dawn,",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "ankle injury status",
+    "value": "ankle had healed by the end of the week",
+    "source_quote": "Pip, whose ankle had healed by the end of the week, showed the reporter his notebook of storm clouds.",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Ines",
+    "to_name": "Tobias",
+    "kind": "sibling",
+    "category": "family",
+    "source_quote": "Tobias, my younger brother",
+    "confidence": 1.0
+   },
+   {
+    "from_name": "Tobias",
+    "to_name": "Ines",
+    "kind": "sibling",
+    "category": "family",
+    "source_quote": "Tobias, my younger brother",
+    "confidence": 1.0
+   }
+  ]
+ },
+ "4ebca1631589e783f51bc5442c96b3834e123672": "time skip: a few weeks after the storm",
+ "622488b21cbd3fc22c30b2edd97fb36376e55994": "time skip: a few weeks after the storm",
+ "02f11fcfc53519353b00133b2a30bf0edf4c2f3a": {
+  "chapter_id": "ch6",
+  "facts": [
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "mentor of Pip",
+    "source_quote": "Each evening he climbed the ninety-one steps, and each evening Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "social tie",
+    "value": "student of Ines",
+    "source_quote": "Each evening he climbed the ninety-one steps, and each evening Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "moved into the village for the winter",
+    "source_quote": "Ines moved into the village for the winter, as keepers sometimes did when an assistant could mind the light.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "took a room above the chandler's shop in Port Wick",
+    "source_quote": "She took a room above the chandler's shop in Port Wick and went out to the rock every other day.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "went out to the rock every other day",
+    "source_quote": "She took a room above the chandler's shop in Port Wick and went out to the rock every other day.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "age",
+    "value": "Twelve-year-old",
+    "source_quote": "Twelve-year-old Pip was left in charge of the tower on the days she was away.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "was left in charge of the tower on the days Ines was away",
+    "source_quote": "Twelve-year-old Pip was left in charge of the tower on the days she was away.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Pip",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "climbed the ninety-one steps each evening",
+    "source_quote": "Each evening he climbed the ninety-one steps, and each evening Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "unlocked the lamp room with the old brass key each evening",
+    "source_quote": "Each evening he climbed the ninety-one steps, and each evening Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "inspected Pip's work each evening",
+    "source_quote": "Each evening he climbed the ninety-one steps, and each evening Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "brass key",
+    "entity_type": "item",
+    "attribute": "description",
+    "value": "old brass key",
+    "source_quote": "Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "lamp room",
+    "entity_type": "location",
+    "attribute": "access",
+    "value": "unlocked by Ines with the old brass key each evening",
+    "source_quote": "Each evening he climbed the ninety-one steps, and each evening Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "tower",
+    "entity_type": "location",
+    "attribute": "Pip was left in charge of the tower on the days Ines was away",
+    "value": "tower",
+    "source_quote": "Twelve-year-old Pip was left in charge of the tower on the days she was away.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Port Wick",
+    "entity_type": "location",
+    "attribute": "room location",
+    "value": "above the chandler's shop",
+    "source_quote": "She took a room above the chandler's shop in Port Wick and went out to the rock every other day.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "rock",
+    "entity_type": "location",
+    "attribute": "visited by Ines every other day",
+    "value": "the rock",
+    "source_quote": "She took a room above the chandler's shop in Port Wick and went out to the rock every other day.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Harbourmaster Rudd",
+    "entity_type": "character",
+    "attribute": "habit",
+    "value": "rubbing his clean-shaven chin when he is thinking",
+    "source_quote": "Harbourmaster Rudd stopped by the chandler's shop most mornings. He had taken to rubbing his clean-shaven chin when he was thinking, a habit Ines found oddly comforting.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Ines",
+    "entity_type": "character",
+    "attribute": "opinion of habit",
+    "value": "found oddly comforting",
+    "source_quote": "Harbourmaster Rudd stopped by the chandler's shop most mornings. He had taken to rubbing his clean-shaven chin when he was thinking, a habit Ines found oddly comforting.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Mara",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "wrote from the mainland to say she might visit again in spring",
+    "source_quote": "Mara wrote from the mainland to say she might visit again in spring.",
+    "confidence": 1.0
+   },
+   {
+    "entity": "Tobias",
+    "entity_type": "character",
+    "attribute": "action",
+    "value": "read the letter twice and put it in his pocket",
+    "source_quote": "Tobias read the letter twice and put it in his pocket.",
+    "confidence": 1.0
+   }
+  ],
+  "relationships": [
+   {
+    "from_name": "Ines",
+    "to_name": "Pip",
+    "kind": "mentor",
+    "category": "social",
+    "source_quote": "Each evening he climbed the ninety-one steps, and each evening Ines, on her visits, unlocked the lamp room with the old brass key and inspected his work.",
+    "confidence": 1.0
+   }
+  ]
+ }
+}

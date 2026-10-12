@@ -22,3 +22,19 @@ services:
         sync: false          # optional: only people with this code can create accounts
       - key: MAX_REQUESTS_PER_MINUTE
         value: "30"
+      - key: BEHIND_PROXY
+        value: "true"        # Render's proxy adds the visitor's real address; used to slow password guessing
+      - key: APP_URL
+        sync: false          # e.g. https://storyforge-xxxx.onrender.com (for password-reset links)
+      - key: CHAT_MODEL_READING
+        sync: false          # optional; run python eval/probe_models.py to choose
+      - key: CHAT_MODEL_JUDGING
+        sync: false          # optional
+      - key: SMTP_HOST
+        sync: false          # optional: send password-reset emails (else the link goes to the log)
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        sync: false

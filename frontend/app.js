@@ -75,7 +75,12 @@ function setTitle(text) { document.title = text ? `${text} – StoryForge` : "St
 // sign in
 // ---------------------------------------------------------------------------
 function signOut(rerender = true) {
+  // Forget everything that belonged to this user, so the next person at this browser
+  // starts clean (no stale book, chapters or background polling).
   state.token = null; state.user = null; save("storyforge-token", null);
+  state.books = []; state.book = null; state.chapters = []; state.watching.clear(); state.pendingEdit = null;
+  clearTimeout(activityTimer);
+  $("#account").hidden = true; $("#account").innerHTML = "";
   if (rerender) showLanding();
 }
 
@@ -132,42 +137,108 @@ function showLanding() {
   };
 }
 
-function showSignIn(mode = "signin") {
+const AUTH_COPY = {
+  signin:   { title: "Welcome back", lede: "Sign in to get back to your books.", button: "Sign in", busy: "Signing in…" },
+  register: { title: "Create your account", lede: "Your books and chapters are private to you.", button: "Create account", busy: "Creating your account…" },
+  forgot:   { title: "Forgot your password?", lede: "Enter your account's email and we'll send you a link to choose a new one.", button: "Send reset link", busy: "Sending…" },
+  reset:    { title: "Choose a new password", lede: "Pick a password you don't use anywhere else. You'll be signed in straight away.", button: "Save new password", busy: "Saving…" },
+};
+
+function passwordField(id, label, autocomplete, hint = "") {
+  return `<div class="field"><label for="${id}">${label}${hint ? ` <span class="hint">${hint}</span>` : ""}</label>
+    <div class="pw-wrap"><input type="password" id="${id}" autocomplete="${autocomplete}" required minlength="${autocomplete === "current-password" ? 1 : 8}">
+      <button type="button" class="pw-toggle" data-toggle="${id}" aria-label="Show password" aria-pressed="false">Show</button></div></div>`;
+}
+
+function bindPasswordToggles(root) {
+  root.querySelectorAll("[data-toggle]").forEach(b => b.onclick = () => {
+    const input = $("#" + b.dataset.toggle, root);
+    const show = input.type === "password";
+    input.type = show ? "text" : "password";
+    b.textContent = show ? "Hide" : "Show";
+    b.setAttribute("aria-pressed", String(show));
+    b.setAttribute("aria-label", show ? "Hide password" : "Show password");
+  });
+}
+
+/** Run an async form action with the button disabled and a busy label; show errors in msgBox. */
+async function busy(button, label, msgBox, action) {
+  const original = button.textContent;
+  button.disabled = true; button.textContent = label;
+  msgBox.innerHTML = "";
+  try { return await action(); }
+  catch (err) { msgBox.innerHTML = errorBox(err); return undefined; }
+  finally { if (button.isConnected) { button.disabled = false; button.textContent = original; } }
+}
+
+function showSignIn(mode = "signin", resetToken = null) {
   showOnly("signin");
-  setTitle(mode === "register" ? "Create your account" : "Sign in");
+  const copy = AUTH_COPY[mode];
+  setTitle(copy.title);
   const box = $("#signin");
   const c = state.config;
-  const registering = mode === "register";
+  const minLen = c.min_password_length || 8;
+  const fields = {
+    signin: `<div class="field"><label for="a-email">Email</label><input type="email" id="a-email" autocomplete="email" placeholder="you@example.com" required></div>
+      ${passwordField("a-pass", "Password", "current-password")}
+      <p class="forgot"><a href="#" data-mode="forgot">Forgot your password?</a></p>`,
+    register: `<div class="field"><label for="a-name">Your name <span class="hint">(optional)</span></label><input type="text" id="a-name" autocomplete="name" maxlength="80"></div>
+      <div class="field"><label for="a-email">Email</label><input type="email" id="a-email" autocomplete="email" placeholder="you@example.com" required></div>
+      ${passwordField("a-pass", "Password", "new-password", `(at least ${minLen} characters)`)}
+      ${c.invite_required ? `<div class="field"><label for="a-invite">Invite code</label><input type="text" id="a-invite" autocomplete="off" required></div>` : ""}`,
+    forgot: `<div class="field"><label for="a-email">Email</label><input type="email" id="a-email" autocomplete="email" placeholder="you@example.com" required></div>`,
+    reset: `${passwordField("a-pass", "New password", "new-password", `(at least ${minLen} characters)`)}
+      ${passwordField("a-pass2", "Type it again", "new-password")}`,
+  }[mode];
+  const switcher = mode === "signin" ? (c.registration_open ? `<button class="btn quiet" type="button" data-mode="register">Create an account</button>` : "")
+    : mode === "register" ? `<button class="btn quiet" type="button" data-mode="signin">I already have an account</button>`
+    : `<button class="btn quiet" type="button" data-mode="signin">Back to sign in</button>`;
   box.innerHTML = `
     <form class="signin-card" id="auth-form" novalidate>
-      <p class="brand" style="margin-bottom:1.6rem"><span class="wordmark" style="display:flex;align-items:center;gap:.5rem"><svg viewBox="0 0 32 32" aria-hidden="true" style="width:1.6rem;height:1.6rem;color:var(--pencil)"><path d="M7 6h13a5 5 0 0 1 5 5v15H12a5 5 0 0 1-5-5z" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M11 13h10M11 18h7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>StoryForge</span></p>
-      <h1 style="font-size:1.6rem">${registering ? "Create your account" : "Welcome back"}</h1>
-      <p class="hint" style="margin:-.2rem 0 1.2rem">${registering ? "Your books and chapters are private to you." : "Sign in to get back to your books."}</p>
-      ${registering ? `<div class="field"><label for="a-name">Your name <span class="hint">(optional)</span></label><input type="text" id="a-name" autocomplete="name"></div>` : ""}
-      <div class="field"><label for="a-email">Email</label><input type="email" id="a-email" autocomplete="email" placeholder="you@example.com" required></div>
-      <div class="field"><label for="a-pass">Password ${registering ? `<span class="hint">(at least 8 characters)</span>` : ""}</label>
-        <input type="password" id="a-pass" autocomplete="${registering ? "new-password" : "current-password"}" required></div>
-      ${registering && c.invite_required ? `<div class="field"><label for="a-invite">Invite code</label><input type="text" id="a-invite"></div>` : ""}
-      <div id="auth-msg"></div>
-      <div class="actions"><button class="btn" type="submit">${registering ? "Create account" : "Sign in"}</button>
-        ${c.registration_open ? `<button class="btn quiet" type="button" id="switch">${registering ? "I already have an account" : "Create an account"}</button>` : ""}</div>
-      <p style="margin:1.4rem 0 0;font-size:.9rem"><a href="#" id="to-welcome">Back to the welcome page</a></p>
+      <p class="brand">${WORDMARK}</p>
+      <h1 class="signin-title">${copy.title}</h1>
+      <p class="hint signin-lede">${copy.lede}</p>
+      ${fields}
+      <div id="auth-msg" aria-live="polite"></div>
+      <div class="actions"><button class="btn" type="submit" id="auth-submit">${copy.button}</button>${switcher}</div>
+      <p class="signin-foot"><a href="#" data-mode="welcome">Back to the welcome page</a></p>
     </form>`;
-  $("#a-email").focus();
-  $("#to-welcome").onclick = (e) => { e.preventDefault(); showLanding(); };
-  const sw = $("#switch");
-  if (sw) sw.onclick = () => showSignIn(registering ? "signin" : "register");
-  $("#auth-form").onsubmit = async (e) => {
+  const form = $("#auth-form"), msg = $("#auth-msg"), submit = $("#auth-submit");
+  bindPasswordToggles(form);
+  (form.querySelector("input") || submit).focus();
+  form.querySelectorAll("[data-mode]").forEach(el => el.onclick = (e) => {
     e.preventDefault();
-    const body = { email: $("#a-email").value.trim(), password: $("#a-pass").value };
-    if (!body.email || !body.password) { $("#auth-msg").innerHTML = errorBox("Enter your email and password."); return; }
-    if (registering) { body.display_name = $("#a-name").value.trim() || null; const inv = $("#a-invite"); if (inv) body.invite_code = inv.value; }
-    try {
-      const r = await api(registering ? "/auth/register" : "/auth/login", { method: "POST", body });
-      state.token = r.token; state.user = r.user; save("storyforge-token", r.token);
-      if (!location.hash || location.hash === "#/") location.hash = "#/shelf";
-      await startApp();
-    } catch (err) { $("#auth-msg").innerHTML = errorBox(err); }
+    if (el.dataset.mode === "welcome") { history.replaceState(null, "", location.pathname + location.search); showLanding(); }
+    else showSignIn(el.dataset.mode);
+  });
+
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    const email = $("#a-email")?.value.trim();
+    const password = $("#a-pass")?.value || "";
+    if ($("#a-email") && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { msg.innerHTML = errorBox("Enter a valid email address."); $("#a-email").focus(); return; }
+    if (mode !== "forgot" && !password) { msg.innerHTML = errorBox("Enter your password."); $("#a-pass").focus(); return; }
+    if ((mode === "register" || mode === "reset") && password.length < minLen) { msg.innerHTML = errorBox(`Use at least ${minLen} characters for the password.`); $("#a-pass").focus(); return; }
+    if (mode === "reset" && password !== $("#a-pass2").value) { msg.innerHTML = errorBox("The two passwords don't match."); $("#a-pass2").focus(); return; }
+    if (mode === "register" && c.invite_required && !$("#a-invite").value.trim()) { msg.innerHTML = errorBox("Enter your invite code."); $("#a-invite").focus(); return; }
+
+    if (mode === "forgot") {
+      const r = await busy(submit, copy.busy, msg, () => api("/auth/forgot", { method: "POST", body: { email } }));
+      if (r) form.innerHTML = `<p class="brand">${WORDMARK}</p><h1 class="signin-title">Check your inbox</h1>
+        <p>If there's an account for <b>${esc(email)}</b>, a reset link is on its way. It works once, for an hour.</p>
+        ${r.delivery === "server log" ? `<p class="hint">This StoryForge doesn't send email yet: ask the person who runs it for your reset link (it's in the server log).</p>` : `<p class="hint">Nothing after a few minutes? Check your spam folder.</p>`}
+        <div class="actions"><button class="btn" type="button" id="back-signin">Back to sign in</button></div>`;
+      $("#back-signin")?.addEventListener("click", () => showSignIn("signin"));
+      return;
+    }
+    const request = mode === "signin" ? ["/auth/login", { email, password }]
+      : mode === "register" ? ["/auth/register", { email, password, display_name: $("#a-name").value.trim() || null, invite_code: $("#a-invite")?.value.trim() || null }]
+      : ["/auth/reset", { token: resetToken, new_password: password }];
+    const r = await busy(submit, copy.busy, msg, () => api(request[0], { method: "POST", body: request[1] }));
+    if (!r) { if (mode === "signin") { $("#a-pass").value = ""; $("#a-pass").focus(); } return; }
+    state.token = r.token; state.user = r.user; save("storyforge-token", r.token);
+    location.hash = "#/shelf";
+    await startApp();
   };
 }
 
@@ -183,14 +254,126 @@ function renderAccount(usage) {
       <span class="who">${esc(name)}</span><span class="hint">${esc(state.user.email)}</span>
       ${limit ? `<p class="usage">${used} of ${limit} chapter checks used today
         <span class="usage-bar" aria-hidden="true"><span style="width:${Math.min(100, Math.round(used / limit * 100))}%"></span></span></p>` : ""}
-      <button class="btn quiet small" id="sign-out" style="padding-left:0">Sign out</button>
+      <div class="account-links"><a href="#/account">Account settings</a>
+      <button class="btn quiet small" id="sign-out">Sign out</button></div>
     </div>`;
   $("#sign-out").onclick = () => { box.open = false; signOut(); };
   // The allowance changes as chapters are checked: refresh it whenever the menu opens.
   box.ontoggle = async () => {
     if (!box.open) return;
-    try { const me = await api("/auth/me"); renderAccount(me); box.open = true; } catch { /* keep the old numbers */ }
+    try { const me = await api("/auth/me"); state.user = me.user || state.user; renderAccount(me); box.open = true; } catch { /* keep the old numbers */ }
   };
+}
+
+async function pageAccount() {
+  setTitle("Account");
+  if (!state.config.auth_required || !state.user) {
+    view.innerHTML = `<h1>Account</h1><div class="empty">Sign-in is switched off on this StoryForge, so there's no account to manage.</div>`;
+    return;
+  }
+  view.innerHTML = loading("Loading…");
+  let me;
+  try { me = await api("/auth/me"); state.user = me.user; renderAccount(me); }
+  catch (err) { view.innerHTML = errorBox(err); return; }
+  const u = me.user;
+  const since = u.created_at ? new Date(u.created_at).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }) : "";
+  view.innerHTML = `
+    <h1>Account</h1>
+    <p class="lede">Signed in as <b>${esc(u.email)}</b>${since ? `, writing here since ${esc(since)}` : ""}.</p>
+    <div class="account-grid">
+      <section class="sheet-card" aria-labelledby="h-profile">
+        <h2 class="section" id="h-profile">Your name</h2>
+        <form id="f-profile" novalidate>
+          <div class="field"><label for="p-name">Shown in the top bar</label><input type="text" id="p-name" maxlength="80" autocomplete="name" value="${esc(u.display_name || "")}"></div>
+          <div class="msg" aria-live="polite"></div>
+          <div class="actions"><button class="btn" type="submit">Save name</button></div>
+        </form>
+      </section>
+      <section class="sheet-card" aria-labelledby="h-usage">
+        <h2 class="section" id="h-usage">Today's allowance</h2>
+        ${me.daily_chapter_limit ? `<p>${me.chapters_today} of ${me.daily_chapter_limit} chapter checks used today.</p>
+          <span class="usage-bar wide" aria-hidden="true"><span style="width:${Math.min(100, Math.round(me.chapters_today / me.daily_chapter_limit * 100))}%"></span></span>
+          <p class="hint">Each check of a chapter uses AI requests. The count resets at midnight (server time); checks that fail because the AI service is down aren't counted.</p>`
+          : `<p>No daily limit on this StoryForge.</p>`}
+      </section>
+      <section class="sheet-card" aria-labelledby="h-password">
+        <h2 class="section" id="h-password">Change password</h2>
+        <form id="f-password" novalidate>
+          ${passwordField("p-current", "Current password", "current-password")}
+          ${passwordField("p-new", "New password", "new-password", `(at least ${state.config.min_password_length || 8} characters)`)}
+          ${passwordField("p-new2", "Type it again", "new-password")}
+          <p class="hint">Changing it signs you out on every other device.</p>
+          <div class="msg" aria-live="polite"></div>
+          <div class="actions"><button class="btn" type="submit">Change password</button></div>
+        </form>
+      </section>
+      <section class="sheet-card" aria-labelledby="h-sessions">
+        <h2 class="section" id="h-sessions">Signed-in devices</h2>
+        <p>Used StoryForge on a shared or lost computer? Sign out everywhere, including here.</p>
+        <div class="msg" aria-live="polite"></div>
+        <div class="actions"><button class="btn quiet" id="b-everywhere" style="padding-left:0">Sign out everywhere</button></div>
+      </section>
+      <section class="sheet-card danger-zone" aria-labelledby="h-delete">
+        <h2 class="section" id="h-delete">Delete account</h2>
+        <p>Deletes your account and <b>every book in it</b>: chapters, facts, characters and issues. This can't be undone. Export any book you want to keep from <a href="#/shelf">your books</a> first.</p>
+        <details id="delete-box"><summary class="btn danger">Delete my account…</summary>
+          <form id="f-delete" novalidate>
+            <div class="field"><label for="d-email">Type your email to confirm</label><input type="email" id="d-email" autocomplete="off"></div>
+            ${passwordField("d-pass", "Your password", "current-password")}
+            <div class="msg" aria-live="polite"></div>
+            <div class="actions"><button class="btn btn-danger-solid" type="submit">Delete account and all books</button></div>
+          </form></details>
+      </section>
+    </div>`;
+  bindPasswordToggles(view);
+  const msgOf = (form) => $(".msg", form);
+
+  $("#f-profile").onsubmit = async (e) => {
+    e.preventDefault();
+    const form = e.target, name = $("#p-name").value.trim();
+    if (!name) { msgOf(form).innerHTML = errorBox("Enter a name."); return; }
+    const r = await busy($("button[type=submit]", form), "Saving…", msgOf(form),
+      () => api("/auth/me", { method: "PATCH", body: { display_name: name } }));
+    if (r) { state.user = r.user; renderAccount(me); msgOf(form).innerHTML = `<div class="notice ok">Saved.</div>`; }
+  };
+
+  $("#f-password").onsubmit = async (e) => {
+    e.preventDefault();
+    const form = e.target, current = $("#p-current").value, next = $("#p-new").value;
+    const min = state.config.min_password_length || 8;
+    if (!current) { msgOf(form).innerHTML = errorBox("Enter your current password."); return; }
+    if (next.length < min) { msgOf(form).innerHTML = errorBox(`Use at least ${min} characters for the new password.`); return; }
+    if (next !== $("#p-new2").value) { msgOf(form).innerHTML = errorBox("The two new passwords don't match."); return; }
+    const r = await busy($("button[type=submit]", form), "Changing…", msgOf(form),
+      () => api("/auth/password", { method: "POST", body: { current_password: current, new_password: next } }));
+    if (r) {
+      state.token = r.token; save("storyforge-token", r.token);
+      form.reset();
+      msgOf(form).innerHTML = `<div class="notice ok">Password changed. Other devices have been signed out.</div>`;
+    }
+  };
+
+  $("#b-everywhere").onclick = async (e) => {
+    if (!confirm("Sign out on every device, including this one?")) return;
+    const box = e.target.closest("section");
+    const r = await busy(e.target, "Signing out…", msgOf(box), () => api("/auth/logout-everywhere", { method: "POST" }));
+    if (r) signOut();
+  };
+
+  $("#f-delete").onsubmit = async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    if ($("#d-email").value.trim().toLowerCase() !== u.email.toLowerCase()) { msgOf(form).innerHTML = errorBox("Type your email exactly as shown above."); return; }
+    if (!$("#d-pass").value) { msgOf(form).innerHTML = errorBox("Enter your password."); return; }
+    const r = await busy($("button[type=submit]", form), "Deleting…", msgOf(form),
+      () => api("/auth/delete-account", { method: "POST", body: { password: $("#d-pass").value } }));
+    if (r) { save("storyforge-book", null); signOut(false); showSignedOutNotice("Your account and its books have been deleted."); }
+  };
+}
+
+function showSignedOutNotice(text) {
+  showLanding();
+  $("#landing").insertAdjacentHTML("afterbegin", `<div class="notice ok landing-notice" role="status">${esc(text)}</div>`);
 }
 
 // ---------------------------------------------------------------------------
@@ -536,7 +719,8 @@ function setupUpload(nextNumber) {
 
 async function pageIssues() {
   setTitle("Issues");
-  const prefs = JSON.parse(load("storyforge-issue-view") || "{}");
+  let prefs = {};
+  try { prefs = JSON.parse(load("storyforge-issue-view") || "{}") || {}; } catch { /* ignore a corrupted value */ }
   const status = prefs.status ?? "open", group = prefs.group || "severity";
   const seg = (name, value, options) => `<div class="segmented" role="group" aria-label="${name}">${options.map(([v, label]) =>
     `<button type="button" data-${name}="${v}" aria-pressed="${v === value}">${label}</button>`).join("")}</div>`;
@@ -955,7 +1139,8 @@ let routeToken = 0;
 async function route() {
   const mine = ++routeToken;
   let [page, arg] = (location.hash.replace(/^#\/?/, "") || "shelf").split("/").map(decodeURIComponent);
-  if (state.book == null) page = "shelf";
+  if (page === "reset" && arg) { return showSignIn("reset", arg); }
+  if (state.book == null && page !== "account") page = "shelf";
   const navPage = { entity: "bible", chapter: "chapters", add: "chapters", books: "shelf" }[page] ?? page;
   document.querySelectorAll("#nav a, #nav summary").forEach(a => {
     if (a.dataset.page === navPage) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
@@ -966,7 +1151,7 @@ async function route() {
   await refreshSidebar(page === "chapter" ? arg : null);
   if (mine !== routeToken) return;
   const pages = { shelf: pageShelf, books: pageShelf, chapters: pageChapters, overview: pageOverview, add: pageAdd, issues: pageIssues, bible: pageBible,
-                  timeline: pageTimeline, ask: pageAsk,
+                  timeline: pageTimeline, ask: pageAsk, account: pageAccount,
                   map: () => { setTitle("Character map"); return Charts.render(view, bookApi, load, save); } };
   if (page === "entity" && arg) await pageEntity(arg);
   else if (page === "chapter" && arg) await pageChapter(arg);
@@ -1000,7 +1185,7 @@ async function startApp() {
     renderAccount(me);
     await loadBooks();
   } catch (err) {
-    if (err.status === 401) return showLanding();
+    if (err.status === 401) return signOut();
     view.innerHTML = errorBox(err);
     return;
   }
@@ -1011,6 +1196,12 @@ async function startApp() {
 (async function boot() {
   try { state.config = await api("/auth/config"); }
   catch (err) { showOnly("app"); view.innerHTML = errorBox(err); return; }
+  // A password-reset link (#/reset/<token>) opens the "choose a new password" form.
+  const reset = location.hash.match(/^#\/reset\/([\w-]{20,})$/);
+  if (reset) {
+    if (!state.config.auth_required) { location.hash = "#/shelf"; }
+    else { signOut(false); return showSignIn("reset", reset[1]); }
+  }
   // The welcome page comes first: before signing in, or on a first visit when sign-in is off.
   if (state.config.auth_required ? !state.token : !load("storyforge-welcomed") && !location.hash) showLanding();
   else await startApp();
