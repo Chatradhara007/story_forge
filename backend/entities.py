@@ -19,13 +19,14 @@ than a missed one: merging two different people creates fake "contradictions".
 import re
 from dataclasses import dataclass
 from models import Fact
-from llm import call_tool, JUDGING_THINKING_MODE
+from llm import call_tool, run_in_parallel, JUDGING_THINKING_MODE
+import storage
 from storage import find_entities_by_alias, get_all_entities_with_context
 
 MIN_CONFIDENCE_TO_MERGE = 0.7   # AI must be at least this sure to link to a known entity
 MAX_KNOWN_TO_SEND_ALL = 150      # small story: show the AI every known entity
 MAX_CANDIDATES = 60              # big story: show only the most plausible ones
-NAMES_PER_CALL = 40              # how many new names to resolve in one AI call
+NAMES_PER_CALL = 12              # new names per AI call; calls run in parallel (one 40-name call took ~20s on Ultra)
 
 # Small words that shouldn't count as a "shared word" between two names.
 IGNORED_WORDS = {"the", "a", "an", "of", "and", "de", "la", "le", "von", "van"}
@@ -225,8 +226,84 @@ def _format_known(candidates: list[dict]) -> str:
 def resolve_entities(project_id: int, facts: list[Fact]) -> dict[str, Resolution]:
     """
     Returns {lowercase name as written: Resolution} for every name in the chapter.
-    Nothing is saved here; saving happens later, all at once, with the rest of the chapter.
+    Saving happens later, all at once, with the rest of the chapter. The one exception: when
+    THIS chapter says two existing entries are one person ("Rook's real name was Edwin
+    Marsh"), they're merged now, so the chapter is checked against the combined history.
     """
+    results = _resolve_names(project_id, facts)
+    _apply_stated_identities(project_id, facts, results)
+    prefer_same_chapter_full_names(results)
+    return results
+
+
+def prefer_same_chapter_full_names(results: dict[str, Resolution]) -> None:
+    """
+    A bare first name means the full name THIS chapter uses. Two Toms: "Tom Fenner" drowned in
+    chapter 2; chapter 5 introduces "Tom Brisk" and then says "Tom". That "Tom" is Tom Brisk,
+    not the drowned man the name rule would pick. With two full names starting "Tom" in the
+    chapter it's ambiguous, so the link is left as it was.
+    """
+    full_names = [r for r in results.values() if len(_without_article(r.name)) >= 2]
+    for key, r in results.items():
+        words = _without_article(r.name)
+        if len(words) != 1 or words[0] in TITLE_WORDS:
+            continue
+        matching = [f for f in full_names if _without_article(f.name)[0] == words[0]
+                    and _types_compatible(r.entity_type, f.entity_type)]
+        if len(matching) != 1:
+            continue
+        target = matching[0]
+        if (target.existing_entity_id, target.canonical_name.lower()) == (r.existing_entity_id, r.canonical_name.lower()):
+            continue
+        results[key] = Resolution(r.name, r.entity_type, target.existing_entity_id, target.canonical_name,
+                                  "name match", 0.9)
+
+
+def _apply_stated_identities(project_id: int, facts: list[Fact], results: dict[str, Resolution]) -> None:
+    """
+    "Rook | real name | Edwin Marsh" in this chapter: Edwin Marsh IS Rook. If Edwin Marsh is
+    already a separate entry, it's merged into Rook now (before the chapter is checked, so his
+    facts are compared with Rook's); if Edwin Marsh is new in this chapter, it joins Rook.
+    """
+    for f in facts:
+        stated = storage.stated_name(f.attribute, f.value)
+        subject = results.get(f.entity.lower())
+        if not stated or subject is None or stated.lower() == f.entity.lower():
+            continue
+        target = results.get(stated.lower())
+        target_id = target.existing_entity_id if target else None
+        if target is None:
+            known = find_entities_by_alias(project_id, [stated]).get(stated.lower())
+            target_id = known[0] if known else None
+        if subject.existing_entity_id is not None and target_id is not None:
+            if target_id == subject.existing_entity_id:
+                continue
+            keep, other = storage.get_entity(project_id, subject.existing_entity_id), storage.get_entity(project_id, target_id)
+            if keep is None or other is None or not _types_compatible(keep["entity_type"], other["entity_type"]):
+                continue
+            storage.merge_entities(project_id, keep["id"], other["id"])
+            print(f"  [names] '{stated}' is {keep['canonical_name']} (the chapter says so): merged", flush=True)
+            for key, r in list(results.items()):
+                if r.existing_entity_id == other["id"]:
+                    results[key] = Resolution(r.name, r.entity_type, keep["id"], keep["canonical_name"], "name match", 0.95)
+        elif subject.existing_entity_id is not None and target is not None:
+            # A new name in this chapter joins the subject.
+            results[stated.lower()] = Resolution(target.name, target.entity_type, subject.existing_entity_id,
+                                                 subject.canonical_name, "name match", 0.95)
+        elif subject.existing_entity_id is None and target_id is not None:
+            entity = storage.get_entity(project_id, target_id)
+            if entity and _types_compatible(subject.entity_type, entity["entity_type"]):
+                for key, r in list(results.items()):
+                    if r.is_new and r.canonical_name.lower() == subject.canonical_name.lower():
+                        results[key] = Resolution(r.name, r.entity_type, entity["id"], entity["canonical_name"],
+                                                  "name match", 0.95)
+        elif target is not None and target.is_new:
+            # Both new: one entry, under the subject's name.
+            results[stated.lower()] = Resolution(target.name, target.entity_type, None, subject.canonical_name,
+                                                 "name match", 0.95)
+
+
+def _resolve_names(project_id: int, facts: list[Fact]) -> dict[str, Resolution]:
     # Collect each distinct name once, with a couple of quotes as evidence.
     names: dict[str, dict] = {}
     for f in facts:
@@ -257,10 +334,18 @@ def resolve_entities(project_id: int, facts: list[Fact]) -> dict[str, Resolution
         results[info["name"].lower()] = Resolution(info["name"], info["type"], None, info["name"], "new", 1.0)
         return results
 
-    # 2. Obvious cases by name alone ("Tobias" -> "Tobias Calloway").
+    # 2. Obvious cases by name alone ("Tobias" -> "Tobias Calloway"), and names an earlier
+    #    chapter said belong to someone ("his real name was Edwin Marsh").
+    stated = storage.find_stated_identities(project_id, [u["name"] for u in unmatched])
+    by_id = {e["id"]: e for e in known}
     still_unmatched = []
     for info in unmatched:
-        entity = (_name_rule_match(info["name"], info["type"], known)
+        claimed = stated.get(info["name"].lower())
+        entity = by_id.get(claimed[0]) if claimed else None
+        if entity is not None and not _types_compatible(info["type"], entity["entity_type"]):
+            entity = None
+        entity = (entity
+                  or _name_rule_match(info["name"], info["type"], known)
                   or _title_surname_match(info["name"], info["type"], known))
         if entity is not None:
             results[info["name"].lower()] = Resolution(
@@ -276,15 +361,17 @@ def resolve_entities(project_id: int, facts: list[Fact]) -> dict[str, Resolution
     candidates = _pick_candidates([u["name"] for u in unmatched], known)
     candidates_by_id = {e["id"]: e for e in candidates}
 
-    for start in range(0, len(unmatched), NAMES_PER_CALL):
-        batch = unmatched[start:start + NAMES_PER_CALL]
-        answer = call_tool(
-            RESOLUTION_PROMPT.format(new_names=_format_new_names(batch), known_entities=_format_known(candidates)),
-            RESOLUTION_TOOL,
-            max_tokens=4096,
-            thinking=JUDGING_THINKING_MODE, role="judge",
-        )
+    # The answer is mostly output (one line per name), so smaller batches side by side
+    # finish much sooner than one long answer.
+    batches = [unmatched[start:start + NAMES_PER_CALL] for start in range(0, len(unmatched), NAMES_PER_CALL)]
+    answers = run_in_parallel(lambda batch: call_tool(
+        RESOLUTION_PROMPT.format(new_names=_format_new_names(batch), known_entities=_format_known(candidates)),
+        RESOLUTION_TOOL,
+        max_tokens=4096,
+        thinking=JUDGING_THINKING_MODE, role="judge",
+    ), batches)
 
+    for batch, answer in zip(batches, answers):
         decisions: dict[str, tuple[int, str, float]] = {}
         for item in answer.get("resolutions", []):
             try:

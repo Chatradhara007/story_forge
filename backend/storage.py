@@ -16,7 +16,9 @@ import psycopg2.extras
 from psycopg2.pool import ThreadedConnectionPool
 from dotenv import load_dotenv
 from models import Fact, Contradiction
-from llm import embed_texts
+import llm
+from llm import embed_texts, AIServiceError
+from lasting import is_lasting
 
 load_dotenv()
 DATABASE_URL = os.environ["DATABASE_URL"]
@@ -117,11 +119,34 @@ def close_pool() -> None:
 
 # Similarity search uses the half-precision index when the database supports it.
 HALFVEC = False
+EMBED_DIM = 2048                 # size of the stored vectors (read from the database on start-up)
+
+# Which embedding model the stored vectors were made with. Vectors from two different models
+# can't be compared, so after EMBED_MODEL changes StoryForge refuses to save or search until
+# `python reembed.py` has re-indexed the stored facts. Databases from before this setting
+# existed were indexed with LEGACY_EMBED_MODEL.
+LEGACY_EMBED_MODEL = "nvidia/nemotron-3-embed-1b"
+STORED_EMBED_MODEL = LEGACY_EMBED_MODEL
+
+
+def embeddings_problem() -> str | None:
+    """None when the stored vectors match EMBED_MODEL; otherwise what to do about it."""
+    if STORED_EMBED_MODEL == llm.EMBED_MODEL:
+        return None
+    return (f"The stored facts were indexed with '{STORED_EMBED_MODEL}', but EMBED_MODEL is now "
+            f"'{llm.EMBED_MODEL}'. Vectors from different models can't be compared: stop the server, "
+            f"run python reembed.py (in backend/) once, then start it again.")
+
+
+def _require_matching_embeddings() -> None:
+    problem = embeddings_problem()
+    if problem:
+        raise AIServiceError(problem)
 
 
 def _distance(column: str, param: str = "%s") -> str:
-    if HALFVEC:
-        return f"({column}::halfvec(2048) <=> {param}::halfvec(2048))"
+    if HALFVEC and EMBED_DIM <= 4000:
+        return f"({column}::halfvec({EMBED_DIM}) <=> {param}::halfvec({EMBED_DIM}))"
     return f"({column} <=> {param}::vector)"
 
 
@@ -141,6 +166,7 @@ def fact_to_embedding_text(fact: Fact) -> str:
 
 
 def embed_facts(facts: list[Fact]) -> list[list[float]]:
+    _require_matching_embeddings()
     return embed_texts([fact_to_embedding_text(f) for f in facts], input_type="passage")
 
 
@@ -593,6 +619,45 @@ def get_all_entities_with_context(project_id: int, sample_facts: int = 3) -> lis
         return cur.fetchall()
 
 
+# "his real name was Edwin Marsh", "Rook's true name", "also known as": the text itself says
+# two names are one person. Matched on the whole attribute, so "daughter's name" never counts.
+STATED_NAME_ATTRIBUTE = re.compile(
+    r"((real|true|birth|actual|secret|original|legal|full|other|former|old|hidden)\s+(name|identity)|"
+    r"alias(es)?|also\s+known\s+as|aka|known\s+as|identity|true\s+self)", re.I)
+
+
+def stated_name(attribute: str, value: str) -> str | None:
+    """The name a fact says the entity really goes by, or None."""
+    attribute = " ".join((attribute or "").replace("_", " ").replace("-", " ").lower().split())
+    if not STATED_NAME_ATTRIBUTE.fullmatch(attribute):
+        return None
+    name = re.sub(r"^(is|was|named|called|really|actually|in fact)\s+", "", (value or "").strip(), flags=re.I)
+    name = name.strip(" \"'“”‘’.,;:!")
+    words = name.split()
+    if not 1 <= len(words) <= 5 or not words[0][:1].isupper():
+        return None
+    return name
+
+
+def find_stated_identities(project_id: int, names: list[str]) -> dict[str, tuple[int, str]]:
+    """Names that an EARLIER chapter said belong to an entity: {lowercase name: (entity id, canonical name)}."""
+    wanted = {n.lower() for n in names}
+    if not wanted:
+        return {}
+    with db() as conn, _dict_cursor(conn) as cur:
+        cur.execute("""SELECT f.attribute, f.value, e.id, e.canonical_name FROM facts f
+                       JOIN entities e ON e.id = f.entity_id
+                       WHERE f.project_id = %s AND f.attribute ~* %s ORDER BY f.id""",
+                    (project_id, r"(name|identity|alias|known)"))
+        rows = cur.fetchall()
+    found = {}
+    for r in rows:
+        name = stated_name(r["attribute"], r["value"])
+        if name and name.lower() in wanted:
+            found[name.lower()] = (r["id"], r["canonical_name"])
+    return found
+
+
 def get_entity(project_id: int, entity_id: int) -> dict | None:
     """One entity of this book (None if it doesn't exist or belongs to another book)."""
     with db() as conn, _dict_cursor(conn) as cur:
@@ -659,30 +724,26 @@ def get_entity_evidence(entity_id: int, chapter_id: str, before_chapter_number: 
     base = f"""FROM facts f {_CHAPTER_JOIN}
                WHERE f.entity_id = %s AND f.chapter_id <> %s AND c.chapter_number < %s"""
     args = (entity_id, chapter_id, before_chapter_number)
+    distance = (f", {_distance('f.embedding')} AS distance" if focus_vector is not None else ", 0 AS distance")
+    extra_args = (_to_vector(focus_vector),) if focus_vector is not None else ()
     with db() as conn, _dict_cursor(conn) as cur:
-        cur.execute(f"SELECT COUNT(*) AS n {base}", args)
-        if cur.fetchone()["n"] <= limit:
-            cur.execute(f"SELECT {_FACT_COLUMNS} {base} ORDER BY c.chapter_number, f.id", args)
-            return cur.fetchall()
-        cur.execute(
-            f"""SELECT {_FACT_COLUMNS} {base}
-                AND (f.pinned OR f.attribute ~* %s OR f.value ~* %s)
-                ORDER BY f.pinned DESC, c.chapter_number DESC, f.id DESC LIMIT %s""",
-            (*args, PERMANENT_PATTERN, PERMANENT_PATTERN, limit // 2),
-        )
-        chosen = {row["fact_id"]: row for row in cur.fetchall()}
-        remaining = limit - len(chosen)
-        order = (f"{_distance('f.embedding')}" if focus_vector is not None
-                 else "c.chapter_number DESC, f.id DESC")
-        extra_args = (_to_vector(focus_vector),) if focus_vector is not None else ()
-        cur.execute(
-            f"""SELECT {_FACT_COLUMNS} {base} AND NOT (f.id = ANY(%s))
-                ORDER BY {order} LIMIT %s""",
-            (*args, list(chosen) or [0], *extra_args, remaining),
-        )
-        for row in cur.fetchall():
-            chosen[row["fact_id"]] = row
-    return sorted(chosen.values(), key=lambda r: (r["chapter_number"], r["fact_id"]))
+        cur.execute(f"SELECT {_FACT_COLUMNS}{distance} {base} ORDER BY c.chapter_number, f.id", (*extra_args, *args))
+        rows = cur.fetchall()
+    # Only facts that can't simply change are evidence (lasting.py): a mood, a plan or where
+    # someone stood in chapter 2 isn't contradicted by something different in chapter 5.
+    # Pinned canon facts always count.
+    rows = [r for r in rows if r["pinned"] or is_lasting(r["attribute"], r["value"])]
+    if len(rows) > limit:
+        # Pinned and permanent states first, then the facts closest in meaning, then recent.
+        permanent = re.compile(PERMANENT_PATTERN, re.I)
+        ranked = sorted(rows, key=lambda r: (not r["pinned"],
+                                             not (permanent.search(r["attribute"]) or permanent.search(r["value"])),
+                                             r["distance"] if r["distance"] is not None else 9,
+                                             -r["chapter_number"], -r["fact_id"]))
+        rows = ranked[:limit]
+    for r in rows:
+        r.pop("distance", None)
+    return sorted(rows, key=lambda r: (r["chapter_number"], r["fact_id"]))
 
 
 def chapters_with_entity(project_id: int, entity_id: int) -> list[str]:
@@ -779,9 +840,10 @@ def _facts_matching(project_id: int, patterns: list[str], exclude_entity_id: int
             LIMIT %s
             """,
             (project_id, exclude_entity_id, exclude_chapter_id, exclude_chapter_id,
-             before_chapter_number, before_chapter_number, patterns, patterns, limit),
+             before_chapter_number, before_chapter_number, patterns, patterns, limit * 3),
         )
-        return sorted(cur.fetchall(), key=lambda r: (r["chapter_number"], r["fact_id"]))
+        rows = [r for r in cur.fetchall() if r["pinned"] or is_lasting(r["attribute"], r["value"])][:limit]
+        return sorted(rows, key=lambda r: (r["chapter_number"], r["fact_id"]))
 
 
 def get_facts_mentioning_entity(entity_id: int, exclude_chapter_id: str | None = None,
@@ -842,7 +904,9 @@ def get_similar_earlier_facts(project_id: int, vectors: list[list[float]], exclu
         rows = cur.fetchall()
     grouped: list[list[dict]] = [[] for _ in vectors]
     for row in rows:
-        grouped[row.pop("idx") - 1].append(row)
+        index = row.pop("idx") - 1
+        if row["pinned"] or is_lasting(row["attribute"], row["value"]):     # lasting facts only
+            grouped[index].append(row)
     return grouped
 
 
@@ -1105,6 +1169,7 @@ def export_book(project_id: int) -> dict:
 
 def semantic_search(project_id: int, query_text: str, top_k: int = 5) -> list[dict]:
     """Facts in this book whose meaning is closest to the query, even with different wording."""
+    _require_matching_embeddings()
     query_vector = _to_vector(embed_texts([query_text], input_type="query")[0])
     with db() as conn, _dict_cursor(conn) as cur:
         cur.execute(
@@ -1126,7 +1191,7 @@ def semantic_search(project_id: int, query_text: str, top_k: int = 5) -> list[di
 
 def apply_schema() -> None:
     """Create any missing tables/columns (and upgrade old databases). Safe to run every start."""
-    global HALFVEC
+    global HALFVEC, EMBED_DIM, STORED_EMBED_MODEL
     path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schema.sql")
     with open(path, encoding="utf-8") as f, db() as conn, conn.cursor() as cur:
         cur.execute(f.read())
@@ -1134,6 +1199,18 @@ def apply_schema() -> None:
                     "FROM pg_extension WHERE extname = 'vector'")
         row = cur.fetchone()
         HALFVEC = bool(row and row[0])
+        cur.execute("SELECT atttypmod FROM pg_attribute WHERE attrelid = 'facts'::regclass AND attname = 'embedding'")
+        row = cur.fetchone()
+        if row and row[0] and row[0] > 0:
+            EMBED_DIM = row[0]
+        # First start with this setting: an existing database was indexed with the legacy
+        # model; an empty one will be indexed with the current one.
+        cur.execute("SELECT EXISTS (SELECT 1 FROM facts WHERE embedding IS NOT NULL)")
+        has_vectors = cur.fetchone()[0]
+        cur.execute("INSERT INTO app_settings (key, value) VALUES ('embed_model', %s) ON CONFLICT (key) DO NOTHING",
+                    (LEGACY_EMBED_MODEL if has_vectors else llm.EMBED_MODEL,))
+        cur.execute("SELECT value FROM app_settings WHERE key = 'embed_model'")
+        STORED_EMBED_MODEL = cur.fetchone()[0]
 
 
 def database_ok() -> bool:

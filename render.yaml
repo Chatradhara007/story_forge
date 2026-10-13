@@ -26,10 +26,12 @@ services:
         value: "true"        # Render's proxy adds the visitor's real address; used to slow password guessing
       - key: APP_URL
         sync: false          # e.g. https://storyforge-xxxx.onrender.com (for password-reset links)
-      - key: CHAT_MODEL_READING
-        sync: false          # optional; run python eval/probe_models.py to choose
-      - key: CHAT_MODEL_JUDGING
-        sync: false          # optional
+      - key: CHAT_MODEL
+        value: "nvidia/nemotron-3.5-lightning-30b-a3b,nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
+      - key: JUDGE_MODEL
+        value: "nvidia/nemotron-3-ultra-550b-a55b,nvidia/nemotron-3.5-lightning-30b-a3b"
+      - key: CHAT_THINKING_JUDGING
+        value: "off"         # Ultra crashes when asked to think (docs/FINAL-CONFIGURATION.md)
       - key: SMTP_HOST
         sync: false          # optional: send password-reset emails (else the link goes to the log)
       - key: SMTP_USER

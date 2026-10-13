@@ -303,3 +303,10 @@ create index if not exists relationships_project_idx on relationships (project_i
 alter table projects add column if not exists kind text not null default 'novel';
 alter table projects add column if not exists synopsis text;
 alter table projects add column if not exists cover_color text;
+
+-- Small settings the app keeps about itself (e.g. which embedding model the stored vectors
+-- were made with: vectors from two different models can't be compared).
+create table if not exists app_settings (
+    key text primary key,
+    value text not null
+);

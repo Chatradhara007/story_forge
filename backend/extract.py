@@ -4,7 +4,7 @@ import relationships as rel_rules
 import os
 import re
 import threading
-from llm import call_tool, run_in_parallel, JUDGING_THINKING_MODE
+from llm import call_tool, run_in_parallel
 
 # Long chapters are split into pieces of about this many characters, so the
 # AI's answer never gets cut off halfway (which used to crash the app).
@@ -360,12 +360,16 @@ TIMING_TOOL = {
 }
 
 TIMING_PROMPT = """Read this chapter of a novel and say WHEN it is set compared with the
-chapters before it. The notes below say when each earlier chapter is set; use them to judge
-whether this chapter continues, jumps forward, or goes back.
-- continues: it follows on from the story so far
-- flashback: it is set EARLIER than the chapters before it
-- time skip: it jumps forward in time
+PREVIOUS chapter (the last one in the notes below). The notes say when each earlier chapter is
+set; use them to judge whether this chapter continues, jumps forward, or goes back.
+- continues: it picks up at most a few days after the previous chapter ("the next day")
+- flashback: it is set EARLIER than the previous chapter. A chapter that opens "fourteen years
+  before the fall" or "when she was a girl" is a flashback, even if it moves forward inside.
+- time skip: it jumps forward from the previous chapter, by more than a few days
 - unclear: the text doesn't say
+
+Judge from the PREVIOUS chapter, not from the start of the book: if chapter 3 is "two years
+after the war" and chapter 4 opens "the next day", chapter 4 is "continues: the next day".
 
 In "description", give the time relationship in a few words, using the chapter's own words
 where possible, e.g. "twelve years before the fire" or "three years after the fire". If the
@@ -390,15 +394,53 @@ def _timing_excerpt(text: str) -> str:
     return f"{text[:half]}\n\n[... middle of the chapter left out ...]\n\n{text[-half:]}"
 
 
+_NUMBER = r"(?:\d+|a|an|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|thirteen|fourteen|fifteen|" \
+          r"sixteen|seventeen|eighteen|nineteen|twenty(?:-\w+)?|thirty(?:-\w+)?|forty(?:-\w+)?|fifty|a few|several|a couple of)"
+_UNIT = r"(?:years?|months?|weeks?|days?|decades?)"
+_OPENING_CUES = [
+    ("flashback", re.compile(r"\b(" + _NUMBER + r" " + _UNIT + r" (?:before|earlier than|prior to)\b[^.,;]{0,40}|"
+                             + _NUMBER + r" " + _UNIT + r" earlier)", re.I)),
+    ("time skip", re.compile(r"\b(" + _NUMBER + r" " + _UNIT + r" (?:later|afterwards?|had passed|went by)|"
+                             + _NUMBER + r" " + _UNIT + r" after\b[^.,;]{0,40})", re.I)),
+    ("continues", re.compile(r"\b(the (?:morning|day|night|evening) after\b[^.,;]{0,30}|"
+                             r"the next (?:day|morning|evening|night|afternoon)|next morning|that (?:same )?"
+                             r"(?:night|evening|afternoon)|the same (?:night|day|morning|evening)|"
+                             r"(?:an hour|moments|minutes|hours) later)\b", re.I)),
+]
+
+
+def timing_from_opening(text: str) -> str | None:
+    """
+    When the chapter's first sentences say it outright ("Two years later", "Fourteen years
+    before the fall", "the next day"), that IS the timing: no AI needed, and no misreading.
+    (The AI timing notes were the weakest link on the held-out story: "the next day" was read
+    as "two years after the council" and "fourteen years before the fall" as a time skip.)
+    Only the opening is used: time words later in a chapter are usually about something else.
+    """
+    lines = [l for l in (text or "").strip().splitlines() if l.strip()]
+    if lines and re.match(r"^\s*(chapter|part|book)\b", lines[0], re.I) and len(lines[0]) < 120:
+        lines = lines[1:]                                  # a heading line ("Chapter Two: The Lean Year")
+    opening = " ".join(lines)[:400]
+    opening = " ".join(re.split(r"(?<=[.!?])\s+", opening)[:2])
+    for setting, pattern in _OPENING_CUES:
+        match = pattern.search(opening)
+        if match:
+            return f"{setting}: {' '.join(match.group(1).split())}"
+    return None
+
+
 def detect_timing(text: str, earlier_notes: list[str] | None = None) -> str:
     """
-    A short note such as "flashback: twelve years before the fire". earlier_notes are the
-    earlier chapters' notes ("chapter 2: continues: the next morning"), so the detector can
-    actually compare this chapter with the ones before it.
+    A short note such as "flashback: twelve years before the fire". When the chapter's opening
+    states it ("Two years later"), that is used without asking the AI. Otherwise the AI
+    decides, seeing the earlier chapters' notes ("chapter 2: continues: the next morning").
     """
+    cue = timing_from_opening(text)
+    if cue:
+        return cue
     earlier = "\n".join(earlier_notes or []) or "(this is the first chapter)"
     answer = call_tool(TIMING_PROMPT.format(text=_timing_excerpt(text), earlier=earlier), TIMING_TOOL,
-                       max_tokens=1024, thinking=JUDGING_THINKING_MODE, role="judge")
+                       max_tokens=1024, role="reader")
     setting = str(answer.get("setting", "unclear")).strip().lower()
     description = " ".join(str(answer.get("description", "")).split())[:200]
     return f"{setting}: {description}" if description else setting

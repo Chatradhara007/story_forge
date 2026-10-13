@@ -41,7 +41,7 @@ def test_chat(model: str, thinking: str = "off") -> tuple[bool, str]:
     try:
         r = client.chat.completions.create(
             model=model, max_tokens=llm._answer_space(300, thinking), temperature=0,
-            **llm._thinking_options(thinking),
+            **llm._thinking_options(thinking, model),
             messages=[{"role": "user", "content": "Record the fact in this sentence: Ines had grey eyes."}],
             tools=[TEST_TOOL], tool_choice={"type": "function", "function": {"name": "record_fact"}})
         msg = r.choices[0].message

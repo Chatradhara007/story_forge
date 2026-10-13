@@ -1,8 +1,8 @@
 # StoryForge AI — Project Status & Setup
 
-**Last updated:** 12 October 2026 (new AI models after NVIDIA retired Nemotron 3 Super; automatic
-model fallback; full accounts: password change and reset, sign out everywhere, account page;
-audit fixes; see section 13)
+**Last updated:** 12 October 2026 (two branches merged: the measured model setup, "lasting
+facts", story-clock rules and evaluation tools from 4–5 October (section 14), plus finished
+accounts and audit fixes (section 13). See section 15 for what the merge changed.)
 
 A continuity-tracking system for long-form fiction. Writers ingest chapters; the system extracts
 structured facts (characters, locations, items, events), builds up a persistent "story memory,"
@@ -323,7 +323,7 @@ their data moves into a book called "My story".
 - **Deployment:** `Dockerfile` (backend + website in one container), `render.yaml` for Render,
   and step-by-step instructions in [DEPLOY.md](DEPLOY.md). Tables are created automatically on
   start-up, so a fresh hosted database needs no manual setup.
-- **Automated tests:** 134 tests in `backend/tests/` using a fake AI and a separate test database.
+- **Automated tests:** 219 tests in `backend/tests/` using a fake AI and a separate test database.
   They run on GitHub automatically on every push (`.github/workflows/tests.yml`).
 - **Pinned dependencies:** exact versions in `requirements.txt`, so everyone installs the same thing.
 
@@ -434,33 +434,19 @@ Re-submit a book's chapters (Edit and re-check) to fill in its map.
 ### 13. New models, finished accounts and an audit (12 October 2026)
 
 **The model problem.** NVIDIA retired `nvidia/nemotron-3-super-120b-a12b` from its hosted API on
-3 October 2026 (the API had been sending a `deprecation: 2026-10-03` header). It was the third
-retirement during this project, so the fix is structural, not just a new name:
-
-- **Two roles, two models.** *Reading* (passages into facts, ~10 calls per chapter) wants speed;
-  *judging* (name linking, the mistake check, the safety net, the double-check, chapter timing:
-  a few short calls per chapter) wants accuracy. `CHAT_MODEL_READING` defaults to
-  `nvidia/nemotron-3.5-lightning-30b-a3b` (3B active parameters, built for high-volume work) and
-  `CHAT_MODEL_JUDGING` to `nvidia/nemotron-3-ultra-550b-a55b` (the largest Nemotron 3).
-  `CHAT_MODEL` still works and sets both.
-- **Automatic fallback.** If NVIDIA answers 404/410 for a model, StoryForge switches to the next
-  model in `CHAT_MODEL_FALLBACKS` for the rest of the run, prints a loud `[MODEL]` line, and
-  `/health` and the evaluation report say what happened. Before, a 410 was retried six times
-  (about a minute per request) and then every chapter failed.
-- **Thinking settings per model family.** Nemotron/Qwen use `enable_thinking`, gpt-oss uses
-  `reasoning_effort`, DeepSeek uses `thinking`; other models get none. Before, Nemotron's
-  setting was sent to every model.
-- **Timeouts and retries.** Each request now gives up after `AI_REQUEST_TIMEOUT` (180 s; the
-  library default was 10 minutes), and the OpenAI library's hidden retries are off (they
-  tripled every attempt and ignored StoryForge's pacing, making 429s worse).
-- **`eval/probe_models.py`** lists the models live on your key and sends each candidate
-  StoryForge's real requests (read chapter 2 of the lighthouse story; a batched check with two
-  planted mistakes and two traps), several times, then prints speed, reliability, details read,
-  mistakes caught and false alarms, and the `.env` lines for the best reader and judge.
-  **The defaults above are chosen from NVIDIA's published model information, not measured on
-  our stories. Run the probe, then `python eval/run_eval.py --runs 3` on both stories, and
-  record the numbers here.** If Ultra makes judging too slow, try Lightning for both roles with
-  `CHAT_THINKING_JUDGING=low`.
+3 October 2026. The model setup that replaced it was measured on 4–5 October and is described in
+section 14 and `docs/FINAL-CONFIGURATION.md`: Nemotron 3.5 Lightning reads, Nemotron 3 Ultra
+judges (without thinking). Added on 12 October, on top of that setup:
+- **Thinking settings per model family.** Nemotron/Qwen/Kimi use `enable_thinking`, gpt-oss uses
+  `reasoning_effort`, DeepSeek uses `thinking`, Llama/Mistral/Gemma get none.
+- **Timeouts and retries.** Each request gives up after `AI_REQUEST_TIMEOUT` (180 s; the library
+  default was 10 minutes), and the OpenAI library's hidden retries are off (they tripled every
+  attempt and ignored StoryForge's pacing).
+- **An API-key problem never triggers failover** (no other model would do better): it stops at
+  once with a clear message.
+- **`eval/probe_models.py`**: sends each candidate StoryForge's real reading and judging requests
+  several times and prints speed, reliability, mistakes caught and false alarms. Use it to pick
+  candidates, then `run_eval.py --judges` to compare judges on the full answer key.
 
 **Accounts, finished** (`auth.py`, `main.py`, `frontend/app.js`):
 - Sign-in page with show/hide password, inline errors and a busy state; sign-up with a password
@@ -500,11 +486,165 @@ retirement during this project, so the fix is structural, not just a new name:
 - Tests: 23 new (`test_auth.py`, `test_models.py`); retired-model state no longer leaks
   between tests.
 
+### 14. Measured model setup and accuracy work (4–5 October 2026)
+
+From the branch merged on 12 October; details and measurements in `docs/FINAL-CONFIGURATION.md`
+and `docs/CHAPTERS-AND-TIMING.md`, reports in `eval/results/`.
+
+- **Two jobs, two model lists** (`CHAT_MODEL` = reader, `JUDGE_MODEL` = judge; comma-separated,
+  best first). Measured on identical facts (lighthouse): Ultra as judge 71% precision / 83%
+  recall vs Lightning 40% / 33%. A retired model (404/410) is never asked again; a model failing
+  twice in a row is set aside for 10 minutes while the next one works; when every judge is gone,
+  the readers judge; a model that crashes twice while thinking answers without thinking from
+  then on. `/health` shows `chat_model`, `judge_model`, `chat_models_retired`,
+  `chat_models_struggling`. `backend/check_models.py` tests what your key can use.
+- **Embedding model guard.** The database remembers which embedding model made the stored
+  vectors (`app_settings`). If `EMBED_MODEL` changes, saving and searching stop with a clear
+  message (and `/health` says `embeddings_ok: false`) until `python reembed.py` has re-indexed
+  every fact, resizing the column if the new model's vectors are a different size.
+- **Lasting facts only** (`backend/lasting.py`). On realistic ~900-word chapters the Reader
+  records 60–90 facts per chapter, most of them passing (moods, plans, actions, whereabouts), and
+  comparing new facts with all of them made false alarms grow with chapter length. Earlier facts
+  are now evidence only if they can't simply change: fixed traits, lasting states, past events
+  pinned to a time; pinned canon always counts.
+- **Rules in code before the double-check** (`contradictions.set_aside_by_rule`): a warning whose
+  own explanation says the facts are consistent is set aside (or dropped when the checker was
+  unsure); the story moving forward (alive → buried, whole → in pieces) is set aside, but not
+  when the earlier side already mentions the same kind of change (scar on the right palm vs the
+  left; mended vs still cracked); a flashback showing someone before an injury is set aside;
+  the safety net drops pairs its own explanation calls different people.
+- **The checker's indices are checked against its values.** It now copies the two values it
+  compared; a right idea attached to the wrong fact or section is moved to the facts whose
+  values match, and values that match no fact at all are dropped as misreadings.
+- **Story clock additions:** vague time skips ("a few weeks later, still that autumn" = less
+  than a year); one event on two weekdays (events only: markets recur); acting after death
+  (memories and flashbacks excepted; "buried Bramble" doesn't make Ines dead).
+- **Names:** a bare first name means the full name this chapter introduces (two Toms); names the
+  text declares ("his real name was Edwin Marsh") link the two, merging existing entries before
+  the chapter is checked; social ties (ally, mentor...) are drawn on the map but not checked.
+- **Evaluation:** a third, held-out story (`eval/stories/fallenking`, 8 chapters of 725–1,080
+  words, 11 planted mistakes, 5 traps, never tuned on); `--judges "a,b"` compares judges on the
+  same saved reading; `--reuse-reading` skips reading; a time-per-chapter table; "check by hand"
+  items; `eval/analyze_without_ai.py` replays the lasting-facts filter over the last run for free.
+- **Held-out test protocol** (decided in advance, see `docs/FINAL-CONFIGURATION.md`): run The
+  Fallen King once with the final configuration and record the numbers without tuning on them.
+
+### 15. What the 12 October merge changed
+
+The two branches were combined by copying files, and the 4–5 October branch's core files
+(`llm.py`, `storage.py`, `contradictions.py`, `entities.py`, `storyclock.py`, `pipeline.py`,
+`eval/run_eval.py`, this README) were overwritten by the 12 October versions. Only its new files
+survived (`lasting.py`, `reembed.py`, `check_models.py`, its tests, docs, the third story and the
+results), so 30 of its tests failed and 8 errored. Its features were rebuilt on top of the 12
+October code, with its tests as the specification: **all 219 tests pass**. Decisions:
+- **Settings:** the measured configuration's names (`CHAT_MODEL`, `JUDGE_MODEL`, lists) are the
+  main ones; the 12 October names (`CHAT_MODEL_READING`, `CHAT_MODEL_JUDGING`,
+  `CHAT_MODEL_FALLBACKS`) still work and go first in their list.
+- **Chapter timing** is done by the reader (as in the measured setup), not the judge.
+- **Randomness** is 0 for both jobs (the measured setup), so `test_safety_net` now expects 0.
+- **"Alive, then dead"** is set aside by a rule before the double-check, so the double-check
+  test in `test_precision.py` now uses a change no rule recognises (moving house).
+- **Reading cache:** the old files in `eval/cache/` (keyed by hashes whose recipe was lost) are
+  still read, using the newest reading per chapter; chapter timing is detected again once and
+  saved in the new format.
+- `eval/story/` and `eval/ground_truth.json` were stale copies of the lighthouse story: removed.
+
+### 16. Fixes from the first held-out run (12 October 2026, evening)
+
+The Fallen King with Ultra judging (saved Lightning reading): precision 5%, recall 27%, F1 0.09,
+52 false alarms, 1,234 s of judging. The false alarms came from: the safety net 28 (1 catch),
+the AI checker 19 (2 catches), the story clock 5 (0 catches). Causes and general fixes:
+- **Chapter timing was misread** ("the next day" became "two years after the council";
+  "Fourteen years before the fall" became a time skip), so ages "didn't add up". Now a timing
+  the chapter's opening states ("Two years later", "the next day", "N years before ...") is used
+  directly, without the AI (5 of 8 Fallen King chapters, 3 of 5 glassmaker); the AI prompt
+  judges against the PREVIOUS chapter; "N years before" is always a flashback.
+- **Story clock:** flashbacks no longer move the main timeline (the chapter after one is read
+  against the story before it); an anchored note repeated word for word ("two years after the
+  abdication") is the same moment; relative, past, future and other people's ages ("two years
+  younger than Aurel", "age at coronation", "until Tam is twenty-five", "son_age") aren't
+  ages; a misread age that breaks an otherwise rising history is skipped; an age going UP with
+  only "continues" notes isn't flagged (time may have passed unrecorded); a death must be
+  stated briefly and without hedging ("deceased (implied)" isn't one); backstory ("When you
+  were two, Oren marched...") isn't acting after death.
+- **The AI no longer judges ages** (wrong 9 times in 10): the story clock does the arithmetic.
+- **Safety net:** only names that could be the same entity are compared (a shared word, a
+  description or bare title, a mention of one in the other's fact, or the same specific
+  detail, e.g. "hands" for a secret identity); family ties are left to the checker and the
+  map's rule. 1,535 compared pairs became 205 (40 requests became 7).
+- **The checker and the safety net run at the same time.**
+
+Measured without AI (`analyze`-style replay of that run, and offline runs with a stand-in AI):
+35 of the 52 false alarms are removed by these rules; the code-only checks went from 13 false
+alarms and 0 catches to 0 false alarms and 1 catch (T3, Bram's age, by the story clock); total
+AI requests per run 109 → 71 (offline count). Expected with the real AI: F1 around 0.3 instead
+of 0.09 and judging roughly 40–50% faster. **Not yet measured with the real AI.**
+
+**Second run with the fixes** (same saved reading): 21 false alarms instead of 52, 2 catches
+plus T1 under "check by hand" (Aurel 33 → 38 in about 2.4 years: the story clock's warning is
+T1, only worded against a different earlier age), judging **571 s instead of 1,234 s**. But Ultra
+answered two 500 errors in a row in chapter 3, was set aside for 10 minutes, and **Lightning
+judged chapters 3–8 and the double-check**, so the run didn't measure the intended setup. Fixes:
+- **Patience for the judge:** a model gets 4 tries (`AI_FAILOVER_AFTER`) before the next one takes
+  over, and is set aside for 2 minutes (`AI_SET_ASIDE_SECONDS`), not 10: Ultra's 500s are brief.
+- **`--judges` never falls back** to a reader model, so a judge is never scored on another
+  model's answers (it is retried patiently instead).
+- **Safety net, stricter:** besides related names, the two facts must share a concrete detail
+  (a colour, a body part or mark, a count, the same specific attribute) or the new fact must be
+  plainly about the other entity. The double-check is told when a warning comes from two
+  different names and keeps it only if the quotes show they are the same entity.
+- **Acting after death** must be the entity itself acting ("your father's army burned the
+  fields" is not King Oren acting).
+Replaying that run's 21 warnings through these rules: 9 false alarms and 3 catches remain
+(precision 25%, recall 27%, F1 0.26, with Lightning's judging; Ultra judging throughout should do
+better, not yet measured).
+
+**The Fallen King is no longer held out**: these fixes were found by looking at its results,
+so its scores now flatter StoryForge like the other two stories. An honest number needs a new
+story nobody has tuned on.
+
+### 17. Fixes from the Ultra runs (13 October 2026)
+
+Two runs with Ultra judging throughout, same saved reading: run A F1 0.19 (17 false alarms,
+721 s), run B **F1 0.28** (precision 22%, recall 36%, 14 false alarms, **545 s**), catching A1,
+A2, S1, T3, plus T1 under "check by hand". The same setup varies a lot from run to run, so
+compare setups with `--runs 2` or more.
+
+Twelve of run B's 14 false alarms fit five patterns, now set aside by rules in code before the
+double-check (`set_aside_by_rule`; set-aside warnings stay visible under Dismissed, with the reason):
+- **An age paired with something that isn't this character's age now:** someone else's age
+  (`son_age`), a future age ("until Tam is twenty-five"), a past age ("at seventeen"), a relative
+  age ("two years younger than Aurel"), or a length of time ("six years" vs "six years old"). Ages
+  are left to the story clock unless both sides are clean current ages. Relative against relative
+  ("younger sister" vs "elder sister") is still checked.
+- **Family ties that can both be true:** "child of Mother" vs "married to Thessaly" (different
+  kinds of tie to different people), and a parent/child tie recorded the other way round.
+  Different ties to the same person ("sister of Orla" vs "cousin of Orla") are still checked.
+- **"Alive" against anything but a death** ("poles a ferry" vs "alive").
+- **Growing up:** a colt in a flashback vs a stallion now, same colour.
+- **Growing old:** "white around the muzzle" is ageing, not a colour change (decoy D4).
+
+Replaying the four saved runs through the rules: no real catch is set aside. Run B goes to
+**4 catches, 2 false alarms: precision 67%, F1 0.47** (0.59 if T1 is counted). Run A goes to
+F1 0.26. Unit tests cover each rule and the planted mistakes it must keep (`test_noise_rules_v4.py`).
+
+**Faster judging:**
+- Name linking (141 s of run B) sends 12 names per AI call, side by side, instead of one
+  40-name call.
+- The double-check sends 8 warnings per call, side by side, instead of 20.
+- With fewer warnings reaching the double-check, it has less to do.
+
+Not yet measured with the real AI.
+
+**Comparing judges:** `--judges` takes real model names from `python check_models.py --list`:
+`python run_eval.py --story fallenking --runs 2 --judges "nvidia/nemotron-3-ultra-550b-a55b,deepseek-ai/deepseek-v4.1-flash,z-ai/glm-5.3"`
+
 ## 🚧 What's left
 
-0. **Pick the models with real numbers:** `python eval/probe_models.py`, then the evaluation
-   below with the chosen `CHAT_MODEL_READING` / `CHAT_MODEL_JUDGING`.
-1. **Re-run the evaluation with the real AI** on both stories, 3 runs each
+0. **The held-out test:** `cd eval`, `python analyze_without_ai.py --story fallenking` (free),
+   then `python run_eval.py --story fallenking --judges "nvidia/nemotron-3-ultra-550b-a55b" --runs 1`.
+   Record the numbers here and in `docs/FINAL-CONFIGURATION.md` without tuning on them.
+1. **Re-run the evaluation with the real AI** on both tuning stories, 3 runs each
    (`python eval/run_eval.py --runs 3` and `--story glassmaker --runs 3`). The last saved numbers
    predate the double-check, the story clock and the bug fixes. Record the scores here.
 2. **A third test story with realistic ~4,000-word chapters**, to prove the Phase 4 scale work
@@ -582,6 +722,7 @@ Interactive documentation for every endpoint: http://127.0.0.1:8000/docs
 storyforge/
 ├── README.md
 ├── DEPLOY.md              # how to put it online
+├── docs/                # FINAL-CONFIGURATION.md (models, measurements, held-out test), CHAPTERS-AND-TIMING.md
 ├── Dockerfile             # backend + website in one container
 ├── render.yaml            # Render deployment blueprint
 ├── docker-compose.yml     # local Postgres + pgvector (and optionally the app)
@@ -594,9 +735,12 @@ storyforge/
 ├── eval/
 │   ├── stories/
 │   │   ├── lighthouse/    # 6 chapters + ground_truth.json (answer key); tuned on
-│   │   └── glassmaker/    # 5 chapters + ground_truth.json; never tuned on
-│   ├── run_eval.py        # scores the system against the answer key
-│   ├── probe_models.py    # which NVIDIA models are live on your key, and which is best
+│   │   ├── glassmaker/    # 5 chapters + ground_truth.json; partly tuned on
+│   │   └── fallenking/    # 8 longer chapters + ground_truth.json; HELD OUT
+│   ├── run_eval.py        # scores the system against the answer key (--judges, --reuse-reading)
+│   ├── probe_models.py    # compare candidate models on StoryForge's real requests
+│   ├── analyze_without_ai.py  # replay the lasting-facts filter over the last run (no AI)
+│   ├── cache/             # saved readings, so judges are compared on identical facts
 │   └── results/           # saved reports
 └── backend/
     ├── .env.example
@@ -606,7 +750,10 @@ storyforge/
     ├── pipeline.py         # add a chapter / re-check a saved chapter
     ├── jobs.py             # background jobs, one per book at a time
     ├── auth.py             # accounts, sessions, daily allowance
-    ├── storyclock.py       # age and time-skip arithmetic
+    ├── storyclock.py       # ages, time skips, weekdays, acting after death
+    ├── lasting.py          # which earlier facts can be contradicted (vs. simply change)
+    ├── check_models.py     # which models your NVIDIA key can use right now
+    ├── reembed.py          # re-index stored facts after changing EMBED_MODEL
     ├── relationships.py    # relationship wording -> fixed kinds; impossible family ties
     ├── models.py           # Fact / Contradiction / EntityLink / ...
     ├── extract.py          # extraction pipeline

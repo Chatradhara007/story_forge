@@ -1,6 +1,9 @@
 """
 Which NVIDIA models can StoryForge use right now, and which is the best trade-off?
 
+(backend/check_models.py is the quick check: one tiny request per configured model. This
+script is the deeper comparison: StoryForge's real reading and judging requests, timed.)
+
 NVIDIA retires hosted models with little warning (nemotron-3-super-120b-a12b went on
 2026-10-03). Instead of guessing a replacement, run this. It:
   1. lists every model that is live on YOUR API key (GET /v1/models);
@@ -17,7 +20,7 @@ Run from the project folder:
     python eval/probe_models.py --list                   # just list the live chat models
     python eval/probe_models.py --models a/b,c/d --trials 5
 Then confirm the winner on the full answer key:
-    CHAT_MODEL_READING=... CHAT_MODEL_JUDGING=... python eval/run_eval.py --runs 3
+    python eval/run_eval.py --judges "model-a,model-b" --runs 3   (judges on identical reading)
 """
 import argparse
 import statistics
@@ -82,10 +85,10 @@ def probe(model: str, trials: int, chapter_text: str) -> dict:
     import llm
     import extract
     import contradictions
-    # Pin both roles to this one model, with no fallback, so we measure exactly it.
-    llm.READING_MODEL = llm.JUDGING_MODEL = model
-    llm.FALLBACK_MODELS = []
+    # Pin both jobs to this one model, with no fallback, so we measure exactly it.
+    llm.CHAT_MODELS, llm.JUDGE_MODELS = [model], [model]
     llm._retired.clear()
+    llm._unhealthy_until.clear()
     out = {"model": model, "read_s": [], "read_ok": 0, "facts": [], "coverage": [],
            "judge_s": [], "judge_ok": 0, "caught": [], "false_alarms": [], "error": None}
     batch, should_flag = judge_case()
@@ -172,15 +175,15 @@ def main():
         # Reading: fastest model within one key detail of the best coverage.
         reader = min((r for r in reliable_readers if _median(r["coverage"]) >= best_cov - 1),
                      key=lambda r: _median(r["read_s"]))
-        print(f"\nCHAT_MODEL_READING={reader['model']}")
+        print(f"\nCHAT_MODEL={reader['model']}")
     if reliable_judges:
         # Judging: most accurate (catches minus false alarms), then fastest.
         judge = max(reliable_judges, key=lambda r: (statistics.mean(r["caught"]) - statistics.mean(r["false_alarms"]),
                                                     -_median(r["judge_s"])))
-        print(f"CHAT_MODEL_JUDGING={judge['model']}")
+        print(f"JUDGE_MODEL={judge['model']}")
     if reliable_readers or reliable_judges:
-        others = [r["model"] for r in results if r["read_ok"] or r["judge_ok"]]
-        print(f"CHAT_MODEL_FALLBACKS={','.join(others)}")
+        print("(Add a second model after a comma in each line as the backup, e.g. "
+              "CHAT_MODEL=fast/model,backup/model.)")
         print("\nPut these in backend/.env, then confirm with: python eval/run_eval.py --runs 3")
     else:
         print("\nNo model answered reliably. Check the errors above (usage limit? key?).")

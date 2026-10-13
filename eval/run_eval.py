@@ -18,8 +18,10 @@ Scores explained:
   recall    = of the planted mistakes, how many it caught
   F1        = one number combining both (higher is better, 1.0 is perfect)
 """
+import hashlib
 import json
 import os
+import re
 import sys
 import time
 from datetime import datetime
@@ -126,7 +128,14 @@ def score(flags: list[dict], truth: dict) -> dict:
         hit = [p for p in items if p["id"] in caught]
         by_type[kind] = {"planted": len(items), "caught": len(hit), "recall": len(hit) / len(items) if items else 0.0}
 
+    # A false alarm with the right chapter, entity and NEW detail for a missed item, whose
+    # earlier side is only worded differently from the answer key: worth a look by hand.
+    missed_ids = {p["id"] for p in planted if p["id"] not in caught}
+    check_by_hand = sorted({p["id"] for p in planted if p["id"] in missed_ids for r in rows
+                            if r["verdict"] == "false alarm"
+                            and _matches(r["flag"], {**p, "old_keywords": []})})
     return {
+        "check_by_hand": check_by_hand,
         "precision": precision, "recall": recall, "f1": f1,
         "correct": tp, "false_alarms": fp,
         "duplicates": sum(r["verdict"] == "duplicate" for r in rows),
@@ -218,11 +227,13 @@ def markdown_report(s: dict, link: dict, meta: dict) -> str:
     lines = [
         f"# StoryForge evaluation — {meta.get('story', 'lighthouse')} — {meta['when']}",
         "",
-        f"Chat model: `{meta['chat_model']}` · Embedding model: `{meta['embed_model']}` · Time: {meta['seconds']:.0f}s"
+        f"Reader: `{meta['chat_model']}` · Judge: `{meta.get('judge_model', meta['chat_model'])}` · "
+        f"Embedding model: `{meta['embed_model']}` · Time: {meta['seconds']:.0f}s"
         f" · AI requests per run: {meta.get('ai_requests_per_run', '?')} accepted, {meta.get('refused_per_run', 0)} refused",
         f"Parallel AI calls: {meta.get('parallel_calls', 1)} · Thinking (reading): {meta.get('thinking', 'on')} · "
         f"Thinking (judging): {meta.get('thinking_judging', meta.get('thinking', 'on'))} · "
         f"Temperature: {meta.get('temperature', 'default')} · Reading passage size: {meta.get('passage_chars', 'whole chapter')} characters",
+        *(["", f"> **Models switched during the run:** {meta['model_notes']}"] if meta.get("model_notes") else []),
         "",
         "## Where the time went",
         "",
@@ -230,6 +241,9 @@ def markdown_report(s: dict, link: dict, meta: dict) -> str:
         "|---|---|",
         *[f"| {k} | {v:.0f} |" for k, v in meta.get("stage_seconds", {}).items()],
         "",
+        "*Checking, story clock and safety net run one after another per chapter; reading and timing run together.*",
+        "",
+        *time_per_chapter(meta.get("per_chapter", [])),
         "## Contradiction detection",
         "",
         "| Precision | Recall | F1 | Correct | False alarms | Duplicates | Right type label |",
@@ -264,6 +278,9 @@ def markdown_report(s: dict, link: dict, meta: dict) -> str:
         "",
         f"Decoys wrongly flagged: {', '.join(s['decoys_triggered']) or 'none'}",
         "",
+        *([f"**Check by hand:** {', '.join(s['check_by_hand'])}. A warning counted as a false alarm has the right "
+           "chapter, entity and new detail for these items; only its earlier side is worded differently from the "
+           "answer key. If it is right, the item was caught.", ""] if s.get("check_by_hand") else []),
         "## What the double-check removed",
         "",
         (f"{s.get('double_check', {}).get('removed', 0)} warnings dismissed: "
@@ -282,6 +299,66 @@ def markdown_report(s: dict, link: dict, meta: dict) -> str:
     return "\n".join(lines)
 
 
+def time_per_chapter(rows: list[dict]) -> list[str]:
+    if not rows:
+        return []
+    judged = [r["judging"] for r in rows[1:]] or [r["judging"] for r in rows]
+    read = [r for r in rows if r["reading"] is not None]
+    words = sum(r["words"] for r in rows)
+    lines = ["## Time per chapter", "", "| Chapter | Words | Facts | Reading (s) | Judging (s) |", "|---|---|---|---|---|",
+             *[f"| {r['chapter']} | {r['words']:,} | {r['facts']} | "
+               f"{'saved' if r['reading'] is None else format(r['reading'], '.1f')} | {r['judging']:.1f} |" for r in rows], ""]
+    summary = (f"**Judging:** {sum(judged) / len(judged):.0f} s per chapter on average (chapters after the first; "
+               f"the first has nothing earlier to compare). {words:,} words in {len(rows)} chapters.")
+    if read:
+        read_words = sum(r["words"] for r in read)
+        summary += f" **Reading:** {sum(r['reading'] for r in read) / max(1, read_words) * 1000:.0f} s per 1,000 words."
+    return lines + [summary, ""]
+
+
+# ------------------------------------------------------------ saved reading --
+# The reader's output for a story, saved so that judges can be compared on IDENTICAL facts
+# (--judges) and runs can skip reading (--reuse-reading). One entry per (reader model, passage
+# size, chapter text). Files from before 12 Oct 2026 (a flat dict of hashes) are still read:
+# their newest reading per chapter is used, and chapter timing is detected again (one small
+# request per chapter).
+CACHE = HERE / "cache"
+
+
+def _reading_key(reader: str, chapter_id: str, text: str) -> str:
+    from extract import READ_PASSAGE_CHARS
+    return hashlib.sha1(f"{reader}|{READ_PASSAGE_CHARS}|{chapter_id}|{text}".encode("utf-8")).hexdigest()
+
+
+def load_readings(story: str) -> dict:
+    path = CACHE / f"{story}-reading.json"
+    if not path.exists():
+        return {"format": 2, "readings": {}, "legacy": {}}
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if data.get("format") == 2:
+        data.setdefault("legacy", {})
+        return data
+    legacy = {}
+    for value in data.values():                    # oldest first: the newest wins
+        if isinstance(value, dict) and value.get("chapter_id"):
+            legacy[value["chapter_id"]] = value
+    return {"format": 2, "readings": {}, "legacy": legacy}
+
+
+def save_readings(story: str, data: dict) -> None:
+    CACHE.mkdir(exist_ok=True)
+    (CACHE / f"{story}-reading.json").write_text(json.dumps(data, indent=1), encoding="utf-8")
+
+
+def saved_reading(data: dict, reader: str, chapter_id: str, text: str):
+    from models import ExtractionResult
+    entry = data["readings"].get(_reading_key(reader, chapter_id, text)) or data["legacy"].get(chapter_id)
+    if not entry:
+        return None
+    result = ExtractionResult(chapter_id=chapter_id, facts=entry["facts"], relationships=entry.get("relationships", []))
+    return result, entry.get("time_note")
+
+
 # ---------------------------------------------------------------- main -------
 STORIES = HERE / "stories"
 
@@ -293,6 +370,12 @@ def parse_args():
     parser.add_argument("--list", action="store_true", help="list the available stories and exit")
     parser.add_argument("--runs", type=int, default=1,
                         help="run the whole story this many times and report how consistently each mistake is caught")
+    parser.add_argument("--reuse-reading", action="store_true",
+                        help="use the reading saved in eval/cache (reads and saves it first if there is none): "
+                             "only judging is measured")
+    parser.add_argument("--judges", default="",
+                        help="comma-separated judge models to compare on the SAME saved reading, "
+                             "e.g. \"nvidia/nemotron-3-ultra-550b-a55b,nvidia/nemotron-3.5-lightning-30b-a3b\"")
     return parser.parse_args()
 
 
@@ -313,33 +396,83 @@ def main() -> None:
 
     import main as app_main                          # the backend's main.py
     import storage
-    from llm import READING_MODEL, JUDGING_MODEL, EMBED_MODEL
-    CHAT_MODEL = READING_MODEL if READING_MODEL == JUDGING_MODEL else f"{READING_MODEL} (reading) + {JUDGING_MODEL} (judging)"
+    import llm
 
     truth = json.loads((story_dir / "ground_truth.json").read_text(encoding="utf-8"))
     print(f"Story: {args.story} ({len(truth['chapters'])} chapters, {len(truth['planted'])} planted mistakes, "
           f"{len(truth['decoys'])} traps)")
 
-    from llm import AIServiceError, MAX_REQUESTS_PER_MINUTE
+    from llm import MAX_REQUESTS_PER_MINUTE
 
     storage.apply_schema()
     if MAX_REQUESTS_PER_MINUTE:
         print(f"Pacing AI requests at up to {MAX_REQUESTS_PER_MINUTE} per minute (MAX_REQUESTS_PER_MINUTE).")
 
+    judges = [j.strip() for j in args.judges.split(",") if j.strip()]
+    reuse = args.reuse_reading or bool(judges)
+    readings = load_readings(args.story) if reuse else None
+    reader = llm.CHAT_MODELS[0]
+    if not judges:
+        evaluate(args, story_dir, truth, storage, app_main, readings, None)
+        return
+    print(f"Comparing {len(judges)} judges on the same reading by {reader}.")
+    out = HERE / "results"
+    out.mkdir(exist_ok=True)
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    rows = []
+    configured = list(llm.JUDGE_MODELS)
+    for judge in judges:
+        print(f"\n##### Judge: {judge}")
+        # Only this judge: if it fails, it is retried patiently instead of handing the
+        # judging to a reader model (which would score another model under its name).
+        llm.JUDGE_MODELS, llm.JUDGE_FALLS_BACK_TO_READERS = [judge], False
+        llm._unhealthy_until.pop(judge, None)
+        try:
+            summary = evaluate(args, story_dir, truth, storage, app_main, readings, judge, stamp=stamp)
+        finally:
+            llm.JUDGE_MODELS, llm.JUDGE_FALLS_BACK_TO_READERS = configured, True
+        if summary:
+            rows.append(summary)
+    lines = [f"# Judge comparison: {args.story}, {datetime.now().strftime('%Y-%m-%d %H:%M')}", "",
+             f"Reader: `{reader}` (same saved reading for every judge) · Runs per judge: {args.runs}", "",
+             "| Judge | Precision | Recall | F1 | False alarms | Judging time | Caught | Check by hand |",
+             "|---|---|---|---|---|---|---|---|",
+             *[f"| `{r['judge']}` {r['fell_back']} | {pct(r['precision'])} | {pct(r['recall'])} | {r['f1']:.2f} | "
+               f"{r['false_alarms']:.1f} | {r['seconds']:.0f}s | {', '.join(r['caught']) or '-'} | "
+               f"{', '.join(r['check_by_hand']) or '-'} |" for r in rows], ""]
+    path = out / f"{args.story}-judges-{stamp}.md"
+    path.write_text("\n".join(lines), encoding="utf-8")
+    print("\n" + "\n".join(lines))
+    print(f"Comparison: {path}")
+
+
+def evaluate(args, story_dir, truth, storage, app_main, readings, judge, stamp=None):
+    """Run the story args.runs times with the current models, write the report, return a summary."""
+    import llm
+    from llm import AIServiceError, EMBED_MODEL
+
     def one_run(run_number):
         if args.runs > 1:
             print(f"\n=== Run {run_number} of {args.runs} ===")
-        return run_once(story_dir, truth, storage, app_main)
+        return run_once(story_dir, truth, storage, app_main, readings)
 
     runs, failed = run_many(max(1, args.runs), one_run, AIServiceError)
+    if readings is not None:
+        save_readings(args.story, readings)
     if not runs:
-        sys.exit("No run could finish because the AI service kept failing. Try again later, or lower "
-                 "MAX_PARALLEL_AI_CALLS / set MAX_REQUESTS_PER_MINUTE in backend/.env.")
+        print("No run could finish because the AI service kept failing. Try again later, or lower "
+              "MAX_PARALLEL_AI_CALLS / set MAX_REQUESTS_PER_MINUTE in backend/.env.")
+        if judge is None:
+            sys.exit(1)
+        return None
 
-    from llm import MAX_PARALLEL_AI_CALLS, THINKING_MODE, JUDGING_THINKING_MODE, TEMPERATURE
+    from llm import MAX_PARALLEL_AI_CALLS, THINKING_MODE, JUDGING_THINKING_MODE, TEMPERATURE, JUDGE_TEMPERATURE
     from extract import READ_PASSAGE_CHARS
-    meta = {"story": args.story, "when": datetime.now().strftime("%Y-%m-%d %H:%M"), "chat_model": CHAT_MODEL,
-            "embed_model": EMBED_MODEL, "runs": len(runs),
+    status = llm.model_status()
+    meta = {"story": args.story, "when": datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "chat_model": status["reader"] or llm.CHAT_MODELS[0], "judge_model": status["judge"] or "-",
+            "embed_model": EMBED_MODEL, "runs": len(runs), "per_chapter": runs[-1].get("per_chapter", []),
+            "model_notes": " ".join(status["notes"]),
             "seconds": sum(r["seconds"] for r in runs) / len(runs),
             "ai_requests_per_run": round(sum(r.get("requests", 0) - r.get("refused", 0) for r in runs) / len(runs)),
             "refused_per_run": round(sum(r.get("refused", 0) for r in runs) / len(runs)),
@@ -347,12 +480,9 @@ def main() -> None:
                               for k in runs[-1]["stage_seconds"]},
             "failed_runs": failed,
             "parallel_calls": MAX_PARALLEL_AI_CALLS, "thinking": THINKING_MODE,
-            "thinking_judging": JUDGING_THINKING_MODE, "temperature": TEMPERATURE,
+            "thinking_judging": JUDGING_THINKING_MODE,
+            "temperature": f"reader {TEMPERATURE}, judge {JUDGE_TEMPERATURE}",
             "passage_chars": READ_PASSAGE_CHARS}
-    from llm import model_status
-    status = model_status()
-    if status["retired"]:
-        meta["chat_model"] += (" — NOTE: switched models during the run: " + " ".join(status["notes"]))
     last = runs[-1]
     report = markdown_report(last["scores"], last["linking"], meta)
     if failed:
@@ -363,7 +493,9 @@ def main() -> None:
 
     out = HERE / "results"
     out.mkdir(exist_ok=True)
-    stamp = f"{args.story}-" + datetime.now().strftime("%Y%m%d-%H%M%S")
+    when = stamp or datetime.now().strftime("%Y%m%d-%H%M%S")
+    stamp = (f"{args.story}-judge-{re.sub(r'[^A-Za-z0-9.-]+', '_', judge)}-{when}" if judge
+             else f"{args.story}-{when}")
     (out / f"{stamp}.md").write_text(report, encoding="utf-8")
     (out / f"{stamp}.json").write_text(json.dumps({"meta": meta, "runs": runs}, indent=2, default=str), encoding="utf-8")
 
@@ -389,6 +521,14 @@ def main() -> None:
         for missed in last["scores"]["missed"]:
             print(f"  missed {missed['id']}: {missed['diagnosis']['cause']}")
     print(f"Full report: {out / (stamp + '.md')}")
+    n = len(runs)
+    avg = lambda key: sum(r["scores"][key] for r in runs) / n
+    caught = catch_counts(runs, truth)
+    used_judge = meta["judge_model"]
+    return {"judge": judge or used_judge, "precision": avg("precision"), "recall": avg("recall"), "f1": avg("f1"),
+            "false_alarms": avg("false_alarms"), "seconds": sum(r["seconds"] for r in runs) / n,
+            "caught": [k for k, v in caught.items() if v], "check_by_hand": last["scores"].get("check_by_hand", []),
+            "fell_back": f" (fell back to {used_judge})" if judge and used_judge != judge else ""}
 
 
 def run_many(count: int, one_run, error_type) -> tuple[list, list]:
@@ -406,24 +546,38 @@ def run_many(count: int, one_run, error_type) -> tuple[list, list]:
     return runs, failed
 
 
-def run_once(story_dir: Path, truth: dict, storage, app_main) -> dict:
+def run_once(story_dir: Path, truth: dict, storage, app_main, readings: dict | None = None) -> dict:
     """Wipe the test database, feed in every chapter, and score the result."""
     import pipeline
+    import llm
     with storage.db() as conn, conn.cursor() as cur:
         cur.execute("TRUNCATE contradictions, facts, chapters, entity_aliases, entities, projects, "
                     "fact_corrections, warning_decisions, jobs RESTART IDENTITY CASCADE")
     project_id = storage.create_project(f"Evaluation: {story_dir.name}")["id"]
-    import llm
     requests_before, refused_before = llm.request_count, llm.refused_count
     started = time.time()
     stage_totals: dict[str, float] = {}
+    per_chapter = []
+    reader = llm.CHAT_MODELS[0]
     for number, chapter_id in enumerate(truth["chapters"], start=1):
         text = (story_dir / f"{chapter_id}.txt").read_text(encoding="utf-8")
         print(f"Chapter {number} ({chapter_id})…", end=" ", flush=True)
         t0 = time.time()
-        result, _later = pipeline.ingest(project_id, chapter_id, text, number)   # chapters go in order: nothing to re-check
+        saved = saved_reading(readings, reader, chapter_id, text) if readings is not None else None
+        # chapters go in order: nothing to re-check
+        result, _later = pipeline.ingest(project_id, chapter_id, text, number, reading=saved)
+        key = _reading_key(reader, chapter_id, text)
+        if readings is not None and key not in readings["readings"]:   # new, or from an old-format file
+            readings["readings"][key] = {
+                "chapter_id": chapter_id, "time_note": result.time_note,
+                "facts": [f.model_dump() for f in result.facts],
+                "relationships": [r.model_dump() for r in result.relationships]}
         for stage, secs in result.timings_seconds.items():
             stage_totals[stage] = stage_totals.get(stage, 0) + secs
+        reading_secs = result.timings_seconds.get("reading facts", 0.0)
+        per_chapter.append({"chapter": chapter_id, "words": len(text.split()), "facts": len(result.facts),
+                            "reading": None if saved is not None else reading_secs,
+                            "judging": max(0.0, time.time() - t0 - (0 if saved is not None else reading_secs))})
         print(f"{len(result.facts)} facts, {len(result.contradictions)} warnings, {time.time() - t0:.0f}s")
     # Score what the writer would see: OPEN warnings. Separately, check what the automatic
     # double-check dismissed: real mistakes it wrongly removed, and false alarms it removed.
@@ -441,7 +595,7 @@ def run_once(story_dir: Path, truth: dict, storage, app_main) -> dict:
     all_facts = load_all_facts(storage)
     for missed in s["missed"]:
         missed["diagnosis"] = diagnose(missed, all_facts, truth["chapters"])
-    return {"seconds": time.time() - started, "stage_seconds": stage_totals, "scores": s,
+    return {"seconds": time.time() - started, "stage_seconds": stage_totals, "scores": s, "per_chapter": per_chapter,
             "requests": llm.request_count - requests_before,
             "refused": llm.refused_count - refused_before,
             "linking": score_linking(truth, lambda names: storage.find_entities_by_alias(project_id, names))}

@@ -82,6 +82,12 @@ requests: how many false alarms would disappear, and whether any real catch woul
 
 ## The held-out test (run once, then freeze)
 
+> **12 October 2026:** the held-out run was done (precision 5%, recall 27%, F1 0.09, 52 false
+> alarms). Fixes were then made from its results (README section 16), so **The Fallen King is
+> no longer a held-out story**. Write a new story with planted mistakes, never look at
+> StoryForge's output on it before the run, and use that for the honest number.
+
+
 `eval/stories/fallenking/` is *The Fallen King* with 11 planted mistakes and 5 traps, written
 before StoryForge was ever run on it, with chapters of 725–1,080 words (four times longer than the
 tuning stories). Its answer key covers kinds of mistakes the tuning stories don't (a horse's

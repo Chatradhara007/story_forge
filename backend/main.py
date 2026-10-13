@@ -1,5 +1,4 @@
 import os
-import time
 from contextlib import asynccontextmanager
 from typing import Literal
 from dotenv import load_dotenv
@@ -679,8 +678,14 @@ app.include_router(book, include_in_schema=False)        # short addresses: the 
 @app.get("/health")
 def health():
     """Liveness check. Always 200 if the web server runs; says whether the database and AI are set up."""
+    import llm
+    status = model_status()
+    problem = storage.embeddings_problem()
     return {"status": "ok", "database": storage.database_ok(), "ai_configured": AI_CONFIGURED,
-            "models": model_status(),
+            "chat_model": status["reader"], "judge_model": status["judge"],
+            "chat_models_retired": sorted(status["retired"]), "chat_models_struggling": status["struggling"],
+            "embed_model": llm.EMBED_MODEL, "embeddings_ok": problem is None, "embeddings_problem": problem,
+            "models": status,
             "auth_required": auth.AUTH_REQUIRED}
 
 

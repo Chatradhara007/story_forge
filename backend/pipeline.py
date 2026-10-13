@@ -9,7 +9,7 @@ background jobs:
 """
 import time
 from models import ChapterIngestResult, EntityLink, Fact
-from extract import extract_facts, detect_timing
+from extract import extract_facts, detect_timing, timing_from_opening
 from entities import Resolution, resolve_entities
 from contradictions import check_chapter
 from llm import run_in_parallel
@@ -34,12 +34,14 @@ def _noop(stage: str, fraction: float | None = None) -> None:
 
 
 def ingest(project_id: int, chapter_id: str, text: str, chapter_number: int | None = None,
-           progress=_noop) -> tuple[ChapterIngestResult, list[str]]:
+           progress=_noop, reading=None) -> tuple[ChapterIngestResult, list[str]]:
     """
     Full pipeline for one chapter of one book. All the slow AI work happens first; only
     if it all succeeds is everything saved to the database in one go. Re-submitting the
     same chapter_id replaces that chapter's old results.
     Returns the result and the LATER chapters that must now be re-checked.
+    reading: (ExtractionResult, time note or None) saved from an earlier run (the evaluation
+    reuses one reading to compare judges); the reader isn't asked again.
     """
     timings: dict[str, float] = {}
 
@@ -60,10 +62,18 @@ def ingest(project_id: int, chapter_id: str, text: str, chapter_number: int | No
     def on_passage(done: int, total: int):
         progress("reading facts", done / max(total, 1))
 
-    result, time_note = timed("reading facts", lambda: run_in_parallel(lambda job: job(), [
-        lambda: extract_facts(chapter_id, text, on_passage=on_passage),
-        lambda: detect_timing(text, earlier_notes),
-    ]))
+    if reading is not None:
+        result, time_note = reading
+        # A timing the chapter states in its opening beats a saved AI note.
+        time_note = timing_from_opening(text) or time_note
+        if time_note is None:
+            time_note = timed("reading facts", detect_timing, text, earlier_notes)
+        timings.setdefault("reading facts", 0.0)
+    else:
+        result, time_note = timed("reading facts", lambda: run_in_parallel(lambda job: job(), [
+            lambda: extract_facts(chapter_id, text, on_passage=on_passage),
+            lambda: detect_timing(text, earlier_notes),
+        ]))
     resolutions = timed("linking names", resolve_entities, project_id, result.facts)
     embeddings = timed("preparing search", storage.embed_facts, result.facts)
     contradictions = check_chapter(project_id, chapter_id, chapter_number, result.facts, resolutions,

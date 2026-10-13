@@ -58,4 +58,4 @@ def test_answers_use_low_randomness(client, fake_ai, monkeypatch):
     original = fake_ai._chat
     monkeypatch.setattr(llm.client.chat.completions, "create", lambda **kw: seen.append(kw.get("temperature")) or original(**kw))
     client.post("/extract", json={"chapter_id": "c", "text": "x"})
-    assert seen[-1] == llm.TEMPERATURE == 0.2
+    assert seen[-1] == llm.TEMPERATURE == 0.0          # no randomness (Oct 2026 final configuration)

@@ -67,6 +67,8 @@ def main() -> int:
         elif dim <= 2000:
             cur.execute("CREATE INDEX IF NOT EXISTS facts_embedding_hnsw ON facts USING hnsw (embedding vector_cosine_ops)")
         cur.execute("UPDATE app_settings SET value = %s WHERE key = 'embed_model'", (current,))
+    storage.STORED_EMBED_MODEL = current
+    storage.EMBED_DIM = dim
     print(f"Done. Every fact now uses {current}. Start the web server again.")
     return 0
 

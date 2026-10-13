@@ -333,11 +333,13 @@ def _judged(fake_ai, kind, explanation):
 
 def test_a_warning_that_admits_consistency_is_set_aside(client, fake_ai):
     """D3, 3/3 runs: 'this is mathematically consistent. However...'"""
+    # (Ages are left to the story clock now, so the AI's own age warnings are never raised;
+    # the rule is tested with a duration instead.)
     fake_ai.on("record_facts", facts_by_marker({
-        "[1]": [fact("Orla Venn", "age", "thirty-four", "Orla was thirty-four")],
-        "[3]": [fact("Orla Venn", "age", "twenty-two", "Orla was twenty-two")]}))
+        "[1]": [fact("Orla Venn", "years at the furnace", "twenty years", "twenty years at the furnace")],
+        "[3]": [fact("Orla Venn", "years at the furnace", "eight years", "eight years at the furnace")]}))
     fake_ai.on("record_timing", timing({"[3]": ("flashback", "twelve years before the fire")}))
-    _judged(fake_ai, "timeline", "22 twelve years earlier is mathematically consistent. However, the furnace...")
+    _judged(fake_ai, "timeline", "Eight years, twelve years earlier, is mathematically consistent. However, the furnace...")
     post(client, "ch1", "[1]")
     [w] = post(client, "ch3", "[3]")["contradictions"]
     assert w["status"] == "dismissed" and "consistent" in w["review_note"]

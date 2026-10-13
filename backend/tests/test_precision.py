@@ -41,21 +41,23 @@ def test_made_up_entity_numbers_are_ignored(client, fake_ai):
 
 
 def test_double_check_dismisses_with_a_reason_but_keeps_the_warning(client, fake_ai):
-    fake_ai.on("record_facts", facts_by_marker({"[1]": [fact("Rex", "status", "alive", "Rex slept by the stove")],
-                                                "[2]": [fact("Rex", "status", "dead", "Rex died in the night")]}))
+    # (alive -> dead is set aside by a rule before the double-check now, so the double-check
+    # itself is tested with a change no rule recognises: moving house.)
+    fake_ai.on("record_facts", facts_by_marker({"[1]": [fact("Rex", "home", "the lighthouse", "Rex lived at the lighthouse")],
+                                                "[2]": [fact("Rex", "home", "the mill", "Rex lived at the mill now")]}))
     fake_ai.on("report_contradictions", lambda p: {"contradictions": [
-        {"entity_number": 1, "new_fact_index": 0, "existing_fact_index": 0, "contradiction_type": "status",
-         "confidence": 0.9, "explanation": "alive then dead"}]})
+        {"entity_number": 1, "new_fact_index": 0, "existing_fact_index": 0, "contradiction_type": "attribute",
+         "confidence": 0.9, "explanation": "home changed"}]})
     reviews = []
     fake_ai.on("review_warnings", lambda p: reviews.append(p) or {"reviews": [
-        {"warning_index": 0, "keep": False, "reason": "The dog dying later is the story moving forward."}]})
+        {"warning_index": 0, "keep": False, "reason": "The dog moving house is the story moving forward."}]})
     client.post("/chapters", json={"chapter_id": "c1", "text": "[1]"})
     r = client.post("/chapters", json={"chapter_id": "c2", "text": "[2]"}).json()
-    assert "Rex died in the night" in reviews[0] and "Rex slept by the stove" in reviews[0]
+    assert "Rex lived at the mill now" in reviews[0] and "Rex lived at the lighthouse" in reviews[0]
     assert r["contradictions"][0]["status"] == "dismissed"
     assert client.get("/contradictions?status=open").json()["contradictions"] == []
     dismissed = client.get("/contradictions?status=dismissed").json()["contradictions"]
-    assert dismissed[0]["review_note"].startswith("Double-check: The dog dying later")
+    assert dismissed[0]["review_note"].startswith("Double-check: The dog moving house")
 
 
 def test_double_check_failure_keeps_every_warning(client, fake_ai):

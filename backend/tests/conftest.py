@@ -116,8 +116,11 @@ def fake_ai(monkeypatch):
     monkeypatch.setattr(llm, "client", _obj(chat=_obj(completions=_obj(create=fake._chat)),
                                             embeddings=_obj(create=fake._embed)))
     monkeypatch.setattr(llm, "_pause", lambda s: None)  # no waiting between retries
-    monkeypatch.setattr(llm, "_retired", {})             # a "retired model" test must not leak
-    monkeypatch.setattr(llm, "_switch_notes", [])
+    # Model health is remembered for the whole process; a test's retired / struggling /
+    # no-thinking models must not leak into the next test.
+    for name, fresh in (("_retired", {}), ("_switch_notes", []), ("_unhealthy_until", {}), ("_verified", set()),
+                        ("_unsupported_modes", set()), ("_thinking_crashes", {})):
+        monkeypatch.setattr(llm, name, fresh)
     monkeypatch.setattr(llm, "MAX_REQUESTS_PER_MINUTE", 0)  # no pacing in tests
     import extract
     monkeypatch.setattr(extract, "CHECK_GROUNDING", False)  # pretend chapters are markers, not real text

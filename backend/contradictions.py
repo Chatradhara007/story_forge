@@ -1,10 +1,13 @@
+import re
 import time
 from collections import defaultdict
 from models import Fact, Contradiction
+import relationships as rel_rules
 from storage import (get_time_notes, get_facts_for_entity_id, get_entity_evidence, get_facts_mentioning_entity,
                      get_facts_mentioning_names, get_similar_earlier_facts)
 from llm import call_tool, run_in_parallel, JUDGING_THINKING_MODE, AIServiceError, ContextTooLongError
 import storyclock
+from concurrent.futures import ThreadPoolExecutor
 
 VALID_TYPES = {"attribute", "status", "timeline"}
 
@@ -30,6 +33,8 @@ CONTRADICTION_TOOL = {
                             "entity_number": {"type": "integer"},
                             "new_fact_index": {"type": "integer"},
                             "existing_fact_index": {"type": "integer"},
+                            "new_value": {"type": "string"},
+                            "existing_value": {"type": "string"},
                             "contradiction_type": {
                                 "type": "string",
                                 "enum": ["attribute", "status", "timeline"]
@@ -105,7 +110,8 @@ reading order: a lower number happens earlier in the book.
 
 {rules}
 For each contradiction, give the entity_number of its section, the index of the NEW fact and
-of the EXISTING fact within that section, and a confidence from 0.0 (unsure) to 1.0 (certain).
+of the EXISTING fact within that section, copy the two values you compared into new_value and
+existing_value, and give a confidence from 0.0 (unsure) to 1.0 (certain).
 
 CHAPTER TIMING (when each chapter is set, from its own words):
 {timing}
@@ -222,11 +228,12 @@ def _check_entities_once(new_chapter_id, new_chapter_number, batch, timing, inde
             explanation = str(item["explanation"])
         except (KeyError, TypeError, ValueError):
             continue
-        if not 1 <= number <= len(batch):
-            continue
+        located = _locate(batch, number, new_index, existing_index,
+                          str(item.get("new_value") or ""), str(item.get("existing_value") or ""))
+        if located is None:
+            continue           # the values it compared aren't in the facts it was given: misread
+        number, new_index, existing_index = located
         canonical_name, new_facts, existing_facts = batch[number - 1]
-        if not (0 <= new_index < len(new_facts) and 0 <= existing_index < len(existing_facts)):
-            continue
         if kind not in VALID_TYPES or (number, "old", existing_index) in used or (number, "new", new_index) in used:
             continue
         used.update({(number, "old", existing_index), (number, "new", new_index)})
@@ -237,6 +244,8 @@ def _check_entities_once(new_chapter_id, new_chapter_number, batch, timing, inde
 
         new_fact = new_facts[new_index]
         existing_fact = existing_facts[existing_index]
+        if _both_ages(new_fact.attribute, new_fact.value, existing_fact["attribute"], existing_fact["value"]):
+            continue      # age arithmetic is the story clock's job (the AI got it wrong 9 times in 10)
         results.append(Contradiction(
             entity=canonical_name,
             new_chapter_id=new_chapter_id,
@@ -253,6 +262,61 @@ def _check_entities_once(new_chapter_id, new_chapter_number, batch, timing, inde
             conflicting_fact_id=existing_fact.get("fact_id"),
         ))
     return results
+
+
+def _norm(value: str) -> str:
+    return " ".join(re.sub(r"[^a-z0-9 ]", " ", (value or "").lower()).split())
+
+
+def _same_value(given: str, value: str) -> bool:
+    a, b = _norm(given), _norm(value)
+    return bool(a and b) and (a == b or (min(len(a), len(b)) >= 3 and (a in b or b in a)))
+
+
+def _locate(batch, number, new_index, existing_index, new_value, existing_value):
+    """
+    Where a reported contradiction really is. The checker sometimes has the right idea but
+    points at the wrong fact or the wrong section (4 Oct report: "twenty years vs eight"
+    attached to the AGE fact; Tobias's "older vs younger brother" filed under Ines). When it
+    copies the values it compared, those decide: the pair whose values match, in the section
+    it named first, then in the others. Values that match no fact at all = a misreading:
+    None. Without values, the numbers are used as before.
+    """
+    def fits(n, i, j):
+        _, new_facts, existing = batch[n - 1]
+        return (0 <= i < len(new_facts) and 0 <= j < len(existing)
+                and (not new_value or _same_value(new_value, new_facts[i].value))
+                and (not existing_value or _same_value(existing_value, existing[j]["value"])))
+
+    if 1 <= number <= len(batch) and fits(number, new_index, existing_index):
+        return number, new_index, existing_index
+    if not new_value and not existing_value:
+        return None
+    sections = ([number] if 1 <= number <= len(batch) else []) + [n for n in range(1, len(batch) + 1) if n != number]
+    for n in sections:
+        _, new_facts, existing = batch[n - 1]
+        new_options = [i for i in range(len(new_facts)) if not new_value or _same_value(new_value, new_facts[i].value)]
+        old_options = [j for j in range(len(existing)) if not existing_value or _same_value(existing_value, existing[j]["value"])]
+        if new_value and not new_options or existing_value and not old_options:
+            continue
+        i = new_index if new_index in new_options else (new_options[0] if new_options else new_index)
+        j = existing_index if existing_index in old_options else (old_options[0] if old_options else existing_index)
+        if fits(n, i, j):
+            return n, i, j
+    return None
+
+
+# Social ties (friend, ally, rival, mentor...) are drawn on the character map but never checked:
+# "apprentice" in one chapter and "ally" in another aren't a contradiction, people's relations
+# grow. Family ties ARE checked (sister vs cousin).
+_SOCIAL_LABELS = tuple(sorted({rel_rules.LABELS[k] for k in rel_rules.SOCIAL}
+                              | {rel_rules.INVERSE_LABELS[k] for k in rel_rules.SOCIAL}, key=len, reverse=True))
+
+
+def is_social_tie(fact) -> bool:
+    attribute = fact["attribute"] if isinstance(fact, dict) else fact.attribute
+    value = (fact["value"] if isinstance(fact, dict) else fact.value) or ""
+    return (attribute or "").lower() == "relationship" and value.lower().startswith(_SOCIAL_LABELS)
 
 
 def find_contradictions_for_chapter(
@@ -277,6 +341,8 @@ def find_contradictions_for_chapter(
     new: dict[str, list[Fact]] = defaultdict(list)
     canonical: dict = {}
     for f in facts:
+        if is_social_tie(f):
+            continue
         r = resolutions[f.entity.lower()]
         if r.existing_entity_id is not None:
             known[r.existing_entity_id].append(f)
@@ -294,7 +360,7 @@ def find_contradictions_for_chapter(
         existing = get_entity_evidence(entity_id, chapter_id, chapter_number, focus)
         existing += get_facts_mentioning_entity(entity_id, exclude_chapter_id=chapter_id,
                                                 before_chapter_number=chapter_number)
-        return (canonical[entity_id], entity_facts, existing)
+        return (canonical[entity_id], entity_facts, [e for e in existing if not is_social_tie(e)])
 
     def evidence_new(item):
         # nothing earlier mentions a brand-new entity? then it has nothing to be checked against
@@ -302,7 +368,7 @@ def find_contradictions_for_chapter(
         names = {canonical[key]} | {f.entity for f in entity_facts}
         existing = get_facts_mentioning_names(project_id, sorted(names), exclude_chapter_id=chapter_id,
                                               before_chapter_number=chapter_number)
-        return (canonical[key], entity_facts, existing)
+        return (canonical[key], entity_facts, [e for e in existing if not is_social_tie(e)])
 
     # Gather each entity's evidence from the database (no AI yet)...
     entries = [evidence_known(item) for item in known.items()] + [evidence_new(item) for item in new.items()]
@@ -379,6 +445,94 @@ def _format_pair(i: int, new_fact: Fact, old: dict) -> str:
             f'"{old["source_quote"]}"')
 
 
+_FAMILY_ATTRIBUTE = re.compile(r"(relationship|relation|family|parent|child|sibling|brother|sister|son|daughter|"
+                               r"mother|father|spouse|married|cousin|kin)", re.I)
+_DESCRIPTION_NAME = re.compile(r"^(the|a|an|his|her|their|its|my|your|our|this|that)\b", re.I)
+
+
+def _is_family_tie(fact) -> bool:
+    """Family ties are checked on their own card and by the map's rule, not by the safety net:
+    on long chapters the Reader sometimes records them the wrong way round ("Aurel parent of
+    Oren"), and every such slip became a safety-net false alarm (7 on the held-out story)."""
+    attribute = fact["attribute"] if isinstance(fact, dict) else fact.attribute
+    return bool(_FAMILY_ATTRIBUTE.search(attribute or ""))
+
+
+def _both_ages(new_attribute, new_value, old_attribute, old_value) -> bool:
+    return (storyclock.parse_age(new_attribute, new_value) is not None
+            and storyclock.parse_age(old_attribute, old_value) is not None)
+
+
+def _name_words(name: str) -> set[str]:
+    from entities import TITLE_WORDS, IGNORED_WORDS
+    return {w for w in re.findall(r"[a-z']+", (name or "").lower())
+            if len(w) >= 3 and w not in TITLE_WORDS and w not in IGNORED_WORDS}
+
+
+_GENERIC_ATTRIBUTE_WORDS = {"status", "state", "condition", "action", "actions", "activity", "description",
+                            "physical", "event", "events", "location", "role", "relationship", "relation", "detail",
+                            "details", "info", "information", "fact", "note", "current", "time", "reference", "quote",
+                            "about", "with", "from", "into", "over", "type", "kind", "other", "general", "trait"}
+
+
+def _attribute_words(attribute: str) -> set[str]:
+    return {w for w in re.findall(r"[a-z]+", (attribute or "").lower())
+            if len(w) >= 4 and w not in _GENERIC_ATTRIBUTE_WORDS}
+
+
+def _names_related(fact: Fact, canonical: str, old: dict) -> bool:
+    """
+    The safety net is for names that weren't linked but could be the same entity: a nickname,
+    a title, a description, a secret identity. Two proper names with nothing in common, where
+    neither fact mentions the other ("Venn fleet" vs "King Aurel's destination: the Venn
+    isles"), are two different things, and asking the AI about them produced 28 false alarms
+    and 1 catch on the held-out story. Pairs kept: the names share a word; or one name is a
+    description ("the boy", "his father"); or either fact's value/quote mentions the other.
+    """
+    new_names = {fact.entity, canonical}
+    old_names = {old["entity"], old.get("canonical_name") or old["entity"]}
+    # A description or a bare title ("the boy", "Keeper") could be anyone.
+    if any(_DESCRIPTION_NAME.match(n or "") or (n and n[:1].islower()) or (n and not _name_words(n))
+           for n in new_names | old_names):
+        return True
+    if {w for n in new_names for w in _name_words(n)} & {w for n in old_names for w in _name_words(n)}:
+        return True
+    # The same specific detail under two unrelated names ("Rook | hands" / "Edwin Marsh | hands"):
+    # possibly a secret identity. Generic attributes (status, action, description...) don't count.
+    if _attribute_words(fact.attribute) & _attribute_words(old["attribute"]):
+        return True
+    new_text = f"{fact.value} {fact.source_quote}".lower()
+    old_text = f"{old['value']} {old['source_quote']}".lower()
+    return (any(n and n.lower() in new_text for n in old_names)
+            or any(n and n.lower() in old_text for n in new_names))
+
+
+# Concrete details that a slip changes: colours, body parts and marks, counts. Two facts about
+# possibly-the-same entity are only worth an AI question when they share one of these, or when
+# the new fact is plainly ABOUT the other entity ("Ember, the black stallion" under Aurel).
+_DETAIL_WORDS = re.compile(
+    r"\b(red|blue|green|grey|gray|black|white|brown|golden|gold|silver|chestnut|auburn|dark|fair|pale|"
+    r"eyes?|hair|beard|scar\w*|hands?|fingers?|arms?|legs?|feet|foot|blind\w*|deaf|limp\w*|"
+    r"one|two|three|four|five|six|seven|eight|nine|ten|hundred|thousand|\d+|left|right|"
+    r"dead|died|drowned|buried|lost|broken|burned|burnt|sank|sunk)\b", re.I)
+
+
+def _shares_detail(fact: Fact, old: dict) -> bool:
+    if _attribute_words(fact.attribute) & _attribute_words(old["attribute"]):
+        return True
+    new_details = {w.lower() for w in _DETAIL_WORDS.findall(f"{fact.attribute} {fact.value}")}
+    old_details = {w.lower() for w in _DETAIL_WORDS.findall(f"{old['attribute']} {old['value']}")}
+    if new_details & old_details:
+        return True
+    colours = re.compile(r"\b(red|blue|green|grey|gray|black|white|brown|golden|gold|silver|chestnut|auburn)\b", re.I)
+    if colours.search(fact.value or "") and colours.search(old["value"] or ""):
+        return True                                   # grey vs black: the classic slip
+    # The new fact's VALUE names the earlier entity: it is about that entity ("read the letter").
+    names = [n for n in {old["entity"], old.get("canonical_name") or ""} if n and len(n) >= 3]
+    return any(re.search(r"(^|\W)" + re.escape(n.lower()) + r"($|\W)", (fact.value or "").lower())
+               and not re.search(re.escape(n.lower()) + r"'s\b", (fact.value or "").lower()) for n in names)
+
+
 def find_cross_card_contradictions(
     project_id: int, chapter_id: str, chapter_number: int, facts: list[Fact], resolutions: dict,
     embeddings: list[list[float]], already_found: list[Contradiction], time_note: str | None = None,
@@ -394,8 +548,16 @@ def find_cross_card_contradictions(
     index_of = {id(f): i for i, f in enumerate(facts)}
     neighbours = get_similar_earlier_facts(project_id, embeddings, chapter_id, chapter_number, NEIGHBOURS_PER_FACT)
     for fact, near in zip(facts, neighbours):
+        if is_social_tie(fact) or _is_family_tie(fact):
+            continue
         r = resolutions[fact.entity.lower()]
         for old in near:
+            if is_social_tie(old) or _is_family_tie(old):
+                continue
+            if _both_ages(fact.attribute, fact.value, old["attribute"], old["value"]):
+                continue
+            if not _names_related(fact, r.canonical_name, old) or not _shares_detail(fact, old):
+                continue
             if r.existing_entity_id is not None and old["entity_id"] == r.existing_entity_id:
                 continue   # same card: already covered by the normal check
             key = (fact.source_quote, fact.attribute, old["fact_id"])
@@ -429,6 +591,8 @@ def find_cross_card_contradictions(
                 continue
             if not (0 <= index < len(batch)) or kind not in VALID_TYPES or same < MIN_SAME_ENTITY_CONFIDENCE:
                 continue
+            if _SAYS_DIFFERENT.search(explanation):
+                continue      # its own explanation says they're different people (5 Oct report)
             new_fact, old = batch[index]
             found.append(Contradiction(
                 entity=old["canonical_name"] or old["entity"],
@@ -518,14 +682,16 @@ WARNINGS:
 {warnings}
 """
 
-REVIEW_BATCH_SIZE = 20
+REVIEW_BATCH_SIZE = 8      # warnings per double-check call; calls run in parallel
 
 
 def _format_warning(i: int, c: Contradiction, numbers: dict[str, int], new_chapter_number: int) -> str:
     earlier = numbers.get(c.conflicting_chapter_id, "?")
+    names = (" The two facts were filed under DIFFERENT names: keep it only if the quotes show they are the "
+             "same character, place or object." if c.source == "safety net" else "")
     return (f'{i}: {c.entity} ({c.contradiction_type}). EARLIER (chapter {earlier}): value "{c.conflicting_value}", '
             f'quote "{c.conflicting_quote}". NEW (chapter {new_chapter_number}): value "{c.new_value}", '
-            f'quote "{c.new_quote}". Claimed problem: {c.explanation}')
+            f'quote "{c.new_quote}". Claimed problem: {c.explanation}{names}')
 
 
 def double_check(project_id: int, chapter_id: str, chapter_number: int,
@@ -579,14 +745,26 @@ def find_age_conflicts(project_id: int, chapter_id: str, chapter_number: int, fa
     """The story clock (see storyclock.py): age arithmetic done in code."""
     known = [(resolutions[f.entity.lower()].existing_entity_id, resolutions[f.entity.lower()].canonical_name, f, i)
              for i, f in enumerate(facts) if resolutions[f.entity.lower()].existing_entity_id is not None]
-    if not any(storyclock.parse_age(f.attribute, f.value) is not None for _, _, f, _ in known):
+    if not known:
         return []
-    return storyclock.check_ages(
-        chapter_id, chapter_number, known,
-        lambda entity_id: get_facts_for_entity_id(entity_id, exclude_chapter_id=chapter_id,
-                                                  before_chapter_number=chapter_number),
-        get_time_notes(project_id), time_note,
-    )
+    cache: dict[int, list[dict]] = {}
+
+    def earlier(entity_id):
+        if entity_id not in cache:
+            cache[entity_id] = get_facts_for_entity_id(entity_id, exclude_chapter_id=chapter_id,
+                                                       before_chapter_number=chapter_number)
+        return cache[entity_id]
+
+    found = []
+    if any(storyclock.parse_age(f.attribute, f.value) is not None for _, _, f, _ in known):
+        found += storyclock.check_ages(chapter_id, chapter_number, known, earlier, get_time_notes(project_id), time_note)
+    found += storyclock.check_weekdays(chapter_id, chapter_number, known, earlier, time_note)
+    found += storyclock.check_after_death(chapter_id, chapter_number, known, earlier, time_note)
+    # One story-clock warning per new fact.
+    unique: dict = {}
+    for c in found:
+        unique.setdefault(c.new_fact_index, c)
+    return list(unique.values())
 
 
 def check_chapter(project_id: int, chapter_id: str, chapter_number: int, facts: list[Fact],
@@ -606,15 +784,241 @@ def check_chapter(project_id: int, chapter_id: str, chapter_number: int, facts: 
         timings[name] = round(time.perf_counter() - started, 1)
         return value
 
-    found = stage("checking for mistakes", find_contradictions_for_chapter, project_id, chapter_id,
-                  chapter_number, facts, resolutions, time_note, embeddings)
+    # The checker and the safety net are independent AI work: run them at the same time.
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        safety = pool.submit(stage, "safety-net check", find_cross_card_contradictions, project_id, chapter_id,
+                             chapter_number, facts, resolutions, embeddings, [], time_note)
+        found = stage("checking for mistakes", find_contradictions_for_chapter, project_id, chapter_id,
+                      chapter_number, facts, resolutions, time_note, embeddings)
+        safety.result()                  # wait inside the block; errors surface here
     # The story clock adds only what the AI checker didn't already report for that fact.
     reported = {c.new_fact_index for c in found}
     found += [c for c in stage("story clock", find_age_conflicts, project_id, chapter_id, chapter_number,
                                facts, resolutions, time_note)
               if c.new_fact_index not in reported]
     # Safety net: conflicts hidden because the two facts are filed under different names.
-    found += stage("safety-net check", find_cross_card_contradictions, project_id, chapter_id, chapter_number,
-                   facts, resolutions, embeddings, found, time_note)
+    # (Started together with the checker above; joined here, keeping the checker's warning
+    # when both found the same new fact.)
+    found += _dedupe_against(safety.result(), found)
+    # Rules in code: drop what the checker itself doubts, set aside normal story changes.
+    found = set_aside_by_rule(found, time_note)
     # Double-check every warning; ones that fail are kept but marked dismissed, with the reason.
     return stage("double-checking", double_check, project_id, chapter_id, chapter_number, found, time_note)
+
+
+# ---------------------------------------------------------------------------
+# Rules in code, applied before the double-check (from the Oct 2026 evaluation reports)
+# ---------------------------------------------------------------------------
+# The checker's own explanation says there is no contradiction ("this is mathematically
+# consistent. However..."): low confidence -> dropped; otherwise set aside with the reason.
+_ADMITS_NONE = re.compile(
+    r"\b(no (real |genuine |actual |clear )?(contradiction|conflict|inconsistency)|"
+    r"not (a |an |actually a |really a |necessarily a )?(contradiction|inconsistency|conflict)|"
+    r"cannot (assert|confirm|establish|claim|determine)|can't (assert|confirm|establish)|"
+    r"(is|are|remains?|seems?|appears?) (mathematically |fully |entirely |perfectly |logically |still |therefore |actually )?consistent\b|"
+    r"does not contradict|doesn't contradict|do not contradict|don't contradict)", re.I)
+# The safety net's explanation says the two names are different people.
+_SAYS_DIFFERENT = re.compile(
+    r"\b((cannot|can't|could not|couldn't|can not) be the same|not the same (person|people|entity|character|thing|object|one)|"
+    r"(are|is) (two |a )?(different|separate|distinct) (people|persons|person|entities|entity|characters|character|objects|things)|"
+    r"different (people|persons|characters|individuals))\b", re.I)
+# Things that happen to someone or something as a story moves on, and don't undo themselves.
+_FORWARD = re.compile(
+    r"\b(dead|died|dies|killed|drowned|buried|perished|deceased|slain|shattered|smashed|broken|broke|"
+    r"pieces|cracked|crack|burned|burnt|ash|ashes|destroyed|sank|sunk|collapsed|ruined|lost|injured|"
+    r"wounded|scar|scarred|scars|blind|maimed|amputated|missing|torn|sold|gave|given)\b", re.I)
+_INJURY_OR_DAMAGE = re.compile(
+    r"\b(scar|scarred|scars|burn|burned|burnt|cut|wound|wounded|injur\w*|lost|missing|blind|broken|broke|"
+    r"shattered|cracked|dead|died|buried|destroyed|mended|repaired|healed)\b", re.I)
+
+
+# --- Ages: the story clock's job (13 Oct, run B on The Fallen King: 7 of 14 false alarms) ---
+# The checker kept pairing an age with something that isn't this character's age NOW:
+# "son_age | eight" vs "thirty-one", "until Tam is twenty-five", "at seventeen" vs "two years
+# younger than Aurel", "six years" (a duration) vs "six years old". Two clean current ages are
+# compared by the story clock with the chapter timing, so a checker/safety-net warning where
+# an age is involved is only kept when BOTH sides are clean current ages.
+_AGE_IN_VALUE = re.compile(r"\b(years?[- ]old|years? of age|aged \w+)\b", re.I)
+_AGE_VERB = r"(is|was|turned|turns|turning|at|aged|be|now)"
+
+
+def _mentions_age(attribute: str | None, value: str, quote: str) -> bool:
+    from extract import normalise_numbers
+    value_n = normalise_numbers(value or "").strip().lower()
+    if _AGE_IN_VALUE.search(value_n):
+        return True
+    if attribute and storyclock.AGE_ATTRIBUTE.search(attribute) and re.search(r"\d", value_n):
+        return True
+    number_only = re.fullmatch(r"(about |nearly |almost |only |just )?(\d{1,3})", value_n)
+    if number_only:
+        quote_n = normalise_numbers(quote or "").lower()
+        return bool(re.search(_AGE_VERB + r"\s+" + number_only.group(2) + r"\b", quote_n))
+    return False
+
+
+def _current_age(attribute: str | None, value: str, quote: str) -> int | None:
+    if not _mentions_age(attribute, value, quote):
+        return None                      # "six years" (how long something took) is not an age
+    attribute = attribute or ""
+    if attribute and storyclock._OTHER_PERSON.search(attribute.replace("_", " ")):
+        return None
+    if not storyclock.AGE_ATTRIBUTE.search(attribute):
+        attribute = "age"
+    return storyclock.parse_age(attribute, value, quote)
+
+
+def _age_mismatch(c: Contradiction) -> bool:
+    if not (_mentions_age(c.new_attribute, c.new_value, c.new_quote)
+            or _mentions_age(None, c.conflicting_value, c.conflicting_quote)):
+        return False
+    new_age = _current_age(c.new_attribute, c.new_value, c.new_quote)
+    if new_age is None:
+        return True
+    if _current_age(None, c.conflicting_value, c.conflicting_quote) is not None:
+        return False
+    # The earlier side is a bare number ("ten") under an age the new side clearly states: an age too,
+    # unless its own quote says it isn't one now ("until he is ten").
+    from extract import normalise_numbers
+    bare = re.fullmatch(r"\s*(about |nearly |almost )?\d{1,3}\s*", normalise_numbers(c.conflicting_value or ""))
+    return not (bare and storyclock.parse_age("age", c.conflicting_value, c.conflicting_quote) is not None)
+
+
+# --- Family ties (run B: 2 false alarms) ---
+_TIE = re.compile(r"^\s*(?:the\s+|a\s+|an\s+)?(?P<kind>[a-z][a-z' -]*?)\s+(?:of|to|with)\s+(?P<target>.+?)\s*$", re.I)
+_TIE_GROUPS = [
+    ("parent", re.compile(r"\b(parent|father|mother|stepfather|stepmother|mum|mom|dad)\b", re.I)),
+    ("child", re.compile(r"\b(child|son|daughter|stepson|stepdaughter|heir)\b", re.I)),
+    ("spouse", re.compile(r"\b(married|wife|husband|spouse|consort|widow|widower|betrothed)\b", re.I)),
+    ("sibling", re.compile(r"\b(sibling|brother|sister|twin)\b", re.I)),
+    ("cousin", re.compile(r"\b(cousin)\b", re.I)),
+]
+
+
+def _tie(value: str):
+    m = _TIE.match(value or "")
+    if not m:
+        return None
+    kind = next((name for name, pattern in _TIE_GROUPS if pattern.search(m.group("kind"))), None)
+    return (kind, _name_words(m.group("target")) or {m.group("target").lower()}) if kind else None
+
+
+def _family_compatible(c: Contradiction) -> str | None:
+    """Two family ties that can both be true, or a parent/child tie recorded the wrong way round."""
+    if not _FAMILY_ATTRIBUTE.search(c.new_attribute or ""):
+        return None
+    new, old = _tie(c.new_value), _tie(c.conflicting_value)
+    if not new or not old:
+        return None
+    same_target = bool(new[1] & old[1])
+    if not same_target and new[0] != old[0]:
+        return ("Set aside: two different family ties to two different people can both be true "
+                f"('{c.new_value}' and '{c.conflicting_value}').")
+    if same_target and {new[0], old[0]} == {"parent", "child"}:
+        return ("Set aside: a parent/child tie recorded the other way round; the reader sometimes "
+                "files these backwards, so it isn't reported as a mistake.")
+    return None
+
+
+# --- "Alive" only contradicts a death (run B: "poles a ferry" vs "alive") ---
+_ALIVE_ONLY = re.compile(r"^\s*(still\s+)?(alive|living|lives|survived|survives|survivor)\s*\.?\s*$", re.I)
+_DEATH_WORD = re.compile(r"\b(dead|died|dies|death|killed|drowned|buried|perished|deceased|slain|grave|ghost)\b", re.I)
+
+
+def _alive_without_death(c: Contradiction) -> bool:
+    for this, other in ((c.new_value, c.conflicting_value), (c.conflicting_value, c.new_value)):
+        if _ALIVE_ONLY.match(this or "") and not _DEATH_WORD.search(other or ""):
+            return True
+    return False
+
+
+# --- Growing up and growing old (run B: "grey colt" in a flashback; decoy D4 "white muzzle") ---
+_YOUNG_ANIMAL = re.compile(r"\b(colt|foal|filly|pup|puppy|whelp|kitten|calf|cub|lamb|fawn|chick|duckling|cygnet)\b", re.I)
+_GROWN_ANIMAL = re.compile(r"\b(stallion|mare|horse|gelding|steed|dog|hound|cat|bull|cow|ox|bear|wolf|"
+                           r"ram|ewe|sheep|deer|stag|doe|hen|rooster|duck|swan)\b", re.I)
+_COLOUR = re.compile(r"\b(red|blue|green|grey|gray|black|white|brown|golden|gold|silver|chestnut|auburn|roan|piebald|dappled)\b", re.I)
+_AGEING = re.compile(r"\b(muzzle|temples|greying|graying|grizzled|silvered|white-muzzled|grey-muzzled|"
+                     r"(grown|turned|gone|going|turning) (white|grey|gray|silver|hoary))\b", re.I)
+
+
+def _colours(text: str) -> set[str]:
+    return {w.lower().replace("gray", "grey") for w in _COLOUR.findall(text or "")}
+
+
+def _growing(c: Contradiction, flashback: bool) -> str | None:
+    new, old = c.new_value or "", c.conflicting_value or ""
+    new_colours, old_colours = _colours(new), _colours(old)
+    colours_agree = not new_colours or not old_colours or new_colours == old_colours
+    # The young animal must be EARLIER in story time: the earlier chapter, or this chapter if it's a flashback.
+    young_earlier = (_YOUNG_ANIMAL.search(old) and _GROWN_ANIMAL.search(new) and not _YOUNG_ANIMAL.search(new)
+                     and not flashback)
+    young_now_flashback = (flashback and _YOUNG_ANIMAL.search(new) and _GROWN_ANIMAL.search(old)
+                           and not _YOUNG_ANIMAL.search(old))
+    if (young_earlier or young_now_flashback) and colours_agree:
+        return "Set aside: a young animal grown up (or seen young in a flashback), not a different animal."
+    if not flashback and _AGEING.search(new) and not _AGEING.search(old):
+        return (f"Set aside: '{_AGEING.search(new).group(0)}' is ageing, the story moving forward, "
+                "not a change of colour.")
+    return None
+
+
+def _dedupe_against(new_ones: list[Contradiction], found: list[Contradiction]) -> list[Contradiction]:
+    """Safety-net warnings for a new fact (or a pair of quotes) another check already reported are dropped."""
+    pairs = {(c.new_quote, c.conflicting_quote) for c in found}
+    keys = {(c.new_quote, c.new_attribute.lower(), c.new_value.lower()) for c in found}
+    return [c for c in new_ones if (c.new_quote, c.conflicting_quote) not in pairs
+            and (c.new_quote, c.new_attribute.lower(), c.new_value.lower()) not in keys]
+
+
+def set_aside_by_rule(contradictions: list[Contradiction], time_note: str | None) -> list[Contradiction]:
+    """
+    Before the AI double-check, rules that need no AI:
+    - the checker's explanation admits there's no contradiction: dropped if it was unsure
+      (confidence < 0.5), otherwise set aside, with the reason;
+    - a flashback showing someone BEFORE an injury or loss the earlier chapter describes
+      ("palms unmarked" twelve years before "a pale scar"): set aside;
+    - an age paired with something that isn't this character's age now (left to the story clock);
+    - two family ties that can both be true, or a parent/child tie the wrong way round;
+    - "alive" against anything but a death;
+    - a young animal grown up, or hair/coat greying with age;
+    - the story moving forward: the new side is a death, breakage, injury or loss and the
+      earlier side mentions nothing of the kind (alive -> buried; whole -> in pieces). Only the
+      reverse is a mistake, and "scar on the right palm" vs "scar on the left palm" (both
+      sides scarred) or "mended" vs "still cracked" (the earlier side mentions breaking) stay.
+    Story-clock warnings are arithmetic and are never set aside here.
+    """
+    flashback = (time_note or "").lower().startswith("flashback")
+    kept = []
+    for c in contradictions:
+        if c.source == "story clock" or c.status != "open":
+            kept.append(c)
+            continue
+        family = _family_compatible(c)
+        growing = _growing(c, flashback)
+        if _ADMITS_NONE.search(c.explanation or ""):
+            if c.confidence < 0.5:
+                continue
+            c.status, c.review_note = "dismissed", "Set aside: the warning's own explanation says the two facts are consistent."
+        elif _age_mismatch(c):
+            c.status, c.review_note = "dismissed", (
+                "Set aside: ages are compared by the story clock, which does the arithmetic with the chapter "
+                "timing; here one side isn't this character's age now (someone else's age, a past or future "
+                "age, a relative age, or a length of time).")
+        elif family:
+            c.status, c.review_note = "dismissed", family
+        elif _alive_without_death(c):
+            c.status, c.review_note = "dismissed", ("Set aside: being alive only conflicts with a death, and the "
+                                                    "other fact doesn't mention one.")
+        elif growing:
+            c.status, c.review_note = "dismissed", growing
+        elif flashback and _INJURY_OR_DAMAGE.search(c.conflicting_value or ""):
+            word = _INJURY_OR_DAMAGE.search(c.conflicting_value).group(0).lower()
+            c.status, c.review_note = "dismissed", (f"Set aside: this chapter is a flashback, set before the "
+                                                    f"earlier chapter's '{word}'.")
+        else:
+            forward = _FORWARD.search(c.new_value or "")
+            if forward and not _FORWARD.search(c.conflicting_value or "") and not _INJURY_OR_DAMAGE.search(c.conflicting_value or ""):
+                c.status, c.review_note = "dismissed", (
+                    f"Set aside: the story moving forward (something that existed earlier in story time has "
+                    f"'{forward.group(0).lower()}' later). Only the reverse would be a mistake.")
+        kept.append(c)
+    return kept
