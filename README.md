@@ -685,6 +685,28 @@ also returns `opening`), `backend/models.py` (source `"trait check"`), `frontend
 `eval/stage_eval.py`, `backend/tests/test_storytime.py`, `backend/tests/test_traits.py`,
 `backend/tests/conftest.py`, `backend/tests/test_speed_and_evidence.py`.
 
+### 19. Lasting states in code, two warning levels, safety net off (16 October 2026, evening)
+
+**What the 16 Oct baseline showed** (Fallen King, Lightning judge): every real catch came from the
+checks done in code (5, 0 false alarms); every false alarm came from the AI checker (6) and the
+safety net (6), which caught nothing and took ~7 of the 35 minutes.
+
+1. **`backend/states.py`**: objects followed by name through every fact of the book: *gone*
+   ("threw the brass key into the sea", "burned to ash") then used; *given away* ("took the signet
+   ring off his finger and pushed it across") then worn by the giver again (a hand-back clears it).
+   Abilities: *blind* then reading/writing; *lost the left hand* then using it or both hands.
+   Memories and flashbacks never count. Runs in the "trait check" stage.
+2. **"elder sister of Aurel"** is linked to Aurel's only known sibling (Mira) in the trait check.
+3. **Two levels on the website:** "Confirmed" (story clock, trait check: done in code) and
+   "Worth a look" (the AI). Code checks now run first and win when both flag the same fact.
+   `run_eval.py` reports precision/recall/F1 for each level.
+4. **Safety net off by default** (`SAFETY_NET=on` to turn it back on; the tests do).
+5. Answer key: Fallen King T1 also accepts Aurel's chapter 2 age as the earlier side (same mistake).
+
+**Measured** (`stage_eval.py`, saved readings, answer-key linking, code checks only, 0 false alarms):
+Fallen King 5 → **8**/11, Glassmaker 4 → **5**/13, Lighthouse 3 → **5**/12 (**18/36** in total).
+Re-scored, the 16 Oct run's "Confirmed" level was precision 100%, recall 45%, F1 0.62.
+
 ## 🚧 What's left
 
 0. **The held-out test:** `cd eval`, `python analyze_without_ai.py --story fallenking` (free),

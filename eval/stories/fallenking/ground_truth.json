@@ -190,14 +190,16 @@
         "king",
         "ferryman"
       ],
-      "description": "Aurel is 35 (ch4); four months later he turns thirty-eight (ch7).",
+      "description": "Aurel is 35 (ch4); four months later he turns thirty-eight (ch7). (His age of 33 in ch2 gives the same contradiction, so either earlier age counts.)",
       "new_keywords": [
         "thirty-eight",
         "38"
       ],
       "old_keywords": [
         "thirty-five",
-        "35"
+        "35",
+        "thirty-three",
+        "33"
       ]
     },
     {

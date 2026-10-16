@@ -875,6 +875,36 @@ def get_facts_mentioning_names(project_id: int, names: list[str], exclude_chapte
                            before_chapter_number)
 
 
+def get_facts_mentioning_words(project_id: int, words: list[str], exclude_chapter_id: str | None = None,
+                               before_chapter_number: int | None = None, limit: int = 400) -> list[dict]:
+    """
+    Every earlier fact in this book whose value or quote contains one of these words (e.g. "ring",
+    "key"), whatever entry it is filed under, in reading order. Unlike get_facts_mentioning_names
+    this keeps passing facts too ("turned the ring on his finger"): states.py follows objects
+    from hand to hand through them.
+    """
+    patterns = [r"\m" + re.escape(w) + r"s?\M" for w in words if len(w) >= 3]
+    if not patterns:
+        return []
+    with db() as conn, _dict_cursor(conn) as cur:
+        cur.execute(
+            f"""
+            SELECT {_FACT_COLUMNS}, f.entity_id
+            FROM facts f
+            {_CHAPTER_JOIN}
+            WHERE f.project_id = %s
+              AND (%s::text IS NULL OR f.chapter_id <> %s)
+              AND (%s::int IS NULL OR c.chapter_number < %s)
+              AND (f.value ~* ANY(%s) OR f.source_quote ~* ANY(%s))
+            ORDER BY c.chapter_number, f.id
+            LIMIT %s
+            """,
+            (project_id, exclude_chapter_id, exclude_chapter_id, before_chapter_number, before_chapter_number,
+             patterns, patterns, limit),
+        )
+        return cur.fetchall()
+
+
 def get_similar_earlier_facts(project_id: int, vectors: list[list[float]], exclude_chapter_id: str,
                               before_chapter_number: int, top_k: int = 3) -> list[list[dict]]:
     """

@@ -172,6 +172,7 @@ textarea { font: 300 1rem/1.75 var(--body); min-height: 15rem; resize: vertical;
 .tag.low { background: var(--rule-soft); color: var(--graphite); }
 .tag.plain { background: var(--rule-soft); color: var(--ink); font-weight: 400; }
 .tag.canon { background: var(--pencil-wash); color: var(--pencil); }
+.tag.confirmed { background: var(--green-wash); color: var(--green); }
 
 /* ---------- progress ---------- */
 .progress { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 1rem 1.1rem; margin: 1rem 0; }

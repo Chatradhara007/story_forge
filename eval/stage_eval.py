@@ -48,6 +48,7 @@ from models import Fact                     # noqa: E402
 import storyclock                           # noqa: E402
 import storytime                            # noqa: E402
 import traits                               # noqa: E402
+import states                               # noqa: E402
 from entities import _name_rule_match, _title_surname_match   # noqa: E402
 try:
     from extract import timing_from_opening   # noqa: E402  (the pipeline's own opening-words timing)
@@ -156,6 +157,11 @@ def replay(story: str, linking: str, reading_path: Path | None = None) -> dict:
             if hasattr(storyclock, extra):
                 found += getattr(storyclock, extra)(chapter_id, number, known, earlier_facts_for, note)
         found += traits.check_traits(chapter_id, number, new, earlier_facts_for, linker.find)
+        placed = storytime.chapter_positions(time_notes + [{"chapter_id": chapter_id, "chapter_number": number,
+                                                            "time_note": note, "opening": texts[chapter_id][:600]}])
+        flashbacks = {n for n, p in placed.items() if p.flashback}
+        object_facts = [f for f in stored if states.object_mentions(f"{f['value']} {f['source_quote']}")]
+        found += states.check_states(chapter_id, number, new, object_facts, earlier_facts_for, linker.find, flashbacks)
         one_per_fact = {}
         for c in found:
             one_per_fact.setdefault(c.new_fact_index, c)
@@ -164,6 +170,7 @@ def replay(story: str, linking: str, reading_path: Path | None = None) -> dict:
         for entity_id, canonical, fact, index in new:
             stored.append({"fact_id": len(stored) + 1, "chapter_id": chapter_id, "chapter_number": number,
                            "entity_id": entity_id, "canonical_name": canonical, "entity": fact.entity,
+                           "entity_type": fact.entity_type,
                            "attribute": fact.attribute, "value": fact.value, "source_quote": fact.source_quote})
         time_notes.append({"chapter_id": chapter_id, "chapter_number": number, "time_note": note,
                            "opening": texts[chapter_id][:600]})

@@ -4,12 +4,13 @@ import time
 from collections import defaultdict
 from models import Fact, Contradiction
 import relationships as rel_rules
-from storage import (get_time_notes, find_entities_by_alias, get_facts_for_entity_id, get_entity_evidence, get_facts_mentioning_entity,
+from storage import (get_time_notes, find_entities_by_alias, get_facts_mentioning_words, get_facts_for_entity_id, get_entity_evidence, get_facts_mentioning_entity,
                      get_facts_mentioning_names, get_similar_earlier_facts)
 from llm import call_tool, run_in_parallel, JUDGING_THINKING_MODE, AIServiceError, ContextTooLongError
 import storyclock
 import storytime
 import traits
+import states
 from concurrent.futures import ThreadPoolExecutor
 
 VALID_TYPES = {"attribute", "status", "timeline"}
@@ -790,6 +791,10 @@ def find_age_conflicts(project_id: int, chapter_id: str, chapter_number: int, fa
 # Fixed-trait checks in code (traits.py). On by default; TRAIT_CHECKS=off turns them off
 # (the older automated tests use eye colour as their example of an AI-checker warning).
 TRAIT_CHECKS = os.getenv("TRAIT_CHECKS", "on").strip().lower() not in ("off", "false", "0", "no")
+# The safety net (AI comparisons across different entries) is OFF by default: on the free models it
+# raised half of all false alarms and caught nothing on The Fallen King (16 Oct 2026), and took ~7 of
+# the 35 minutes. SAFETY_NET=on turns it back on (e.g. with a stronger paid judge).
+SAFETY_NET = os.getenv("SAFETY_NET", "off").strip().lower() in ("on", "true", "1", "yes")
 
 
 def find_trait_conflicts(project_id: int, chapter_id: str, chapter_number: int, facts: list[Fact],
@@ -817,6 +822,51 @@ def find_trait_conflicts(project_id: int, chapter_id: str, chapter_number: int, 
     return traits.check_traits(chapter_id, chapter_number, new_facts, earlier, find_entity)
 
 
+def find_code_conflicts(project_id: int, chapter_id: str, chapter_number: int, facts: list[Fact],
+                        resolutions: dict, time_note: str | None = None, text: str | None = None) -> list[Contradiction]:
+    """Fixed traits (traits.py) and lasting states of objects and abilities (states.py), all in code."""
+    if not TRAIT_CHECKS:
+        return []
+    found = find_trait_conflicts(project_id, chapter_id, chapter_number, facts, resolutions)
+    reported = {c.new_fact_index for c in found}
+    found += [c for c in find_state_conflicts(project_id, chapter_id, chapter_number, facts, resolutions, time_note, text)
+              if c.new_fact_index not in reported]
+    return found
+
+
+def find_state_conflicts(project_id: int, chapter_id: str, chapter_number: int, facts: list[Fact],
+                         resolutions: dict, time_note: str | None = None, text: str | None = None) -> list[Contradiction]:
+    """Objects given away or destroyed and then used; abilities lost and then used (states.py)."""
+    new_facts = [(resolutions[f.entity.lower()].existing_entity_id, resolutions[f.entity.lower()].canonical_name, f, i)
+                 for i, f in enumerate(facts)]
+    notes = get_time_notes(project_id)
+    saved = [c for c in notes if c["chapter_id"] != chapter_id]
+    if text is None:
+        text = next((c.get("opening") for c in notes if c["chapter_id"] == chapter_id), None)
+    placed = storytime.chapter_positions(saved + [{"chapter_id": chapter_id, "chapter_number": chapter_number,
+                                                   "time_note": time_note, "opening": (text or "")[:600]}])
+    flashbacks = {n for n, p in placed.items() if p.flashback}
+    nouns = sorted({noun for f in facts for noun, _ in states.object_mentions(f"{f.value} {f.source_quote}")})
+    object_facts = (get_facts_mentioning_words(project_id, nouns, exclude_chapter_id=chapter_id,
+                                               before_chapter_number=chapter_number) if nouns else [])
+    lookups: dict[str, int | None] = {}
+
+    def find_entity(name: str) -> int | None:
+        key = name.lower().strip()
+        if key in resolutions and resolutions[key].existing_entity_id is not None:
+            return resolutions[key].existing_entity_id
+        if key not in lookups:
+            found = find_entities_by_alias(project_id, [key])
+            lookups[key] = found[key][0] if key in found else None
+        return lookups[key]
+
+    def earlier(entity_id):
+        return [{**f, "entity_id": entity_id} for f in
+                get_facts_for_entity_id(entity_id, exclude_chapter_id=chapter_id, before_chapter_number=chapter_number)]
+
+    return states.check_states(chapter_id, chapter_number, new_facts, object_facts, earlier, find_entity, flashbacks)
+
+
 def check_chapter(project_id: int, chapter_id: str, chapter_number: int, facts: list[Fact],
                   resolutions: dict, embeddings: list[list[float]], time_note: str | None,
                   timings: dict | None = None, progress=None, text: str | None = None) -> list[Contradiction]:
@@ -834,26 +884,27 @@ def check_chapter(project_id: int, chapter_id: str, chapter_number: int, facts: 
         timings[name] = round(time.perf_counter() - started, 1)
         return value
 
-    # The checker and the safety net are independent AI work: run them at the same time.
-    with ThreadPoolExecutor(max_workers=1) as pool:
-        safety = pool.submit(stage, "safety-net check", find_cross_card_contradictions, project_id, chapter_id,
-                             chapter_number, facts, resolutions, embeddings, [], time_note)
-        found = stage("checking for mistakes", find_contradictions_for_chapter, project_id, chapter_id,
-                      chapter_number, facts, resolutions, time_note, embeddings)
-        safety.result()                  # wait inside the block; errors surface here
-    # The story clock adds only what the AI checker didn't already report for that fact.
+    # Checks done in code come first: they are exact ("Confirmed" on the website), so for a
+    # fact they report, an AI warning about the same fact is dropped rather than the other way round.
+    found = stage("story clock", find_age_conflicts, project_id, chapter_id, chapter_number,
+                  facts, resolutions, time_note, text)
     reported = {c.new_fact_index for c in found}
-    found += [c for c in stage("story clock", find_age_conflicts, project_id, chapter_id, chapter_number,
+    found += [c for c in stage("trait check", find_code_conflicts, project_id, chapter_id, chapter_number,
                                facts, resolutions, time_note, text)
               if c.new_fact_index not in reported]
     reported = {c.new_fact_index for c in found}
-    found += [c for c in stage("trait check", find_trait_conflicts, project_id, chapter_id, chapter_number,
-                               facts, resolutions)
-              if c.new_fact_index not in reported]
+    # The AI checker (and the optional safety net) run at the same time; their warnings are
+    # "Worth a look" on the website.
+    with ThreadPoolExecutor(max_workers=1) as pool:
+        safety = (pool.submit(stage, "safety-net check", find_cross_card_contradictions, project_id, chapter_id,
+                              chapter_number, facts, resolutions, embeddings, [], time_note)
+                  if SAFETY_NET else None)
+        checked = stage("checking for mistakes", find_contradictions_for_chapter, project_id, chapter_id,
+                        chapter_number, facts, resolutions, time_note, embeddings)
+        cross = safety.result() if safety else []        # wait inside the block; errors surface here
+    found += [c for c in checked if c.new_fact_index not in reported]
     # Safety net: conflicts hidden because the two facts are filed under different names.
-    # (Started together with the checker above; joined here, keeping the checker's warning
-    # when both found the same new fact.)
-    found += _dedupe_against(safety.result(), found)
+    found += _dedupe_against(cross, found)
     # Rules in code: drop what the checker itself doubts, set aside normal story changes.
     found = set_aside_by_rule(found, time_note)
     # Double-check every warning; ones that fail are kept but marked dismissed, with the reason.

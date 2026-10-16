@@ -134,7 +134,20 @@ def score(flags: list[dict], truth: dict) -> dict:
     check_by_hand = sorted({p["id"] for p in planted if p["id"] in missed_ids for r in rows
                             if r["verdict"] == "false alarm"
                             and _matches(r["flag"], {**p, "old_keywords": []})})
+    # The two levels shown on the website: "Confirmed" (checks done in code) and "Worth a look" (the AI).
+    code_sources = {"story clock", "trait check"}
+    levels = {}
+    for level, is_code in (("Confirmed (code)", True), ("Worth a look (AI)", False)):
+        mine = [r for r in rows if (r["flag"].get("source") in code_sources) == is_code]
+        l_tp = sum(r["verdict"] == "correct" for r in mine)
+        l_fp = sum(r["verdict"] == "false alarm" for r in mine)
+        l_p = l_tp / (l_tp + l_fp) if l_tp + l_fp else 0.0
+        l_r = l_tp / len(planted) if planted else 0.0
+        levels[level] = {"correct": l_tp, "false_alarms": l_fp, "precision": l_p, "recall": l_r,
+                         "f1": 2 * l_p * l_r / (l_p + l_r) if l_p + l_r else 0.0}
+
     return {
+        "levels": levels,
         "check_by_hand": check_by_hand,
         "precision": precision, "recall": recall, "f1": f1,
         "correct": tp, "false_alarms": fp,
@@ -250,6 +263,13 @@ def markdown_report(s: dict, link: dict, meta: dict) -> str:
         "|---|---|---|---|---|---|---|",
         f"| {pct(s['precision'])} | {pct(s['recall'])} | {s['f1']:.2f} | {s['correct']} / {s['correct'] + len(s['missed'])} | "
         f"{s['false_alarms']} | {s['duplicates']} | {pct(s['type_label_accuracy'])} |",
+        "",
+        "By level (as shown on the website):",
+        "",
+        "| Level | Precision | Recall | F1 | Correct | False alarms |",
+        "|---|---|---|---|---|---|",
+        *[f"| {name} | {pct(v['precision'])} | {pct(v['recall'])} | {v['f1']:.2f} | {v['correct']} | {v['false_alarms']} |"
+          for name, v in s.get("levels", {}).items()],
         "",
         "| Type | Planted | Caught | Recall |",
         "|---|---|---|---|",
@@ -506,6 +526,9 @@ def evaluate(args, story_dir, truth, storage, app_main, readings, judge, stamp=N
         print(f"{prefix}Precision {pct(sc['precision'])}   Recall {pct(sc['recall'])}   F1 {sc['f1']:.2f}   "
               f"False alarms {sc['false_alarms']}   Time {r['seconds']:.0f}s   "
               f"AI requests {r.get('requests', 0) - r.get('refused', 0)} accepted, {r.get('refused', 0)} refused")
+        for level, v in sc.get("levels", {}).items():
+            print(f"{' ' * len(prefix)}  {level}: precision {pct(v['precision'])}, recall {pct(v['recall'])}, "
+                  f"F1 {v['f1']:.2f} ({v['correct']} correct, {v['false_alarms']} false alarms)")
         dc = sc.get("double_check", {})
         print(f"{' ' * len(prefix)}Double-check removed {dc.get('removed', 0)} warnings: "
               f"{dc.get('false_alarms_removed', 0)} false alarms, "

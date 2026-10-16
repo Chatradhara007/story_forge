@@ -25,6 +25,9 @@ os.environ["NVIDIA_API_KEY"] = "fake-key-for-tests"
 os.environ["JOBS_INLINE"] = "true"          # background jobs run at once, so tests see their results
 os.environ.setdefault("AUTH_REQUIRED", "false")
 os.environ.setdefault("TRAIT_CHECKS", "off")   # most tests use eye colour as their AI-checker example; test_traits.py tests the rules directly
+# The tests are written for the default judging setting; a deployment .env may say "off".
+os.environ["CHAT_THINKING_JUDGING"] = "low"
+os.environ.setdefault("SAFETY_NET", "on")      # the tests cover the safety net; it is off by default in the app
 
 
 def _database_available() -> bool:

@@ -302,6 +302,36 @@ def _say(kind: str, key: tuple, value, names: dict) -> str:
     return str(value)
 
 
+_KIN_DESCRIPTION = re.compile(r"^(?:(?:the|his|her|my|their)\s+)?(?:elder|older|eldest|oldest|younger|youngest|little|big|"
+                              r"baby|twin)?\s*(sister|brother|sibling) of (.+)$", re.I)
+
+
+def _with_kin_descriptions(find_entity, earlier_facts_for, new_facts):
+    """
+    "elder sister of Aurel" is the Reader's name for someone the story already introduced: if
+    Aurel has exactly one known sibling, it is them (Mira). Otherwise the description stays its own entry.
+    """
+    def resolve(name: str):
+        entity_id = find_entity(name)
+        m = _KIN_DESCRIPTION.match((name or "").strip())
+        if not m:
+            return entity_id
+        of = find_entity(m.group(2).strip())
+        if of is None:
+            return entity_id
+        siblings = set()
+        for f in earlier_facts_for(of):
+            value = (f.get("value") or "").strip()
+            if (f.get("attribute") or "").lower().startswith("relation") and value.lower().startswith("sibling of "):
+                other = value[len("sibling of "):].strip()
+                if not _KIN_DESCRIPTION.match(other):
+                    sibling = find_entity(other)
+                    if sibling is not None and sibling != of:
+                        siblings.add(sibling)
+        return siblings.pop() if len(siblings) == 1 else entity_id
+    return resolve
+
+
 def check_traits(
     chapter_id: str,
     chapter_number: int,
@@ -315,6 +345,7 @@ def check_traits(
       entity_id, entity, attribute, value, source_quote, chapter_id, chapter_number, fact_id).
     find_entity(name) -> entity id for a name, or None.
     """
+    find_entity = _with_kin_descriptions(find_entity, earlier_facts_for, new_facts)
     names = {}
     for entity_id, canonical, _, _ in new_facts:
         if entity_id is not None:
