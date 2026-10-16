@@ -589,18 +589,20 @@ def check_ages(
         clashing = [(f, age, where) for f, age, where in earlier
                     if not _overlap(birth_span(age, where.span), new_birth)]
         old_fact, old_age, old_where = (clashing or earlier)[-1]       # the closest earlier chapter
+        # The age the timing points to: the old age plus the shortest / longest time that can
+        # have passed (whole years, as people say them; the check above already allowed for birthdays).
         o, n = old_where.span, here.span
-        low = math.floor(old_age + n.lo - o.hi + 1e-9)
+        low = max(0, math.floor(old_age + n.lo - o.hi + 1e-9))
         if math.isinf(n.hi):
-            expectation = f"at least about {max(0, low)}"
+            expectation = f"at least about {low}"
         else:
-            high = math.ceil(old_age + n.hi - o.lo - 1e-9)
-            if high - low <= 1:
-                expectation = f"about {round(old_age + ((n.lo + n.hi) - (o.lo + o.hi)) / 2)}"
+            high = math.floor(old_age + n.hi - o.lo + 1e-9)
+            if high == low:
+                expectation = f"about {low}"
             elif new_age > high:
                 expectation = f"at most about {high}"
             else:
-                expectation = f"at least about {max(0, low)}"
+                expectation = f"at least about {low}"
         exact = here.source in ("opening", "first chapter") and old_where.source in ("opening", "first chapter")
         gap = (f"chapter {old_fact['chapter_number']} is set {describe(old_where)} and chapter "
                f"{chapter_number} {describe(here)}")
