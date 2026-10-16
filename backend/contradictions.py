@@ -795,6 +795,9 @@ TRAIT_CHECKS = os.getenv("TRAIT_CHECKS", "on").strip().lower() not in ("off", "f
 # raised half of all false alarms and caught nothing on The Fallen King (16 Oct 2026), and took ~7 of
 # the 35 minutes. SAFETY_NET=on turns it back on (e.g. with a stronger paid judge).
 SAFETY_NET = os.getenv("SAFETY_NET", "off").strip().lower() in ("on", "true", "1", "yes")
+# The AI checker. CHECKER=off leaves only the checks done in code ("Confirmed"): far fewer AI
+# requests per chapter. Compare both with eval/sweep.py before choosing.
+CHECKER = os.getenv("CHECKER", "on").strip().lower() not in ("off", "false", "0", "no")
 
 
 def find_trait_conflicts(project_id: int, chapter_id: str, chapter_number: int, facts: list[Fact],
@@ -899,8 +902,8 @@ def check_chapter(project_id: int, chapter_id: str, chapter_number: int, facts: 
         safety = (pool.submit(stage, "safety-net check", find_cross_card_contradictions, project_id, chapter_id,
                               chapter_number, facts, resolutions, embeddings, [], time_note)
                   if SAFETY_NET else None)
-        checked = stage("checking for mistakes", find_contradictions_for_chapter, project_id, chapter_id,
-                        chapter_number, facts, resolutions, time_note, embeddings)
+        checked = (stage("checking for mistakes", find_contradictions_for_chapter, project_id, chapter_id,
+                         chapter_number, facts, resolutions, time_note, embeddings) if CHECKER else [])
         cross = safety.result() if safety else []        # wait inside the block; errors surface here
     found += [c for c in checked if c.new_fact_index not in reported]
     # Safety net: conflicts hidden because the two facts are filed under different names.
