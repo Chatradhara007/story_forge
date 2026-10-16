@@ -23,6 +23,7 @@ STAGE_PROGRESS = {
     "preparing search": 0.62,
     "checking for mistakes": 0.68,
     "story clock": 0.80,
+    "trait check": 0.81,
     "safety-net check": 0.82,
     "double-checking": 0.90,
     "saving": 0.97,
@@ -77,7 +78,7 @@ def ingest(project_id: int, chapter_id: str, text: str, chapter_number: int | No
     resolutions = timed("linking names", resolve_entities, project_id, result.facts)
     embeddings = timed("preparing search", storage.embed_facts, result.facts)
     contradictions = check_chapter(project_id, chapter_id, chapter_number, result.facts, resolutions,
-                                   embeddings, time_note, timings, progress=lambda stage: progress(stage))
+                                   embeddings, time_note, timings, progress=lambda stage: progress(stage), text=text)
     saved = timed(
         "saving", storage.save_chapter_results,
         project_id, chapter_id, chapter_number, text,

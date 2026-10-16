@@ -1,12 +1,15 @@
+import os
 import re
 import time
 from collections import defaultdict
 from models import Fact, Contradiction
 import relationships as rel_rules
-from storage import (get_time_notes, get_facts_for_entity_id, get_entity_evidence, get_facts_mentioning_entity,
+from storage import (get_time_notes, find_entities_by_alias, get_facts_for_entity_id, get_entity_evidence, get_facts_mentioning_entity,
                      get_facts_mentioning_names, get_similar_earlier_facts)
 from llm import call_tool, run_in_parallel, JUDGING_THINKING_MODE, AIServiceError, ContextTooLongError
 import storyclock
+import storytime
+import traits
 from concurrent.futures import ThreadPoolExecutor
 
 VALID_TYPES = {"attribute", "status", "timeline"}
@@ -153,10 +156,26 @@ def _mean_vector(vectors: list[list[float]]) -> list[float] | None:
 
 
 def timing_text(project_id: int, chapter_id: str, chapter_number: int, time_note: str | None) -> str:
-    """The CHAPTER TIMING block: saved chapters' notes plus the chapter being checked."""
-    lines = [f"chapter {c['chapter_number']}: {c['time_note'] or 'not recorded'}"
-             for c in get_time_notes(project_id) if c["chapter_id"] != chapter_id]
-    lines.append(f"chapter {chapter_number} (the NEW chapter): {time_note or 'not recorded'}")
+    """
+    The CHAPTER TIMING block: saved chapters' notes plus the chapter being checked, each with
+    where the story clock places it ("between 3 and 4 years after chapter 1 begins"), worked
+    out in code (storytime.py), so the AI doesn't have to add time up.
+    """
+    notes = get_time_notes(project_id)
+    saved = [c for c in notes if c["chapter_id"] != chapter_id]
+    this_opening = next((c.get("opening") for c in notes if c["chapter_id"] == chapter_id), None)
+    try:
+        placed = storytime.timeline_lines(saved, chapter_number, time_note, this_opening)
+    except Exception as error:                    # the timing block must never stop a check
+        print(f"  [note] story clock could not place the chapters: {error}", flush=True)
+        placed = {}
+
+    def line(number, note, label=""):
+        where = f" [story clock: {placed[number]}]" if number in placed else ""
+        return f"chapter {number}{label}: {note or 'not recorded'}{where}"
+
+    lines = [line(c["chapter_number"], c["time_note"]) for c in saved]
+    lines.append(line(chapter_number, time_note, " (the NEW chapter)"))
     return "\n".join(lines)
 
 
@@ -741,7 +760,7 @@ def double_check(project_id: int, chapter_id: str, chapter_number: int,
 # The whole check for one chapter (used when adding a chapter AND when re-checking)
 # ---------------------------------------------------------------------------
 def find_age_conflicts(project_id: int, chapter_id: str, chapter_number: int, facts: list[Fact],
-                       resolutions: dict, time_note: str | None) -> list[Contradiction]:
+                       resolutions: dict, time_note: str | None, text: str | None = None) -> list[Contradiction]:
     """The story clock (see storyclock.py): age arithmetic done in code."""
     known = [(resolutions[f.entity.lower()].existing_entity_id, resolutions[f.entity.lower()].canonical_name, f, i)
              for i, f in enumerate(facts) if resolutions[f.entity.lower()].existing_entity_id is not None]
@@ -757,7 +776,8 @@ def find_age_conflicts(project_id: int, chapter_id: str, chapter_number: int, fa
 
     found = []
     if any(storyclock.parse_age(f.attribute, f.value) is not None for _, _, f, _ in known):
-        found += storyclock.check_ages(chapter_id, chapter_number, known, earlier, get_time_notes(project_id), time_note)
+        found += storyclock.check_ages(chapter_id, chapter_number, known, earlier, get_time_notes(project_id), time_note,
+                                       text)
     found += storyclock.check_weekdays(chapter_id, chapter_number, known, earlier, time_note)
     found += storyclock.check_after_death(chapter_id, chapter_number, known, earlier, time_note)
     # One story-clock warning per new fact.
@@ -767,9 +787,39 @@ def find_age_conflicts(project_id: int, chapter_id: str, chapter_number: int, fa
     return list(unique.values())
 
 
+# Fixed-trait checks in code (traits.py). On by default; TRAIT_CHECKS=off turns them off
+# (the older automated tests use eye colour as their example of an AI-checker warning).
+TRAIT_CHECKS = os.getenv("TRAIT_CHECKS", "on").strip().lower() not in ("off", "false", "0", "no")
+
+
+def find_trait_conflicts(project_id: int, chapter_id: str, chapter_number: int, facts: list[Fact],
+                         resolutions: dict) -> list[Contradiction]:
+    """Fixed traits compared as values in code (see traits.py): eyes, coat, scar side, handedness, who is older."""
+    if not TRAIT_CHECKS:
+        return []
+    new_facts = [(resolutions[f.entity.lower()].existing_entity_id, resolutions[f.entity.lower()].canonical_name, f, i)
+                 for i, f in enumerate(facts)]
+    lookups: dict[str, int | None] = {}
+
+    def find_entity(name: str) -> int | None:
+        key = name.lower().strip()
+        if key in resolutions and resolutions[key].existing_entity_id is not None:
+            return resolutions[key].existing_entity_id
+        if key not in lookups:
+            found = find_entities_by_alias(project_id, [key])
+            lookups[key] = found[key][0] if key in found else None
+        return lookups[key]
+
+    def earlier(entity_id):
+        return [{**f, "entity_id": entity_id} for f in
+                get_facts_for_entity_id(entity_id, exclude_chapter_id=chapter_id, before_chapter_number=chapter_number)]
+
+    return traits.check_traits(chapter_id, chapter_number, new_facts, earlier, find_entity)
+
+
 def check_chapter(project_id: int, chapter_id: str, chapter_number: int, facts: list[Fact],
                   resolutions: dict, embeddings: list[list[float]], time_note: str | None,
-                  timings: dict | None = None, progress=None) -> list[Contradiction]:
+                  timings: dict | None = None, progress=None, text: str | None = None) -> list[Contradiction]:
     """
     Every check, in order: per-entity AI check, story clock, safety net, double-check.
     timings: filled with seconds per stage. progress(stage): called as each stage starts.
@@ -794,7 +844,11 @@ def check_chapter(project_id: int, chapter_id: str, chapter_number: int, facts: 
     # The story clock adds only what the AI checker didn't already report for that fact.
     reported = {c.new_fact_index for c in found}
     found += [c for c in stage("story clock", find_age_conflicts, project_id, chapter_id, chapter_number,
-                               facts, resolutions, time_note)
+                               facts, resolutions, time_note, text)
+              if c.new_fact_index not in reported]
+    reported = {c.new_fact_index for c in found}
+    found += [c for c in stage("trait check", find_trait_conflicts, project_id, chapter_id, chapter_number,
+                               facts, resolutions)
               if c.new_fact_index not in reported]
     # Safety net: conflicts hidden because the two facts are filed under different names.
     # (Started together with the checker above; joined here, keeping the checker's warning
@@ -984,12 +1038,13 @@ def set_aside_by_rule(contradictions: list[Contradiction], time_note: str | None
       earlier side mentions nothing of the kind (alive -> buried; whole -> in pieces). Only the
       reverse is a mistake, and "scar on the right palm" vs "scar on the left palm" (both
       sides scarred) or "mended" vs "still cracked" (the earlier side mentions breaking) stay.
-    Story-clock warnings are arithmetic and are never set aside here.
+    Story-clock and trait-check warnings are done in code and are never set aside here (the
+    AI double-check still reviews trait-check warnings).
     """
     flashback = (time_note or "").lower().startswith("flashback")
     kept = []
     for c in contradictions:
-        if c.source == "story clock" or c.status != "open":
+        if c.source in ("story clock", "trait check") or c.status != "open":
             kept.append(c)
             continue
         family = _family_compatible(c)

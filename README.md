@@ -1,6 +1,6 @@
 # StoryForge AI — Project Status & Setup
 
-**Last updated:** 12 October 2026 (two branches merged: the measured model setup, "lasting
+**Last updated:** 16 October 2026 (story clock with ranges, fixed traits checked in code, `eval/stage_eval.py`: section 18). Before that, 12 October 2026 (two branches merged: the measured model setup, "lasting
 facts", story-clock rules and evaluation tools from 4–5 October (section 14), plus finished
 accounts and audit fixes (section 13). See section 15 for what the merge changed.)
 
@@ -638,6 +638,52 @@ Not yet measured with the real AI.
 
 **Comparing judges:** `--judges` takes real model names from `python check_models.py --list`:
 `python run_eval.py --story fallenking --runs 2 --judges "nvidia/nemotron-3-ultra-550b-a55b,deepseek-ai/deepseek-v4.1-flash,z-ai/glm-5.3"`
+
+### 18. A story clock with ranges, fixed traits in code, a 1-second evaluation (16 October 2026)
+
+**Why.** A mistake is caught only if reading, name linking AND the AI checker all succeed, and
+the last held-out run (13 Oct) scored precision 38%, recall 27%: the noise rules removed false
+alarms, but plain value clashes (grey stallion, then black; a scar on the left hand, then the
+right; 64, 66, then 62) were still left to an AI shown up to 60 facts.
+
+**1. Story clock (`backend/storytime.py`; `storyclock.check_ages` now calls it).** Every chapter
+gets a position on one timeline, in years, as a range [earliest, latest]: from its opening words
+first, then its timing note. "N years after <event>" is measured from the event (the earliest
+chapter whose first sentence names it, or an earlier phrase that placed it); unknown events
+widen the range instead of being guessed; "later" after a flashback continues the main story.
+Ages become birth ranges, flagged only when no reading of the timing fits. The weekday and
+acting-after-death checks are unchanged. The timing block the AI sees now also says where the
+clock puts each chapter (`[story clock: between 3 years and 4 years after chapter 1 begins]`).
+The previous version (`check_ages_by_notes`) is kept for reference.
+
+**2. Fixed traits in code (`backend/traits.py`, stage "trait check").** Eye colour, an animal's
+colour, the side of a scar or lost limb, handedness, who is older, and family ties are compared
+as values, also when the Reader filed them under someone else ("Ember, the black stallion"
+under Aurel). Only clear wording makes a claim. `set_aside_by_rule` leaves them alone; the AI
+double-check still reviews them. `TRAIT_CHECKS=off` turns them off (the automated tests do).
+
+**3. `eval/stage_eval.py`: every check done in code, from a saved reading, in about a second,
+free.** Per planted mistake: was each side read, are both on one entry (name rules only, and
+with the answer key's linking), did the code checks catch it.
+
+    python eval/stage_eval.py --all
+
+**Measured** (saved readings, answer-key linking, code checks only):
+
+| Story | 13 Oct clock: caught / false alarms | Now: caught / false alarms |
+|---|---|---|
+| Lighthouse (12) | 1 / 0 | 3 / 0 (A1, A2, A5) |
+| Glassmaker (13) | 0 / 1 | 4 / 0 (A1, A3, A4, T2) |
+| Fallen King (11) | 2 / 0 | 5 / 0 (A1, A2, A3, T1, T3) |
+
+The AI checker and safety net still run on top. **The Fallen King has been used for tuning
+(12–16 Oct), so it is no longer held out: write a new story before quoting a held-out score.**
+
+**Files:** `backend/storytime.py`, `backend/traits.py` (new), `backend/storyclock.py`,
+`backend/contradictions.py`, `backend/pipeline.py`, `backend/storage.py` (`get_time_notes`
+also returns `opening`), `backend/models.py` (source `"trait check"`), `frontend/app.js`,
+`eval/stage_eval.py`, `backend/tests/test_storytime.py`, `backend/tests/test_traits.py`,
+`backend/tests/conftest.py`, `backend/tests/test_speed_and_evidence.py`.
 
 ## 🚧 What's left
 

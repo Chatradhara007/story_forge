@@ -39,7 +39,7 @@ class Contradiction(BaseModel):
     status: Literal["open", "dismissed", "resolved"] = "open"
     review_note: str | None = None   # why the double-check dismissed it, if it did
     severity: Literal["high", "medium", "low"] = "medium"
-    source: Literal["checker", "safety net", "story clock"] = "checker"
+    source: Literal["checker", "safety net", "story clock", "trait check"] = "checker"
     new_fact_index: int | None = None        # position of the new fact in the chapter's facts
     new_fact_id: int | None = None           # the two facts compared (set once saved)
     conflicting_fact_id: int | None = None

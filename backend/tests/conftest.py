@@ -24,6 +24,7 @@ os.environ["DATABASE_URL"] = TEST_URL
 os.environ["NVIDIA_API_KEY"] = "fake-key-for-tests"
 os.environ["JOBS_INLINE"] = "true"          # background jobs run at once, so tests see their results
 os.environ.setdefault("AUTH_REQUIRED", "false")
+os.environ.setdefault("TRAIT_CHECKS", "off")   # most tests use eye colour as their AI-checker example; test_traits.py tests the rules directly
 
 
 def _database_available() -> bool:

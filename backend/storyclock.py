@@ -21,6 +21,7 @@ Two more checks that need no AI:
 import re
 from models import Contradiction, Fact
 from extract import normalise_numbers
+import storytime
 
 AGE_ATTRIBUTE = re.compile(r"(^|[_\s])(age|aged)($|[_\s])|years?[_\s]old", re.I)
 TOLERANCE_YEARS = 1.0
@@ -117,7 +118,7 @@ def _elapsed(notes_by_number: dict[int, str | None], from_number: int, to_number
     return total, any(is_flashback(n) for n in ends)
 
 
-def check_ages(
+def check_ages_by_notes(
     chapter_id: str,
     chapter_number: int,
     new_facts: list[tuple[int, str, Fact, int]],
@@ -196,6 +197,29 @@ def check_ages(
             conflicting_fact_id=old_fact["fact_id"],
         ))
     return found
+
+
+def check_ages(
+    chapter_id: str,
+    chapter_number: int,
+    new_facts: list[tuple[int, str, Fact, int]],
+    earlier_facts_for: callable,
+    time_notes: list[dict],
+    this_time_note: str | None,
+    this_opening: str | None = None,
+) -> list[Contradiction]:
+    """
+    Ages checked against WHEN each chapter is set (storytime.py): chapters are placed on one
+    timeline, as ranges, from their opening words and timing notes, measured from the events
+    they name ("three years after the fire" = three years after the chapter where the fire is),
+    and a new age is flagged only if no reading of the timing makes it fit.
+    Replaced check_ages_by_notes (kept above for reference) on 16 Oct 2026: on the saved readings
+    of all three test stories it catches the same age mistakes and more (glassmaker T2) without
+    its one false alarm ("three years after the fire" in two chapters counted as six years).
+    time_notes rows may carry "opening" (a chapter's first characters).
+    """
+    return storytime.check_ages(chapter_id, chapter_number, new_facts, earlier_facts_for,
+                                time_notes, this_time_note, this_opening)
 
 
 # ---------------------------------------------------------------------------

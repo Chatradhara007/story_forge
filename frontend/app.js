@@ -478,7 +478,7 @@ function highlight(quote, value) {
 
 function issueCard(c, { actions = true, showSeverity = true } = {}) {
   const arrow = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 10 C12 4, 20 4, 26 10 M26 10 l-5 -1 M26 10 l-1 -5 M26 22 C20 28, 12 28, 6 22 M6 22 l5 1 M6 22 l1 5" fill="none" stroke="#A8322D" stroke-width="2" stroke-linecap="round"/></svg>`;
-  const source = c.source && c.source !== "checker" ? `<span class="tag plain">${c.source === "story clock" ? "Found by the story clock" : "Found by the safety net"}</span>` : "";
+  const source = c.source && c.source !== "checker" ? `<span class="tag plain">${c.source === "story clock" ? "Found by the story clock" : c.source === "trait check" ? "Found by the trait check" : "Found by the safety net"}</span>` : "";
   const note = c.status === "dismissed"
     ? (c.dismiss_reason ? `You dismissed this: ${esc(c.dismiss_reason)}` : c.review_note ? esc(c.review_note) : "Dismissed.")
     : c.status === "resolved" ? esc(c.review_note || "Resolved.") : "";

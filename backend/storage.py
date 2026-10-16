@@ -550,10 +550,13 @@ def delete_chapter(project_id: int, chapter_id: str) -> bool:
 
 
 def get_time_notes(project_id: int) -> list[dict]:
-    """Each saved chapter's number and timing note, in reading order."""
+    """
+    Each saved chapter's number, timing note and opening words (its first 600 characters, where
+    a chapter says "Two years later..."; the story clock reads them), in reading order.
+    """
     with db() as conn, _dict_cursor(conn) as cur:
         cur.execute(
-            "SELECT id AS chapter_id, chapter_number, time_note FROM chapters "
+            "SELECT id AS chapter_id, chapter_number, time_note, LEFT(text, 600) AS opening FROM chapters "
             "WHERE project_id = %s ORDER BY chapter_number, id",
             (project_id,),
         )
