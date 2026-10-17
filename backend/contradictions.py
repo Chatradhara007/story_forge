@@ -722,8 +722,9 @@ def double_check(project_id: int, chapter_id: str, chapter_number: int,
     fail are NOT deleted: they are marked "dismissed" with the reason, so the writer can see
     them under Issues -> Dismissed. If the double-check itself fails, every warning is kept.
     """
-    # Story-clock warnings are arithmetic done in code: the AI isn't asked to second-guess them.
-    open_ones = [c for c in contradictions if c.status == "open" and c.source != "story clock"]
+    # Warnings from checks done in code (story clock, trait check) are exact: the AI isn't asked to
+    # second-guess them. (17 Oct 2026: the AI double-check dismissed a real catch, the scar on the other hand.)
+    open_ones = [c for c in contradictions if c.status == "open" and c.source not in ("story clock", "trait check")]
     if not open_ones:
         return contradictions
     timing = timing_text(project_id, chapter_id, chapter_number, time_note)
