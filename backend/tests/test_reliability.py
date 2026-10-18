@@ -108,9 +108,11 @@ def test_gives_up_with_a_clear_message_when_the_limit_is_used_up(monkeypatch):
 
 
 def test_requests_are_paced_by_default():
-    # the tests switch pacing off, so check the setting's default in the code itself
+    # The tests switch pacing off, so check the default in the code itself: 30 a minute for
+    # NVIDIA, none for a model on your own computer (no rate limit there).
     import inspect
-    assert 'os.getenv("MAX_REQUESTS_PER_MINUTE", "30")' in inspect.getsource(llm)
+    assert 'os.getenv("MAX_REQUESTS_PER_MINUTE", "0" if LOCAL_AI else "30")' in inspect.getsource(llm)
+    assert not llm.LOCAL_AI                       # the tests pin the NVIDIA address
 
 
 def test_requests_per_minute_cap(monkeypatch):
