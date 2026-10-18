@@ -13,6 +13,7 @@ from extract import extract_facts, detect_timing, timing_from_opening
 from entities import Resolution, resolve_entities
 from contradictions import check_chapter
 from llm import run_in_parallel
+import reading_cache
 import storage
 
 # Rough share of the total time each stage takes, for the progress bar.
@@ -63,6 +64,9 @@ def ingest(project_id: int, chapter_id: str, text: str, chapter_number: int | No
     def on_passage(done: int, total: int):
         progress("reading facts", done / max(total, 1))
 
+    from_cache = reading is None and reading_cache.load(text)
+    if from_cache:
+        reading = from_cache
     if reading is not None:
         result, time_note = reading
         # A timing the chapter states in its opening beats a saved AI note.
@@ -75,8 +79,16 @@ def ingest(project_id: int, chapter_id: str, text: str, chapter_number: int | No
             lambda: extract_facts(chapter_id, text, on_passage=on_passage),
             lambda: detect_timing(text, earlier_notes),
         ]))
+        reading_cache.save(text, result, time_note)
+    if from_cache:
+        result = result.model_copy(update={"chapter_id": chapter_id})
     resolutions = timed("linking names", resolve_entities, project_id, result.facts)
-    embeddings = timed("preparing search", storage.embed_facts, result.facts)
+    embeddings = reading_cache.load_vectors(text, len(result.facts))
+    if embeddings is None:
+        embeddings = timed("preparing search", storage.embed_facts, result.facts)
+        reading_cache.save_vectors(text, embeddings)
+    else:
+        timings["preparing search"] = 0.0
     contradictions = check_chapter(project_id, chapter_id, chapter_number, result.facts, resolutions,
                                    embeddings, time_note, timings, progress=lambda stage: progress(stage), text=text)
     saved = timed(

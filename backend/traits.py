@@ -12,6 +12,7 @@ two claims about the same entity clash by a rule:
   handedness       left-handed vs signs with her right hand
   who is older     "her older brother Tobias" vs "Tobias, my younger brother"
   family tie       sister vs cousin                     (relationships.conflict)
+  hair colour      red-haired vs her black hair        (going grey, dye or a wig is not a clash)
   height           a tall, stooping man vs the short captain
   beard            a white beard vs his clean-shaven chin
   boat colour      the red-painted launch vs its blue hull
@@ -37,8 +38,11 @@ _COLOURS = {
     "amber": "amber", "black": "black", "violet": "violet", "golden": "gold", "gold": "gold",
     "chestnut": "chestnut", "bay": "bay", "white": "white", "red": "red", "roan": "roan", "dun": "dun",
     "silver": "grey", "dappled": "grey", "piebald": "piebald", "palomino": "palomino", "sorrel": "chestnut",
+    "yellow": "yellow", "orange": "orange", "purple": "purple", "pink": "pink", "crimson": "red", "scarlet": "red",
+    "ginger": "red", "tawny": "brown", "tabby": "tabby", "brindle": "brindle",
+    "navy": "blue", "turquoise": "turquoise", "teal": "turquoise", "cream": "cream", "ochre": "yellow",
 }
-_COLOUR = r"(?:grey|gray|green|blue|brown|hazel|amber|black|violet|golden|gold|chestnut|bay|white|red|roan|dun|silver|dappled|piebald|palomino|sorrel)"
+_COLOUR = r"(?:grey|gray|green|blue|brown|hazel|amber|black|violet|golden|gold|chestnut|bay|white|red|roan|dun|silver|dappled|piebald|palomino|sorrel|yellow|orange|purple|pink|crimson|scarlet|navy|turquoise|teal|cream|ochre|ginger|tawny|tabby|brindle)"
 _COLOUR_GROUP = rf"(?:(?:dark|light|pale|deep|bright|steel|iron|ice|sea|storm|jet|coal|snow)[- ]?)?{_COLOUR}(?:[- ](?:and[- ])?{_COLOUR})*"
 _ANIMAL = r"(?:stallion|mare|horse|gelding|pony|colt|filly|mount|hound|dog|cat|mule|ox|bull|cow|wolfhound|mastiff|bitch|tomcat)"
 _VESSEL = r"(?:launch|boat|ship|skiff|barge|cutter|ketch|sloop|schooner|galley|dinghy|rowboat|ferry|hull|carriage|coach|wagon|cart)"
@@ -50,10 +54,52 @@ def _colours(text: str) -> set[str]:
     return {_COLOURS[w] for w in re.findall(_COLOUR, text.lower())}
 
 
-def eye_colours(attribute: str, value: str) -> set[str]:
+_DEPICTION = re.compile(r"\b(portrait|painting|painted|picture|photo\w*|statue|drawing|sketch\w*|doll|mask|carving|"
+                        r"carved|figurine|mural|tapestry|reflection|dream\w*)\b", re.I)
+
+
+def _someone_elses(text: str, entity: str, part: str) -> bool:
+    """'stared into Jonah's black eyes' on Mara's entry: the eyes (or hair) are Jonah's (or a portrait's)."""
+    if _DEPICTION.search(text):
+        return True
+    own = {w.lower() for w in (entity or "").split()}
+    for m in re.finditer(rf"\b([A-Z][\w-]+)'s\s+(?:[\w-]+\s+){{0,3}}?{part}\b", text):
+        if m.group(1).lower() not in own:
+            return True
+    return False
+
+
+_HAIR_WORDS = {"black": {"black"}, "raven": {"black"}, "jet": {"black"}, "dark": {"black", "brown"},
+               "brown": {"brown"}, "chestnut": {"brown", "red"}, "mousy": {"brown"}, "mousey": {"brown"},
+               "red": {"red"}, "ginger": {"red"}, "auburn": {"red", "brown"}, "copper": {"red"}, "flame": {"red"},
+               "fair": {"fair"}, "blond": {"fair"}, "blonde": {"fair"}, "flaxen": {"fair"}, "golden": {"fair"},
+               "gold": {"fair"}, "sandy": {"fair", "red"}, "straw": {"fair"}, "yellow": {"fair"},
+               "grey": {"grey"}, "gray": {"grey"}, "white": {"grey"}, "silver": {"grey"}, "salt-and-pepper": {"grey"}}
+_HAIR_COLOUR = r"(?:black|raven|jet|dark|brown|chestnut|mousy|mousey|red|ginger|auburn|copper|flame|fair|blond|blonde|flaxen|golden|gold|sandy|straw|yellow|grey|gray|white|silver|salt-and-pepper)"
+_HAIR = re.compile(rf"\b({_HAIR_COLOUR})(?:[- ]({_HAIR_COLOUR}))?[- ]haired\b|"
+                   rf"\b({_HAIR_COLOUR})(?:[- ](?:and[- ])?({_HAIR_COLOUR}))?\s+(?:[a-z]+\s+)?(?:hair|curls|locks|braids?|plaits?|mane)\b", re.I)
+_HAIR_CHANGE = re.compile(r"\b(dyed|dye|bleach\w*|henna|wig|greying|graying|going grey|going gray|turned|turning|"
+                          r"streak\w*|flecked|shot through|touched with|tinged|at the temples|in the (sun|light)|wet|"
+                          r"soaked|singed|powdered|hood|hat|cap|now|had become)\b", re.I)
+
+
+def hair_colours(attribute: str, value: str, entity: str = "") -> frozenset[str]:
+    """'red-haired and freckled' -> {red}; 'her black hair tied back' -> {black}; 'dark hair' -> {black, brown}."""
+    text = value or ""
+    if _HAIR_CHANGE.search(text) or _someone_elses(text, entity, r"(?:hair|curls|locks|braids?|plaits?)"):
+        return frozenset()
+    found = [m for m in _HAIR.finditer(text)]
+    if len(found) != 1:
+        return frozenset()                            # none, or two people's hair in one fact
+    words = [w for w in found[0].groups() if w]
+    colours = set().union(*(_HAIR_WORDS[w.lower()] for w in words))
+    return frozenset(colours)
+
+
+def eye_colours(attribute: str, value: str, entity: str = "") -> set[str]:
     """'grey-green eyes' -> {grey, green}; attribute 'eye color' + 'green' -> {green}."""
     text = f"{attribute} {value}".lower()
-    if _CHANGE.search(value or ""):
+    if _CHANGE.search(value or "") or _someone_elses(value or "", entity, r"eyes?"):
         return set()
     m = re.search(rf"({_COLOUR_GROUP})[- ]eyed\b|({_COLOUR_GROUP})\s+eyes\b", text)
     if m:
@@ -105,7 +151,7 @@ def vessel_colours(entity_type: str, value: str, quote: str) -> set[str]:
     for text in (value or "", quote or ""):
         if re.search(r"\b(repaint\w*|new coat of paint|fresh(?:ly)? painted|painted (?:it|her|him|over))\b", text, re.I):
             return set()
-        found = [m.group(1) for m in re.finditer(rf"\b({_COLOUR_GROUP})(?:-painted| painted)?\s+{_VESSEL}\b", text, re.I)]
+        found = [m.group(1) for m in re.finditer(rf"\b({_COLOUR_GROUP})(?:-painted| painted)?\s+(?:[a-z]+\s+)?{_VESSEL}\b", text, re.I)]
         colours = set().union(*(_colours(f) for f in found)) if found else set()
         if colours:
             return colours if len(found) == 1 else set()      # two boats in one sentence: unclear
@@ -275,6 +321,11 @@ _KIN_WORD = re.compile(r"\b(father|mother|son|sons|daughter|daughters|sister|sis
                        r"\w+-in-law|mum|mama|papa|da|dad|ma|pa|heir|kin|wife|husband|widow|widower)\b", re.I)
 
 
+_KIN_LABEL = re.compile(r"^(?:the |a |an |her |his |their )?(?:elder |older |younger |little |big |twin )?"
+                        r"(brother|sister|twin|father|mother|parent|son|daughter|child|husband|wife|cousin|uncle|aunt|"
+                        r"niece|nephew|grand\w+)\s+of\s+([A-Z][\w'-]*(?: [A-Z][\w'-]*)*)\s*$", re.I)
+
+
 def family_tie(attribute: str, value: str, quote: str) -> tuple[str, str, bool] | None:
     """
     'relationship | sibling of Tobias' -> ('sibling', 'Tobias', forward). Only family kinds, and
@@ -285,6 +336,18 @@ def family_tie(attribute: str, value: str, quote: str) -> tuple[str, str, bool] 
         return None
     if not _KIN_WORD.search(quote or ""):
         return None
+    m = _KIN_LABEL.match(value or "")
+    if m:                                             # "cousin of Jonah", "daughter of Oren"
+        word, other = m.group(1).lower(), m.group(2).strip()
+        if word in ("brother", "sister", "twin"):
+            return "sibling", other, True
+        if word in ("father", "mother", "parent"):
+            return "parent", other, True
+        if word in ("son", "daughter", "child"):
+            return "parent", other, False
+        if word in ("husband", "wife"):
+            return "spouse", other, True
+        return "relative", other, True
     for label, kind in sorted(_LABEL_KIND.items(), key=lambda item: -len(item[0])):
         if (value or "").lower().startswith(label + " ") and kind in rel_rules.FAMILY:
             other = value[len(label) + 1:].strip()
@@ -313,7 +376,7 @@ def _claims(entity_id: int | None, name: str, attribute: str, value: str, quote:
     """
     out = []
     if entity_id is not None:
-        colours = eye_colours(attribute, value) or quoted_eye_colours(name, quote)
+        colours = eye_colours(attribute, value, name) or quoted_eye_colours(name, quote)
         if colours:
             out.append(("eyes", (entity_id,), frozenset(colours)))
         for mark, region, side in mark_sides(attribute, value):
@@ -328,6 +391,8 @@ def _claims(entity_id: int | None, name: str, attribute: str, value: str, quote:
                 a, b = sorted((entity_id, other_id))
                 out.append(("family", (a, b), (kind, forward == (a == entity_id))))
     if entity_id is not None:
+        if hair := hair_colours(attribute, value, name):
+            out.append(("hair", (entity_id,), hair))
         if height := stature(attribute, value):
             out.append(("height", (entity_id,), height))
         if has_beard := beard(attribute, value):
@@ -350,6 +415,8 @@ def _claims(entity_id: int | None, name: str, attribute: str, value: str, quote:
 
 
 def _clash(kind: str, old, new) -> bool:
+    if kind == "hair":
+        return not (old & new) and not new <= {"grey"} and not ("grey" in old and len(old) > 1)
     if kind in ("eyes", "coat", "paint"):
         return not (old & new)
     if kind == "family":
@@ -359,13 +426,13 @@ def _clash(kind: str, old, new) -> bool:
 
 
 _WHAT = {"eyes": "eye colour", "coat": "colour", "side": "side", "hand": "handedness",
-         "order": "older/younger order", "family": "family tie", "height": "height", "beard": "beard",
+         "order": "older/younger order", "family": "family tie", "height": "height", "beard": "beard", "hair": "hair colour",
          "paint": "colour"}
 
 
 def _say(kind: str, key: tuple, value, names: dict) -> str:
     """The claim in a few words: 'grey-green', 'left hand', 'Tobias is the older'."""
-    if kind in ("eyes", "coat", "paint"):
+    if kind in ("eyes", "coat", "paint", "hair"):
         return " / ".join(sorted(value))
     if kind == "side":
         return f"{value} {key[2]}"

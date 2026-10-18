@@ -50,6 +50,7 @@ os.environ["SAFETY_NET"] = "on"          # the tests cover the safety net; it is
 os.environ["CHECKER"] = "on"
 os.environ["NAME_LINKING"] = "ai"
 os.environ["NAME_LINKING_PAUSE"] = "0"   # each test starts with the AI available
+os.environ["READING_CACHE"] = ""         # a demo cache in .env must never feed the fake AI's answers back
 os.environ["AI_RETRY_ATTEMPTS"] = "6"
 os.environ["CHAT_MODEL"] = "nvidia/nemotron-3.5-lightning-30b-a3b,nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
 os.environ["JUDGE_MODEL"] = "nvidia/nemotron-3-ultra-550b-a55b,nvidia/nemotron-3.5-lightning-30b-a3b"

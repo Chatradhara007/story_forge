@@ -41,12 +41,14 @@ _NOT_ADJ = {"the", "a", "an", "his", "her", "their", "its", "my", "your", "our",
 _MEMORY = re.compile(r"\b(remember\w*|recall\w*|memor\w*|dream\w*|imagin\w*|used to|once had|wish\w*|hop(e|ed|ing)|"
                      r"would have|might have|if only|missed|mourn\w*|picture\w*|thought of)\b", re.I)
 _RECOVERED = re.compile(r"\b(found|recovered|retrieved|fished out|dug up|returned|mended|repaired|restored|"
-                        r"remade|reforged|rewrote|copied|another|a new|new|second|replica|duplicate)\b", re.I)
+                        r"remade|reforged|rewrote|copied|reassembled|whole again|glued|another|a new|new|second|replica|duplicate)\b", re.I)
 
 _GONE = re.compile(r"\b(threw|thrown|tossed|flung|hurled|dropped|cast)\b[^.]{0,40}\binto the (sea|river|lake|fire|"
                    r"flames|furnace|well|abyss|chasm|harbou?r|ocean|water|deep)\b|"
                    r"\b(burn(ed|t)?_?(to)?_?ash(es)?|burn(ed|t) to (ash|ashes|nothing)|reduced to ash|melted down|"
-                   r"destroyed|smashed to pieces|crushed to dust|lost forever|lost for good|sank with)\b", re.I)
+                   r"destroyed|smashed to pieces|crushed to dust|lost forever|lost for good|sank with)\b|"
+                   r"\b(smashed|shattered|crushed|stamped on)\b[^.]{0,40}\b(against|on|under|beneath|to pieces|into pieces|"
+                   r"beyond repair)\b", re.I)
 _GIVEN = re.compile(r"\boff (his|her|their) finger\b|"
                     r"\b(gave|handed|passed|pushed|slid|surrendered|offered|sold|traded)\b[^.]{0,40}\b(to|toward|towards|"
                     r"across|over to)\b", re.I)
@@ -131,7 +133,7 @@ def _apply(objects: list[_Object], fact: dict, find_entity) -> list[tuple[str, _
 _BLIND = re.compile(r"\b(blind|sightless|lost (his|her|their) sight|could not see|cannot see|can't see)\b", re.I)
 _SEEING = re.compile(r"\b(read|reads|reading|wrote|writes|writing|written in (his|her|their) own|saw|sees|"
                      r"recogni[sz]ed (him|her|them) by sight|by sight|watched|studied the)\b", re.I)
-_NOT_SEEING = re.compile(r"\b(read to (her|him)|was read|were read|had (it|them|the \w+) read|dictat\w+|by touch|"
+_NOT_SEEING = re.compile(r"\b(read to (her|him)|read [^.]{0,40}\bto (her|him|them)\b|had \w+ read|was read|were read|had (it|them|the \w+) read|dictat\w+|by touch|"
                          r"by (his|her) footsteps|could not read|couldn't read|cannot read|blind|felt)\b", re.I)
 _LOST_HAND = re.compile(r"\blost (his|her|their|the)? ?(?P<side>left|right) hand\b|\blost[_ ](?P<side2>left|right)[_ ]hand\b", re.I)
 _USES_HAND = re.compile(r"\b(both (of )?(his|her|their) hands|both hands|(his|her|their) (?P<side>left|right) hand)\b", re.I)
