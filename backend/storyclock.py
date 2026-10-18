@@ -341,7 +341,20 @@ def is_acting(fact: Fact, names: list[str] | None = None) -> bool:
     return (acts and not _MEMORY.search(fact.value or "")
             and not _MEMORY.search(fact.source_quote or "") and not _DEATH_VALUE.search(fact.value or "")
             and not _BACKSTORY.search(fact.source_quote or "") and not _BACKSTORY.search(fact.value or "")
-            and (names is None or alive or _names_in_quote(names, fact.source_quote)))
+            and (names is None or (not _only_possessive(names, fact.source_quote)
+                                   and (alive or _names_in_quote(names, fact.source_quote)))))
+
+
+def _only_possessive(names: list[str], quote: str) -> bool:
+    """'Walter Alcott's daughter came in': Walter is named only as someone's owner, so the fact isn't him."""
+    words = [w for n in names for w in re.findall(r"[A-Za-z]{3,}", n or "")]
+    found = [m for w in words for m in re.finditer(rf"\b{re.escape(w)}\b", quote or "", re.I)]
+    if not found:
+        return False                          # not named at all (a voice on the radio): nothing to go on
+    # "Haruki Mori's voice" / "Walter's hand" is still the person; "Walter's daughter" is not.
+    plain = re.sub(r"\b[A-Z][\w-]*(?:\s+[A-Z][\w-]*)*'s\b(?!\s+(?:own\s+)?(?:voice|hands?|face|eyes|laugh|footsteps|"
+                   r"head|smile|arms?|fingers?|breath|signature|handwriting|grip|whistle|shout|cough)\b)", " ", quote or "")
+    return not any(re.search(rf"\b{re.escape(w)}\b", plain, re.I) for w in words)
 
 
 def check_after_death(chapter_id, chapter_number, new_facts, earlier_facts_for, this_time_note) -> list[Contradiction]:

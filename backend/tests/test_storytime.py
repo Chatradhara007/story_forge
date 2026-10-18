@@ -160,3 +160,14 @@ def test_ten_then_twelve_a_few_weeks_later_is_caught():
     [w] = _check(rows, {1: [(1, "ten years old", "Pip was ten years old")],
                         2: [(1, "Twelve-year-old", "Twelve-year-old Pip")]}, 2)
     assert "less than a year" in w.explanation
+
+
+def test_the_warning_cites_the_main_timeline_age_not_a_flashback():
+    """Kestrel: 45 (ch1), 'Twenty years earlier ... twenty-five' (ch2), forty-eight two weeks on (ch3)."""
+    rows = [(None, "Relay Station Kestrel hung over the night side of Tarsis."),
+            (None, "Twenty years earlier, Yusra was twenty-five."),
+            ("continues: two weeks later", "The supply ship came, exactly on time.")]
+    [w] = _check(rows, {1: [(1, "forty-five", "Yusra was forty-five")],
+                        2: [(1, "twenty-five", "Twenty years earlier, Yusra was twenty-five")],
+                        3: [(1, "forty-eight", "Yusra Adeyemi, forty-eight, she typed")]}, 3)
+    assert w.conflicting_value == "forty-five" and "chapter 1" in w.explanation

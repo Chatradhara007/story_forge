@@ -594,7 +594,10 @@ def check_ages(
             continue
         clashing = [(f, age, where) for f, age, where in earlier
                     if not _overlap(birth_span(age, where.span), new_birth)]
-        old_fact, old_age, old_where = (clashing or earlier)[-1]       # the closest earlier chapter
+        # Cite the closest earlier chapter on the main timeline ("45 in chapter 1"), not a flashback
+        # ("25, twenty years earlier"): both prove it, but the writer recognises the first at once.
+        main_line = [c for c in clashing if not c[2].flashback]
+        old_fact, old_age, old_where = (main_line or clashing or earlier)[-1]
         # The age the timing points to: the old age plus the shortest / longest time that can
         # have passed (whole years, as people say them; the check above already allowed for birthdays).
         o, n = old_where.span, here.span

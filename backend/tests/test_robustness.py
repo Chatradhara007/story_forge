@@ -209,3 +209,14 @@ def test_titled_and_untitled_full_names_in_one_chapter_are_one_person():
     res = {n.lower(): R(n) for n in ["Dr Ana Reyes", "Ana", "Ana Lopez"]}
     entities.join_same_chapter_titled_names(res)
     assert res["ana"].canonical_name == "Ana"                     # two Anas: unclear, left alone
+
+
+def test_named_only_as_someones_owner_is_not_acting():
+    acting = lambda a, v, q, n: storyclock.is_acting(F(n, a, v, q), [n])
+    assert not acting("status", "alive", "Walter Alcott's daughter came in to collect her father's glasses", "Walter Alcott")
+    assert acting("status", "alive", "this is the Tern, said Haruki Mori's voice", "Haruki Mori")
+    assert acting("status", "alive", "I'm coming round the antenna. Have you got the kettle on?", "Haruki Mori")
+
+
+def test_colour_words_are_whole_words():
+    assert traits.eye_colours("has", "tired brown eyes") == {"brown"}            # not 'red' in 'tired'

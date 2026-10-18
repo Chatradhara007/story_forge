@@ -43,7 +43,7 @@ _COLOURS = {
     "navy": "blue", "turquoise": "turquoise", "teal": "turquoise", "cream": "cream", "ochre": "yellow",
 }
 _COLOUR = r"(?:grey|gray|green|blue|brown|hazel|amber|black|violet|golden|gold|chestnut|bay|white|red|roan|dun|silver|dappled|piebald|palomino|sorrel|yellow|orange|purple|pink|crimson|scarlet|navy|turquoise|teal|cream|ochre|ginger|tawny|tabby|brindle)"
-_COLOUR_GROUP = rf"(?:(?:dark|light|pale|deep|bright|steel|iron|ice|sea|storm|jet|coal|snow)[- ]?)?{_COLOUR}(?:[- ](?:and[- ])?{_COLOUR})*"
+_COLOUR_GROUP = rf"\b(?:(?:dark|light|pale|deep|bright|steel|iron|ice|sea|storm|jet|coal|snow)[- ]?)?{_COLOUR}(?:[- ](?:and[- ])?{_COLOUR})*\b"
 _ANIMAL = r"(?:stallion|mare|horse|gelding|pony|colt|filly|mount|hound|dog|cat|mule|ox|bull|cow|wolfhound|mastiff|bitch|tomcat)"
 _VESSEL = r"(?:launch|boat|ship|skiff|barge|cutter|ketch|sloop|schooner|galley|dinghy|rowboat|ferry|hull|carriage|coach|wagon|cart)"
 _CHANGE = re.compile(r"\b(dyed|dye|painted|repainted|bleached|greying|graying|turned|turning|faded|fading|whitening|"
@@ -51,7 +51,7 @@ _CHANGE = re.compile(r"\b(dyed|dye|painted|repainted|bleached|greying|graying|tu
 
 
 def _colours(text: str) -> set[str]:
-    return {_COLOURS[w] for w in re.findall(_COLOUR, text.lower())}
+    return {_COLOURS[w] for w in re.findall(rf"\b{_COLOUR}\b", text.lower())}   # whole words: not "red" in "tired"
 
 
 _DEPICTION = re.compile(r"\b(portrait|painting|painted|picture|photo\w*|statue|drawing|sketch\w*|doll|mask|carving|"
