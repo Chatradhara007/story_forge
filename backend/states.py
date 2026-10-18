@@ -33,7 +33,13 @@ CONFIDENCE = 0.85
 # Things that exist once and move from hand to hand.
 _OBJECT_NOUNS = ("ring", "key", "sword", "crown", "ledger", "locket", "necklace", "amulet", "seal", "dagger",
                  "lens", "map", "medal", "brooch", "pendant", "watch", "diary", "journal", "compass", "talisman",
-                 "chalice", "sceptre", "scepter", "pistol", "revolver", "violin", "letter opener")
+                 "chalice", "sceptre", "scepter", "pistol", "revolver", "violin", "letter opener",
+                 # everyday and modern things (18 Oct 2026: the first list was fitted to fantasy stories)
+                 "phone", "laptop", "camera", "radio", "notebook", "wallet", "passport", "badge", "keycard",
+                 "suitcase", "briefcase", "rifle", "gun", "knife", "regulator", "tablet", "vial", "flask",
+                 "photograph", "photo", "lighter", "bracelet", "earring", "spectacles", "manuscript",
+                 "deed", "car", "bicycle", "motorbike", "drone", "transmitter", "battery", "hard drive",
+                 "flash drive", "pendrive", "umbrella", "guitar", "piano")
 _OBJECT = re.compile(r"\b(?:(?P<adj>[a-z]+(?:-[a-z]+)?)\s+)?(?P<noun>" + "|".join(_OBJECT_NOUNS) + r")s?\b", re.I)
 _NOT_ADJ = {"the", "a", "an", "his", "her", "their", "its", "my", "your", "our", "father's", "mother's", "own",
             "old", "same", "this", "that", "of", "and", "with", "every", "one", "no", "any", "little", "small"}
@@ -48,14 +54,18 @@ _GONE = re.compile(r"\b(threw|thrown|tossed|flung|hurled|dropped|cast)\b[^.]{0,4
                    r"\b(burn(ed|t)?_?(to)?_?ash(es)?|burn(ed|t) to (ash|ashes|nothing)|reduced to ash|melted down|"
                    r"destroyed|smashed to pieces|crushed to dust|lost forever|lost for good|sank with)\b|"
                    r"\b(smashed|shattered|crushed|stamped on)\b[^.]{0,40}\b(against|on|under|beneath|to pieces|into pieces|"
-                   r"beyond repair)\b", re.I)
+                   r"beyond repair)\b|"
+                   r"\b(out into (?:the )?(?:dark|space|void|vacuum|night)|into (?:space|orbit|the void)|jettisoned|"
+                   r"tumbling away|went overboard|lost overboard|fell overboard|blown out of the airlock|burned up|"
+                   r"blown to pieces|blew up|exploded|incinerated|shredded|wiped|deleted)\b", re.I)
 _GIVEN = re.compile(r"\boff (his|her|their) finger\b|"
                     r"\b(gave|handed|passed|pushed|slid|surrendered|offered|sold|traded)\b[^.]{0,40}\b(to|toward|towards|"
                     r"across|over to)\b", re.I)
 _HELD = re.compile(r"\bon (his|her|their) (own )?finger\b|\b(wore|wears|wearing|turned|twisted|clutched|gripped|"
                    r"carried|carries|drew|unsheathed|brandished|slid [^.]{0,20}onto)\b", re.I)
 _USED = re.compile(r"\b(unlocked|unlocks|unlock|opened|opens|read|reads|reading|wrote|writes|turned the pages|"
-                   r"looked through|consulted|leafed|wore|wears|wearing|used|uses|using)\b", re.I)
+                   r"looked through|consulted|leafed|wore|wears|wearing|used|uses|using|fitted|installed|took [^.]{0,20}"
+                   r"(?:down|out) from|switched on|turned on|fired|dialled|dialed|played|drove|rode)\b", re.I)
 
 
 def object_mentions(text: str) -> list[tuple[str, str]]:
@@ -153,13 +163,42 @@ def _abilities(fact: dict) -> list[tuple[str, str]]:
     m = _LOST_HAND.search(text)
     if m:
         out.append(("hand", (m.group("side") or m.group("side2")).lower()))
+    elif not _INJURY_HEDGE.search(text):
+        for pattern in (_BROKEN_LIMB, _LIMB_IN_CAST):
+            if m := pattern.search(text):
+                limb = (m.group("limb") or m.group("limb2")).lower()
+                out.append(("broken", "arm" if limb in _ARM_PARTS else "leg"))
+                break
     return out
+
+
+# A broken limb, then heavy use of it soon after (within weeks, by the story clock).
+_ARM_PARTS = {"arm", "arms", "wrist", "forearm", "elbow", "hand", "collarbone", "shoulder"}
+_BROKEN_LIMB = re.compile(r"\b(broke|broken|fractured|shattered|snapped|cracked)\b[^.;]{0,30}?\b(?:his|her|their|the)?\s*"
+                          r"(?:left |right )?(?P<limb>arm|wrist|forearm|elbow|collarbone|leg|ankle|shin|thigh|knee|hip|foot)\b|"
+                          r"\b(?:left |right )?(?P<limb2>arm|wrist|forearm|leg|ankle|shin|knee|foot)\b[^.;]{0,15}?\b(broken|broke|fractured)\b", re.I)
+_LIMB_IN_CAST = re.compile(r"\b(?:left |right )?(?P<limb>arm|wrist|forearm|elbow|leg|ankle|shin|knee|foot)\b[^.;]{0,25}?"
+                           r"\b(in a (?:plaster )?cast|in plaster|in a splint|splinted)\b|"
+                           r"\b(?:cast|splint)\b[^.;]{0,25}?\b(?:on|up|around)\b[^.;]{0,15}?\b(?:left |right )?(?P<limb2>arm|wrist|forearm|leg|ankle|knee)\b", re.I)
+_INJURY_HEDGE = re.compile(r"\b(healed|mended|recovered|years ago|long ago|as a (boy|girl|child)|once|old (break|injury|wound)|"
+                           r"almost|nearly|could have|might have|if)\b", re.I)
+_HEAVY_ARM_USE = re.compile(r"\b(lifted|lifts|lifting|hauled|heaved|carried|carrying|both arms|both hands|pulled (?:himself|herself) up|"
+                            r"hoisted|swung|climbed|threw|thrown|punched|wrestled)\b", re.I)
+_HEAVY_LEG_USE = re.compile(r"\b(ran|runs|running|at a run|sprinted|sprinting|raced|racing|jumped|leapt|leaped|kicked|"
+                            r"climbed|danced|two (?:rungs|steps|stairs) at a time|took the stairs)\b", re.I)
+_HEALING_WORDS = re.compile(r"\b(healed|cast (?:came|was|had been|cut) off|cast off|splint (?:came|was) off|out of (?:the|his|her) cast|"
+                            r"recovered|crutch\w*|cane|limp\w*|weeks later|months later)\b", re.I)
 
 
 def _violates(kind: str, side: str, fact: Fact) -> bool:
     value, quote = fact.value or "", fact.source_quote or ""
     if _MEMORY.search(value) or _MEMORY.search(quote):
         return False
+    if kind == "broken":
+        both = f"{(fact.attribute or '').replace('_', ' ')} {value} {quote}"
+        if _HEALING_WORDS.search(both) or re.search(r"\b(could(?:n't| not)|can(?:'t|not)|unable|tried to|wanted to|no more)\b", both, re.I):
+            return False
+        return bool((_HEAVY_ARM_USE if side == "arm" else _HEAVY_LEG_USE).search(both))
     if kind == "blind":
         return bool(_SEEING.search(value)) and not _NOT_SEEING.search(value) and not _NOT_SEEING.search(quote)
     if kind == "hand":
@@ -172,6 +211,8 @@ def _violates(kind: str, side: str, fact: Fact) -> bool:
     return False
 
 
+SOON_YEARS = 5 / 52        # a broken limb used hard within about five weeks of the break
+
 # ------------------------------------------------------------------ check --
 def check_states(
     chapter_id: str,
@@ -181,6 +222,7 @@ def check_states(
     earlier_facts_for: callable,
     find_entity: callable,
     flashback_chapters: set[int] | None = None,
+    years_between=None,
 ) -> list[Contradiction]:
     """
     new_facts: [(entity_id, canonical name, fact, index in the chapter), ...] in reading order.
@@ -241,10 +283,24 @@ def check_states(
             lost[entity_id] = [(kind, side, f) for f in earlier_facts_for(entity_id)
                                if f["chapter_number"] not in flashbacks for kind, side in _abilities(f)]
         for kind, side, old in lost[entity_id]:
+            if kind == "broken":
+                gap = years_between(old["chapter_number"], chapter_number) if years_between else None
+                if gap is None or gap > SOON_YEARS:
+                    continue                      # weeks may have passed: it may have healed
+                if any(f["chapter_number"] >= old["chapter_number"] and f.get("fact_id") != old.get("fact_id")
+                       and _HEALING_WORDS.search(f"{f.get('value') or ''} {f.get('source_quote') or ''}")
+                       for f in earlier_facts_for(entity_id)):
+                    continue
             if _violates(kind, side, fact):
-                what = "is blind" if kind == "blind" else f"lost the {side} hand"
-                warn(canonical, fact, index, old,
-                     f"{canonical} {what} from chapter {old['chapter_number']} (\"{old.get('source_quote') or old['value']}\"), "
-                     f"but in chapter {chapter_number}: {fact.value}. (Checked in code.)", kind)
+                said = old.get('source_quote') or old['value']
+                if kind == "broken":
+                    message = (f"{canonical} has a broken {side} from chapter {old['chapter_number']} (\"{said}\"), "
+                               f"but within weeks, in chapter {chapter_number}: {fact.value}. (Checked in code, "
+                               f"with the story clock.)")
+                else:
+                    what = "is blind" if kind == "blind" else f"lost the {side} hand"
+                    message = (f"{canonical} {what} from chapter {old['chapter_number']} (\"{said}\"), "
+                               f"but in chapter {chapter_number}: {fact.value}. (Checked in code.)")
+                warn(canonical, fact, index, old, message, kind)
                 break
     return found

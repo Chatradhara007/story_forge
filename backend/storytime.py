@@ -499,6 +499,11 @@ _OTHER_PERSON = re.compile(r"\b(son|sons|daughter|daughters|child|children|kid|b
                            r"cousin|friend|horse|dog)\b", re.I)
 _NOT_NOW = re.compile(r"\buntil\b|\bwill (be|turn)\b|\bwould (be|turn|have been)\b|\bwhen \w+ (is|turns)\b|"
                       r"\bby the time\b|\bif \w+ (were|was|is)\b", re.I)
+# A figure of speech right before the number: "you look 12", "I feel about 100", "like a 5-year-old".
+_FIGURATIVE = re.compile(r"\b(look|looks|looked|looking|feel|feels|felt|feeling|seem|seems|seemed|act|acts|acted|acting|"
+                         r"behav\w+|sound\w*|pass(?:es|ed)? for)\b(?:\s+(?:about|like|maybe|nearly|almost|barely|"
+                         r"at least|at most|older than|younger than|a good|every day of|a|an))*\s*$|"
+                         r"\blike an?\s*$|\bgoing on\s*$", re.I)
 
 
 def current_age(attribute: str, value: str, quote: str = "") -> int | None:
@@ -517,7 +522,8 @@ def current_age(attribute: str, value: str, quote: str = "") -> int | None:
     hits = [m for m in re.finditer(rf"\b{age}\b", text)]
     if not hits:
         return age                     # the quote doesn't show the number: trust the fact
-    if all(_PAST_MOMENT.search(text[max(0, m.start() - 40):m.start()]) for m in hits):
+    if all(_PAST_MOMENT.search(text[max(0, m.start() - 40):m.start()]) or
+           _FIGURATIVE.search(text[max(0, m.start() - 40):m.start()]) for m in hits):
         return None
     return age
 

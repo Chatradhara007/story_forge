@@ -868,7 +868,16 @@ def find_state_conflicts(project_id: int, chapter_id: str, chapter_number: int, 
         return [{**f, "entity_id": entity_id} for f in
                 get_facts_for_entity_id(entity_id, exclude_chapter_id=chapter_id, before_chapter_number=chapter_number)]
 
-    return states.check_states(chapter_id, chapter_number, new_facts, object_facts, earlier, find_entity, flashbacks)
+    def years_between(old_number: int, new_number: int):
+        """At most how long passes from one chapter to the other, by the story clock (None: unknown)."""
+        a, b = placed.get(old_number), placed.get(new_number)
+        if a is None or b is None or a.span is None or b.span is None or a.flashback or b.flashback:
+            return None
+        gap = b.span.hi - a.span.lo
+        return None if gap != gap or gap == float("inf") else gap
+
+    return states.check_states(chapter_id, chapter_number, new_facts, object_facts, earlier, find_entity, flashbacks,
+                               years_between)
 
 
 def check_chapter(project_id: int, chapter_id: str, chapter_number: int, facts: list[Fact],

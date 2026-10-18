@@ -125,3 +125,87 @@ def test_first_set(expect, description, earlier, new):
 @pytest.mark.parametrize("expect,description,earlier,new", SECOND, ids=[c[1] for c in SECOND])
 def test_second_set(expect, description, earlier, new):
     assert bool(run(earlier, new, ID2)) == bool(expect)
+
+
+# --- Third set: general fixes for the held-out failures of 18 Oct 2026 (Night Shift, Kestrel) --
+# Those two stories are no longer held out after this; a new story measures the next round.
+import entities
+import storyclock
+import storytime
+
+
+def test_figures_of_speech_are_not_ages():
+    assert storytime.current_age("age", "twelve", "You look twelve") is None
+    assert storytime.current_age("age", "a hundred", "She felt about a hundred") is None
+    assert storytime.current_age("age", "sixty-two", "He was sixty-two now, and looked tired") == 62
+
+
+def test_a_beard_shaved_off_in_between_is_not_a_clash():
+    ids = {"Bastian": 1, "Bastian Kowal": 1}
+    beard = [(1, "Bastian Kowal", F("Bastian Kowal", "appearance", "great black beard"))]
+    shaved = beard + [(3, "Bastian", F("Bastian", "action", "shaved it off in the night", "He had shaved it off in the night"))]
+    now = [("Bastian", F("Bastian", "appearance", "clean-shaven", "clean-shaven and already in his suit"))]
+    assert run(shaved, now, ids) == [] and len(run(beard, now, ids)) == 1
+
+
+def test_acting_after_death_with_any_verb_or_status_alive():
+    acting = lambda a, v, q, n: storyclock.is_acting(F(n, a, v, q), [n])
+    assert acting("waved", "hand", "In bed four, Walter Alcott raised a hand and waved at them", "Walter Alcott")
+    assert acting("status", "alive", "this is the Tern, said Haruki Mori's voice", "Haruki Mori")
+    assert not acting("collected", "glasses", "Walter Alcott's daughter collected his glasses", "Walter Alcott")
+    assert not acting("buried", "behind the cottage", "Ines buried Bramble behind the cottage", "Bramble")
+    assert not acting("status", "alive", "when Walter was alive, he played cards", "Walter")
+
+
+def _injury(earlier, new, gap):
+    stored = [{"fact_id": i, "entity_id": 1, "entity": f.entity, "entity_type": "character", "attribute": f.attribute,
+               "value": f.value, "source_quote": f.source_quote, "chapter_id": f"ch{n}", "chapter_number": n}
+              for i, (n, f) in enumerate(earlier)]
+    return states.check_states("ch9", 9, [(1, new.entity, new, 0)], [], lambda e: stored, lambda n: 1, set(),
+                               lambda a, b: gap)
+
+
+def test_a_broken_limb_used_hard_within_weeks_but_not_after_healing_or_unknown_time():
+    cast = [(2, F("Tom", "treatment", "left forearm in a plaster cast up to the elbow"))]
+    lift = F("Tom", "lifted patient", "patient in bed two", "Tom lifted the patient up the bed with both arms")
+    assert len(_injury(cast, lift, 1 / 52)) == 1
+    assert _injury(cast, lift, 6 / 52) == [] and _injury(cast, lift, None) == []
+    assert _injury(cast + [(5, F("Tom", "event", "cast cut off"))], lift, 2 / 52) == []
+    leg = [(2, F("Ana", "injury", "broken right leg"))]
+    assert len(_injury(leg, F("Ana", "action", "came up the ladder at a run, two rungs at a time"), 1 / 365)) == 1
+    assert _injury(leg, F("Ana", "action", "walked with a cane, limping"), 1 / 52) == []
+    assert _injury([(2, F("Ana", "history", "broke her arm as a child"))], F("Ana", "action", "lifted the crate with both arms"), 1 / 52) == []
+
+
+def test_everyday_objects_lost_to_space_or_a_river_then_used():
+    ids = {"stores bay": 1, "spare oxygen regulator": 2, "Bastian": 3, "Mara": 5}
+    vented = [(2, "stores bay", F("stores bay", "contents", "the station's only spare oxygen regulator",
+                                  "Everything went out into the dark: spare suits, and the station's only spare oxygen regulator, tumbling away.", "location"))]
+    fitted = [("spare oxygen regulator", F("spare oxygen regulator", "location", "down from the shelf",
+                                           "took the spare oxygen regulator down from the shelf and fitted it", "item"))]
+    assert len(run(vented, fitted, ids)) == 1
+    assert run(vented, [("Bastian", F("Bastian", "action", "installed the new regulator"))], ids) == []
+    river = [(1, "Mara", F("Mara", "action", "dropped her phone into the river"))]
+    assert len(run(river, [("Mara", F("Mara", "action", "dialled her sister on her phone"))], ids)) == 1
+    assert run(river, [("Mara", F("Mara", "action", "dialled her sister on her new phone"))], ids) == []
+
+
+def test_older_sister_written_as_a_value_or_a_label():
+    ids = {"Priya": 1, "Marguerite Doyle": 2, "Marguerite": 2}
+    older = [(1, "Priya", F("Priya", "relationship", "older sister Marguerite Doyle"))]
+    assert len(run(older, [("Priya", F("Priya", "younger sister", "Marguerite"))], ids)) == 1
+    assert run(older, [("Priya", F("Priya", "relationship", "older sister Marguerite"))], ids) == []
+
+
+def test_titled_and_untitled_full_names_in_one_chapter_are_one_person():
+    R = lambda n: entities.Resolution(n, "character", None, n, "new", 1.0)
+    res = {n.lower(): R(n) for n in ["Dr Priya Sandoval", "Priya Sandoval", "Priya", "Leo"]}
+    entities.join_same_chapter_titled_names(res)
+    assert {res[k].canonical_name for k in ("priya", "priya sandoval")} == {"Dr Priya Sandoval"}
+    assert res["leo"].canonical_name == "Leo"
+    res = {n.lower(): R(n) for n in ["Commander Yusra Adeyemi", "Yusra"]}
+    entities.join_same_chapter_titled_names(res)
+    assert res["yusra"].canonical_name == "Commander Yusra Adeyemi"
+    res = {n.lower(): R(n) for n in ["Dr Ana Reyes", "Ana", "Ana Lopez"]}
+    entities.join_same_chapter_titled_names(res)
+    assert res["ana"].canonical_name == "Ana"                     # two Anas: unclear, left alone

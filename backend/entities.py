@@ -47,7 +47,10 @@ TITLE_WORDS = {"captain", "keeper", "harbourmaster", "harbormaster", "doctor", "
                "ms", "miss", "lord", "lady", "sir", "king", "queen", "prince", "princess",
                "old", "young", "little", "big", "father", "mother", "uncle", "aunt", "brother",
                "sister", "master", "mistress", "professor", "officer", "sergeant", "general",
-               "duke", "duchess", "baron", "baroness", "emperor", "empress", "abbot", "abbess"}
+               "duke", "duchess", "baron", "baroness", "emperor", "empress", "abbot", "abbess",
+               "commander", "lieutenant", "colonel", "major", "admiral", "chief", "inspector", "detective",
+               "constable", "agent", "nurse", "judge", "mayor", "senator", "director", "reverend", "pastor",
+               "rabbi", "imam", "dame", "madam", "madame", "mx", "prof", "dean", "coach", "ensign", "private"}
 
 
 @dataclass
@@ -293,20 +296,34 @@ def resolve_entities(project_id: int, facts: list[Fact]) -> dict[str, Resolution
 
 def join_same_chapter_titled_names(results: dict[str, Resolution]) -> None:
     """
-    "King Aurel" and "Aurel" in the SAME chapter are one person. The name rules only compare a
-    name with earlier chapters, so when both first appear together they'd become two entries
-    for good (later chapters link "Aurel" by its exact name). Join them: onto whichever is
-    already known, else both under the titled name. Only when exactly one titled name fits.
+    "King Aurel" and "Aurel", or "Dr Priya Sandoval" and "Priya Sandoval" / "Priya", in the SAME
+    chapter are one person. The name rules only compare a name with earlier chapters, so when
+    both first appear together they'd become two entries for good (later chapters link each by
+    its exact name). Join them: onto whichever is already known, else under the titled name.
+    The untitled name must be the whole name without the title, or its first word, and exactly
+    one titled name may fit.
     """
-    titled = [r for r in results.values()
-              if len(_without_article(r.name)) >= 2 and len(_without_titles(_without_article(r.name))) == 1]
+    titled = []
+    for r in results.values():
+        words = _without_article(r.name)
+        rest = _without_titles(words)
+        if rest and len(rest) < len(words):
+            titled.append((r, rest))
     for key, r in list(results.items()):
         words = _without_article(r.name)
-        if len(words) != 1 or words[0] in TITLE_WORDS | IGNORED_WORDS or len(words[0]) < 3:
+        if not words or words != _without_titles(words):
+            continue                                  # titled itself
+        if words[0] in IGNORED_WORDS or len(words[0]) < 3:
             continue
-        matching = [t for t in titled if _without_titles(_without_article(t.name)) == words
+        matching = [t for t, rest in titled if (rest == words or (len(words) == 1 and rest[0] == words[0]))
                     and _types_compatible(r.entity_type, t.entity_type)]
-        if len(matching) != 1:
+        titled_rests = [rest for t, rest in titled if t in matching]
+        if len(words) == 1 and any(len(_without_article(o.name)) >= 2 and _without_article(o.name)[0] == words[0]
+                                   and _without_titles(_without_article(o.name)) == _without_article(o.name)
+                                   and _without_article(o.name) not in titled_rests
+                                   for o in results.values() if o is not r):
+            continue                                  # "Ana" with "Dr Ana Reyes" AND "Ana Lopez": unclear
+        if len({(t.existing_entity_id, t.canonical_name.lower()) for t in matching}) != 1:
             continue
         t = matching[0]
         if r.existing_entity_id is not None and t.existing_entity_id is not None:
@@ -314,12 +331,21 @@ def join_same_chapter_titled_names(results: dict[str, Resolution]) -> None:
         if (t.existing_entity_id, t.canonical_name.lower()) == (r.existing_entity_id, r.canonical_name.lower()):
             continue
         if r.existing_entity_id is not None:          # "Aurel" known, "King Aurel" new: join Aurel
-            results[t.name.lower()] = Resolution(t.name, t.entity_type, r.existing_entity_id, r.canonical_name,
-                                                 "name match", 0.9)
+            for tt in matching:
+                results[tt.name.lower()] = Resolution(tt.name, tt.entity_type, r.existing_entity_id,
+                                                      r.canonical_name, "name match", 0.9)
         else:                                         # join the titled one (known or both new)
             results[key] = Resolution(r.name, r.entity_type, t.existing_entity_id, t.canonical_name,
                                       "name match", 0.9)
-
+    # A name joined to another name that has itself been joined ("Priya" -> "Priya Sandoval" ->
+    # "Dr Priya Sandoval") follows it to the end.
+    for _ in range(3):
+        for key, r in list(results.items()):
+            target = results.get(r.canonical_name.lower())
+            if (r.is_new and target is not None and target is not r
+                    and (target.existing_entity_id, target.canonical_name) != (None, r.canonical_name)):
+                results[key] = Resolution(r.name, r.entity_type, target.existing_entity_id, target.canonical_name,
+                                          r.method, r.confidence)
 
 def prefer_same_chapter_full_names(results: dict[str, Resolution]) -> None:
     """

@@ -314,11 +314,34 @@ def _names_in_quote(names: list[str], quote: str) -> bool:
     return False
 
 
+_ALIVE = re.compile(r"^\s*(alive|living|still alive|well|unharmed|safe|survived|back|returned)\b", re.I)
+_PASSIVE_VERB = re.compile(r"^(buried|killed|mourned|found|carried|remembered|missed|named|called|born|loved|"
+                           r"hated|feared|shot|stabbed|wounded|drowned|died|murdered|executed|hanged|cremated)$", re.I)
+
+
+def _verb_attribute(fact: Fact, names: list[str]) -> bool:
+    """'Walter Alcott | waved | hand' with 'Walter Alcott raised a hand and waved': he does it himself."""
+    attribute = (fact.attribute or "").strip().replace("_", " ")
+    verb = attribute.split()[0] if attribute.split() else ""
+    if not re.fullmatch(r"[a-z]{3,}ed", verb.lower()) or _PASSIVE_VERB.match(verb):
+        return False
+    # "Walter Alcott's daughter collected his glasses": the daughter does it, not Walter.
+    quote = re.sub(r"\b[A-Z][\w-]*(?:\s+[A-Z][\w-]*)*'s\s+\w+", " someone ", fact.source_quote or "")
+    for name in names:
+        for word in re.findall(r"[A-Za-z']{3,}", name or ""):
+            if re.search(rf"\b{re.escape(word)}\b[^.;]{{0,60}}\b{re.escape(verb)}\b", quote, re.I):
+                return True
+    return False
+
+
 def is_acting(fact: Fact, names: list[str] | None = None) -> bool:
-    return (bool(_ACTING_ATTRIBUTE.search(fact.attribute or "")) and not _MEMORY.search(fact.value or "")
+    alive = bool(re.search(r"status|state|condition", fact.attribute or "", re.I) and _ALIVE.search(fact.value or ""))
+    acts = (bool(_ACTING_ATTRIBUTE.search(fact.attribute or "")) or alive
+            or _verb_attribute(fact, names or [fact.entity]))
+    return (acts and not _MEMORY.search(fact.value or "")
             and not _MEMORY.search(fact.source_quote or "") and not _DEATH_VALUE.search(fact.value or "")
             and not _BACKSTORY.search(fact.source_quote or "") and not _BACKSTORY.search(fact.value or "")
-            and (names is None or _names_in_quote(names, fact.source_quote)))
+            and (names is None or alive or _names_in_quote(names, fact.source_quote)))
 
 
 def check_after_death(chapter_id, chapter_number, new_facts, earlier_facts_for, this_time_note) -> list[Contradiction]:

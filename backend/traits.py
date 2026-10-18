@@ -283,6 +283,16 @@ def order_claims(entity: str, attribute: str, value: str, quote: str) -> list[Or
             direction = _ORDER_WORDS[(phrase or _SIBLING_PHRASE.search(quote or "")).group(1).lower()]
             rest = entity if who == other else other
             claims.append(Order(who, rest) if direction == "older" else Order(rest, who))
+    # "Priya | relationship | older sister Marguerite Doyle", "Tom | younger sister | Marguerite"
+    kin_value = re.match(r"^(?:(?:her|his|their|my) )?(older|elder|eldest|oldest|big|younger|youngest|little|baby) "
+                         r"(brother|sister|sibling)\s+([A-Z][\w'-]*(?: [A-Z][\w'-]*)*)\s*$", (value or "").strip())
+    kin_attr = re.match(r"^(older|elder|eldest|oldest|big|younger|youngest|little|baby) (brother|sister|sibling)$",
+                        attr.strip(), re.I)
+    named = (kin_value.group(1), kin_value.group(3)) if kin_value else (
+        (kin_attr.group(1), value.strip()) if kin_attr and re.fullmatch(r"[A-Z][\w'-]*(?: [A-Z][\w'-]*)*", (value or "").strip()) else None)
+    if named and named[1].lower() != _first(entity) and named[1].split()[0].lower() != _first(entity):
+        direction = _ORDER_WORDS[named[0].lower()]
+        claims.append(Order(named[1], entity) if direction == "older" else Order(entity, named[1]))
     # "Rose Halloway | relation | Orla's younger sister"
     possessive = re.search(r"\b([A-Z][\w-]*)'s (older|elder|eldest|oldest|big|younger|youngest|little|baby) (brother|sister|sibling)\b", value or "")
     if possessive and possessive.group(1).lower() != _first(entity):
@@ -475,6 +485,22 @@ def _with_kin_descriptions(find_entity, earlier_facts_for, new_facts):
     return resolve
 
 
+_EXPLAINED_BY = {"beard": re.compile(r"\b(shaved|shaving|shave (?:it )?off|razor|grew|growing|grown|trimmed off)\b", re.I),
+                 "hair": re.compile(r"\b(dyed|dyeing|dye|bleach\w*|henna|wig|greying|graying|going grey|"
+                                    r"turned (grey|gray|white))\b", re.I),
+                 "paint": re.compile(r"\b(repaint\w*|painted (?:it|her|him|over)|new coat of paint|fresh coat)\b", re.I)}
+
+
+def _explained_between(kind, entity_id, old_fact, new_facts, earlier_facts_for, this_index=None) -> bool:
+    """The story says why it changed somewhere after the old statement: shaving, dye, a new coat of paint."""
+    pattern = _EXPLAINED_BY[kind]
+    later_earlier = [f for f in earlier_facts_for(entity_id) if f["chapter_number"] > old_fact["chapter_number"]]
+    texts = [f"{f.get('attribute') or ''} {f.get('value') or ''} {f.get('source_quote') or ''}" for f in later_earlier]
+    texts += [f"{fact.attribute} {fact.value} {fact.source_quote}" for eid, _, fact, i in new_facts
+              if eid == entity_id and i != this_index]
+    return any(pattern.search(t) for t in texts)
+
+
 def check_traits(
     chapter_id: str,
     chapter_number: int,
@@ -539,6 +565,8 @@ def check_traits(
         old_fact, old_value = clashes[-1]
         if old_fact.get("fact_id") in used_old:
             continue
+        if kind in _EXPLAINED_BY and _explained_between(kind, key[0], old_fact, new_facts, earlier_facts_for, index):
+            continue                              # "he shaved it off in the night" in between
         label = dict(names)
         label.setdefault(old_fact.get("entity_id"), old_fact.get("canonical_name") or old_fact["entity"])
         # The most recent earlier statement agrees with the new one: the clash is with an
