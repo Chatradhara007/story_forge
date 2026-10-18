@@ -105,3 +105,9 @@ def test_descriptions_are_not_names_for_family_ties():
     earlier = [(1, "his son", F("his son", "relationship", "parent of Aurel", "I will give my son the whole sea"))]
     new = [("Aurel", F("Aurel", "relationship", "parent of his sleeping son", "He kissed his sleeping son"))]
     assert run(earlier, new, {"his son": 1, "his sleeping son": 1, "Aurel": 2}) == []
+
+
+def test_a_family_tie_needs_a_family_word_in_the_quote():
+    """The Reader filed 'Aurel | parent of Oren' from 'Her blind eyes looked somewhere past him'."""
+    assert traits.family_tie("relationship", "parent of Oren", "Her blind eyes looked somewhere past him") is None
+    assert traits.family_tie("relationship", "parent of Aurel", "Aurel's father, King Oren") is not None

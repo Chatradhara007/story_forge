@@ -213,9 +213,20 @@ _LABEL_KIND = {label: kind for kind, label in rel_rules.LABELS.items()}
 _LABEL_KIND.update({label: kind for kind, label in rel_rules.INVERSE_LABELS.items()})
 
 
+_KIN_WORD = re.compile(r"\b(father|mother|son|sons|daughter|daughters|sister|sisters|brother|brothers|sibling|siblings|"
+                       r"parent|parents|child|children|twin|cousin|uncle|aunt|niece|nephew|grand\w*|"
+                       r"\w+-in-law|mum|mama|papa|da|dad|ma|pa|heir|kin|wife|husband|widow|widower)\b", re.I)
+
+
 def family_tie(attribute: str, value: str, quote: str) -> tuple[str, str, bool] | None:
-    """'relationship | sibling of Tobias' -> ('sibling', 'Tobias', forward). Only family kinds."""
+    """
+    'relationship | sibling of Tobias' -> ('sibling', 'Tobias', forward). Only family kinds, and
+    only when the quote itself names a family tie: "Her blind eyes looked somewhere past him"
+    filed as "parent of Oren" is the Reader guessing, not the story saying it.
+    """
     if not (attribute or "").lower().startswith("relation"):
+        return None
+    if not _KIN_WORD.search(quote or ""):
         return None
     for label, kind in sorted(_LABEL_KIND.items(), key=lambda item: -len(item[0])):
         if (value or "").lower().startswith(label + " ") and kind in rel_rules.FAMILY:

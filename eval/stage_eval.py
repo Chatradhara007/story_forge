@@ -49,7 +49,7 @@ import storyclock                           # noqa: E402
 import storytime                            # noqa: E402
 import traits                               # noqa: E402
 import states                               # noqa: E402
-from entities import _name_rule_match, _title_surname_match   # noqa: E402
+from entities import _name_rule_match, _title_surname_match, _titled_name_match   # noqa: E402
 try:
     from extract import timing_from_opening   # noqa: E402  (the pipeline's own opening-words timing)
 except ImportError:                            # older code
@@ -114,7 +114,8 @@ class Linker:
             match = next((e for e in self.entities
                           if any(self.gold.get(a.lower()) == group for a in [e["canonical_name"], *e["aliases"]])), None)
         if match is None:
-            match = _name_rule_match(name, entity_type, self.entities) or _title_surname_match(name, entity_type, self.entities)
+            match = (_name_rule_match(name, entity_type, self.entities) or _title_surname_match(name, entity_type, self.entities)
+                     or _titled_name_match(name, entity_type, self.entities))
         if match is None:
             match = {"id": len(self.entities), "canonical_name": name, "aliases": [], "entity_type": entity_type}
             self.entities.append(match)

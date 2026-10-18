@@ -46,7 +46,8 @@ IGNORED_WORDS = {"the", "a", "an", "of", "and", "de", "la", "le", "von", "van"}
 TITLE_WORDS = {"captain", "keeper", "harbourmaster", "harbormaster", "doctor", "dr", "mr", "mrs",
                "ms", "miss", "lord", "lady", "sir", "king", "queen", "prince", "princess",
                "old", "young", "little", "big", "father", "mother", "uncle", "aunt", "brother",
-               "sister", "master", "mistress", "professor", "officer", "sergeant", "general"}
+               "sister", "master", "mistress", "professor", "officer", "sergeant", "general",
+               "duke", "duchess", "baron", "baroness", "emperor", "empress", "abbot", "abbess"}
 
 
 @dataclass
@@ -175,6 +176,48 @@ def _name_rule_match(name: str, entity_type: str, known: list[dict]) -> dict | N
                 matches[entity["id"]] = entity
                 break
     return next(iter(matches.values())) if len(matches) == 1 else None
+
+
+def _without_titles(words: list[str]) -> list[str]:
+    while words and words[0] in TITLE_WORDS:
+        words = words[1:]
+    return words
+
+
+def _titled_name_match(name: str, entity_type: str, known: list[dict]) -> dict | None:
+    """
+    Link a titled name with the same name without the title, without the AI:
+    "King Aurel" / "Aurel", "Duke Corvin" / "Corvin", "Queen Liesl" / "Liesl Oren". The title
+    is set aside and the rest must be the same name (or its start), and exactly one known
+    entity of a compatible type may fit. A title alone ("the Keeper") or a bare surname shared
+    by a family is never linked this way.
+    """
+    original = _without_article(name)
+    words = _without_titles(original)
+    if not words or words[0] in IGNORED_WORDS or len(words[0]) < 3:
+        return None
+    matches = {}
+    for entity in known:
+        if not _types_compatible(entity_type, entity["entity_type"]):
+            continue
+        for alias in [entity["canonical_name"], *entity["aliases"]]:
+            other_original = _without_article(alias)
+            other = _without_titles(other_original)
+            if not other or (len(other) == len(other_original) and len(words) == len(original)):
+                continue                          # no title on either side: the other rules decide
+            shorter, longer = (words, other) if len(words) <= len(other) else (other, words)
+            if longer[:len(shorter)] == shorter:
+                matches[entity["id"]] = entity
+                break
+    if len(matches) != 1:
+        return None
+    # A single word that is someone's surname ("Calloway") could be anyone in that family.
+    if len(words) == 1:
+        families = {e["id"] for e in known for alias in [e["canonical_name"], *e["aliases"]]
+                    if len(_without_titles(alias.lower().split())) >= 2 and alias.lower().split()[-1] == words[0]}
+        if families:
+            return None
+    return next(iter(matches.values()))
 
 
 def _title_surname_match(name: str, entity_type: str, known: list[dict]) -> dict | None:
@@ -357,7 +400,8 @@ def _resolve_names(project_id: int, facts: list[Fact]) -> dict[str, Resolution]:
             entity = None
         entity = (entity
                   or _name_rule_match(info["name"], info["type"], known)
-                  or _title_surname_match(info["name"], info["type"], known))
+                  or _title_surname_match(info["name"], info["type"], known)
+                  or _titled_name_match(info["name"], info["type"], known))
         if entity is not None:
             results[info["name"].lower()] = Resolution(
                 info["name"], info["type"], entity["id"], entity["canonical_name"], "name match", 0.9
