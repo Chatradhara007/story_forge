@@ -287,7 +287,38 @@ def resolve_entities(project_id: int, facts: list[Fact]) -> dict[str, Resolution
     results = _resolve_names(project_id, facts)
     _apply_stated_identities(project_id, facts, results)
     prefer_same_chapter_full_names(results)
+    join_same_chapter_titled_names(results)
     return results
+
+
+def join_same_chapter_titled_names(results: dict[str, Resolution]) -> None:
+    """
+    "King Aurel" and "Aurel" in the SAME chapter are one person. The name rules only compare a
+    name with earlier chapters, so when both first appear together they'd become two entries
+    for good (later chapters link "Aurel" by its exact name). Join them: onto whichever is
+    already known, else both under the titled name. Only when exactly one titled name fits.
+    """
+    titled = [r for r in results.values()
+              if len(_without_article(r.name)) >= 2 and len(_without_titles(_without_article(r.name))) == 1]
+    for key, r in list(results.items()):
+        words = _without_article(r.name)
+        if len(words) != 1 or words[0] in TITLE_WORDS | IGNORED_WORDS or len(words[0]) < 3:
+            continue
+        matching = [t for t in titled if _without_titles(_without_article(t.name)) == words
+                    and _types_compatible(r.entity_type, t.entity_type)]
+        if len(matching) != 1:
+            continue
+        t = matching[0]
+        if r.existing_entity_id is not None and t.existing_entity_id is not None:
+            continue                                  # both already known: a merge is for the writer
+        if (t.existing_entity_id, t.canonical_name.lower()) == (r.existing_entity_id, r.canonical_name.lower()):
+            continue
+        if r.existing_entity_id is not None:          # "Aurel" known, "King Aurel" new: join Aurel
+            results[t.name.lower()] = Resolution(t.name, t.entity_type, r.existing_entity_id, r.canonical_name,
+                                                 "name match", 0.9)
+        else:                                         # join the titled one (known or both new)
+            results[key] = Resolution(r.name, r.entity_type, t.existing_entity_id, t.canonical_name,
+                                      "name match", 0.9)
 
 
 def prefer_same_chapter_full_names(results: dict[str, Resolution]) -> None:
