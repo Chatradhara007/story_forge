@@ -76,7 +76,7 @@ def test_diagnosis_names_the_failing_step():
 
 
 def test_every_story_has_a_valid_answer_key():
-    for folder in STORIES.iterdir():
+    for folder in (p for p in STORIES.iterdir() if p.is_dir()):
         truth = json.loads((folder / "ground_truth.json").read_text())
         for chapter in truth["chapters"]:
             assert (folder / f"{chapter}.txt").exists(), f"{folder.name}: missing {chapter}.txt"
