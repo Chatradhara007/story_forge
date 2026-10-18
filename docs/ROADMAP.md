@@ -28,6 +28,10 @@ Guide: `docs/LOCAL-MODEL.md`.
    Keep `NVIDIA_API_KEY` (search vectors), `CHECKER=off`, `SAFETY_NET=off`, `NAME_LINKING=rules`.
 4. `python eval/run_eval.py --story kestrel --reuse-reading`, then `--story fallenking`.
 
+Then the free-setup search (`docs/FREE-SETUP.md`): add any free keys you have (Groq, Cerebras,
+Gemini for test stories only...) and run `python eval/reader_sweep.py`; it ranks every free reader
+on all five stories and suggests a chain (best first, reliable fallbacks after it).
+
 **Checkpoint 1:** local reading is within ~1 catch of NVIDIA Lightning (Fallen King 8/11,
 Kestrel 3/9) with no new false alarms. Expected time: Kestrel 1-3 min, Fallen King 5-12 min
 on the first run; about a minute after that.

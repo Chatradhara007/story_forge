@@ -141,6 +141,119 @@ def _embed_client():
     return _separate_embed_client or client
 
 
+# ------------------------------------------------------------------ providers --
+# Several free services can be chained: "ollama:qwen2.5:7b-instruct,groq:llama-3.3-70b-versatile,
+# nvidia:nvidia/nemotron-3.5-lightning-30b-a3b". A model name WITHOUT a known provider in front
+# uses AI_BASE_URL as before. Each provider has its own key, its own pacing and its own pause
+# after "too many requests", and a provider that runs out of free requests hands over to the
+# next model at once instead of waiting.
+PROVIDERS = {
+    #  name        base address                                              key setting           requests/min
+    "nvidia":     ("https://integrate.api.nvidia.com/v1",                     "NVIDIA_API_KEY",     30),
+    "ollama":     (os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"), None,                 0),
+    "groq":       ("https://api.groq.com/openai/v1",                          "GROQ_API_KEY",       30),
+    "cerebras":   ("https://api.cerebras.ai/v1",                              "CEREBRAS_API_KEY",   30),
+    "openrouter": ("https://openrouter.ai/api/v1",                            "OPENROUTER_API_KEY", 20),
+    "gemini":     ("https://generativelanguage.googleapis.com/v1beta/openai/", "GEMINI_API_KEY",    10),
+    "github":     ("https://models.github.ai/inference",                      "GITHUB_TOKEN",       15),
+    "mistral":    ("https://api.mistral.ai/v1",                               "MISTRAL_API_KEY",    30),
+}
+
+
+def split_model(model: str) -> tuple[str | None, str]:
+    """'groq:llama-3.3-70b' -> ('groq', 'llama-3.3-70b'); 'qwen2.5:7b' or 'nvidia/x' -> (None, as is)."""
+    head, sep, rest = (model or "").partition(":")
+    if sep and rest and head.lower() in PROVIDERS:
+        return head.lower(), rest
+    return None, model
+
+
+def provider_key_missing(model: str) -> str | None:
+    """The setting to fill in when a provider's key is missing (None: nothing missing)."""
+    provider, _ = split_model(model)
+    if provider is None:
+        return None
+    key_setting = PROVIDERS[provider][1]
+    return key_setting if key_setting and not os.getenv(key_setting, "").strip() else None
+
+
+_provider_clients: dict = {}
+
+
+def _client_for(model: str):
+    """The connection for this model's provider (looked up at call time: tests replace `client`)."""
+    provider, _ = split_model(model)
+    if provider is None:
+        return client
+    if provider not in _provider_clients:
+        base, key_setting, _ = PROVIDERS[provider]
+        _provider_clients[provider] = OpenAI(
+            base_url=base, api_key=(os.getenv(key_setting, "").strip() if key_setting else "") or "local",
+            timeout=REQUEST_TIMEOUT, max_retries=0)
+    return _provider_clients[provider]
+
+
+class _ProviderGate:
+    """Pacing and the pause after 'too many requests' for ONE labelled provider."""
+
+    def __init__(self, provider: str):
+        default_rpm = PROVIDERS[provider][2]
+        self.rpm = max(0, int(os.getenv(f"{provider.upper()}_RPM", str(default_rpm))))
+        self.lock = threading.Lock()
+        self.next_start = 0.0
+        self.cooldown_until = 0.0
+
+    def wait(self) -> None:
+        with self.lock:
+            now = time.monotonic()
+            start = max(now, self.next_start, self.cooldown_until)
+            if self.rpm:
+                self.next_start = start + 60.0 / self.rpm
+        if start > now:
+            _pause(start - now)
+
+    def refused(self, error: Exception) -> None:
+        pause = 30.0
+        try:
+            pause = max(pause, float(getattr(error, "response", None).headers.get("retry-after", 0)))
+        except (TypeError, ValueError, AttributeError):
+            pass
+        with self.lock:
+            self.cooldown_until = max(self.cooldown_until, time.monotonic() + min(pause, 600.0))
+
+
+_gates: dict = {}
+_gates_lock = threading.Lock()
+
+
+def _gate_for(provider: str) -> "_ProviderGate":
+    with _gates_lock:
+        if provider not in _gates:
+            _gates[provider] = _ProviderGate(provider)
+        return _gates[provider]
+
+
+def _call_provider(model: str, request):
+    """One request to a labelled provider: its own pacing; a refusal pauses only that provider."""
+    global request_count, refused_count
+    provider, _ = split_model(model)
+    if provider is None:
+        return _call_api(request)
+    gate = _gate_for(provider)
+    gate.wait()
+    with _slots:
+        with _cooldown_lock:
+            request_count += 1
+        try:
+            return request()
+        except Exception as error:
+            if _is_rate_limited(error):
+                with _cooldown_lock:
+                    refused_count += 1
+                gate.refused(error)
+            raise
+
+
 def _pause(seconds: float) -> None:
     """Wait between retries (a separate function so tests can skip the waiting)."""
     time.sleep(seconds)
@@ -357,6 +470,8 @@ def with_retries(action, what: str, attempts: int | None = None):
     while True:
         try:
             return action()
+        except ModelStrugglingError:
+            raise                                # hand over to the next model at once
         except Exception as error:
             if _is_context_too_long(error):
                 raise ContextTooLongError(f"{what} failed: the request was too long for the model.") from error
@@ -447,8 +562,9 @@ def _thinking_options(mode: str | None = None, model: str | None = None) -> dict
     refused.
     """
     mode = _effective_mode(mode, model)
-    if LOCAL_AI:
-        return {}                 # a local server: pick a model that doesn't think (e.g. qwen2.5)
+    provider = split_model(model or "")[0]
+    if (LOCAL_AI and provider is None) or (provider is not None and provider != "nvidia"):
+        return {}                 # local servers and other services: no NVIDIA thinking switches                 # a local server: pick a model that doesn't think (e.g. qwen2.5)
     family = _model_family(model or CHAT_MODEL)
     if family == "enable_thinking":
         kwargs = {"off": {"enable_thinking": False},
@@ -526,7 +642,10 @@ def _mark_retired(model: str, error: Exception) -> None:
         if model in _retired:
             return
         _retired[model] = str(error)[:300]
-    _note(f"'{model}' is not available on NVIDIA any more; it won't be asked again. "
+    if "in backend/.env, so this model is skipped" in str(error):
+        _note(str(error))
+        return
+    _note(f"'{model}' is not available any more; it won't be asked again. "
           f"Run python check_models.py (in backend/) and update CHAT_MODEL / JUDGE_MODEL.")
 
 
@@ -626,14 +745,18 @@ def _send(model: str, mode: str, make_request):
     (500s) for a crash. Other models keep their thinking.
     """
     effective = _effective_mode(mode, model)
+    if split_model(model)[0] is not None:
+        call = lambda request: _call_provider(model, request)      # noqa: E731
+    else:
+        call = _call_api
     try:
-        return _call_api(lambda: make_request(effective))
+        return call(lambda: make_request(effective))
     except Exception as error:
         if effective == "off" or _is_context_too_long(error) or _is_model_gone(error) or _is_rate_limited(error):
             raise
         key = f"{model}|{effective}"
         if isinstance(error, openai.BadRequestError):
-            response = _call_api(lambda: make_request("off"))
+            response = call(lambda: make_request("off"))
             _unsupported_modes.add(key)
             print(f"  [note] thinking '{effective}' was refused by {model}; it answers without thinking now",
                   flush=True)
@@ -644,12 +767,24 @@ def _send(model: str, mode: str, make_request):
                 _unsupported_modes.add(key)
                 print(f"  [note] {model} crashed twice while thinking; it answers without thinking now",
                       flush=True)
-                return _call_api(lambda: make_request("off"))
+                return call(lambda: make_request("off"))
         raise
 
 
 def _attempts(what: str, model: str, has_alternative: bool, ask_once):
     """Retries for one model: fewer when another model could take over."""
+    missing = provider_key_missing(model)
+    if missing:
+        raise ModelUnavailableError(f"{model}: no {missing} in backend/.env, so this model is skipped")
+    if split_model(model)[0] is not None and has_alternative:
+        def ask_once_or_hand_over(inner=ask_once):
+            try:
+                return inner()
+            except Exception as error:
+                if _is_rate_limited(error):
+                    raise ModelStrugglingError(f"{model} is out of free requests for now: {str(error)[:120]}") from error
+                raise
+        ask_once = ask_once_or_hand_over
     try:
         return with_retries(ask_once, what=f"{what} ({model})",
                             attempts=FAILOVER_AFTER if has_alternative else None)
@@ -688,8 +823,8 @@ def call_tool(prompt: str, tool: dict, max_tokens: int = 4096, thinking: str | N
             budget = state["budget"]
 
             def make_request(m):
-                return client.chat.completions.create(
-                    model=model, max_tokens=_answer_space(budget, m), temperature=temperature,
+                return _client_for(model).chat.completions.create(
+                    model=split_model(model)[1], max_tokens=_answer_space(budget, m), temperature=temperature,
                     tools=[tool], tool_choice={"type": "function", "function": {"name": tool_name}},
                     messages=[{"role": "user", "content": prompt}], **_thinking_options(m, model))
 
@@ -750,8 +885,8 @@ def ask_text(prompt: str, max_tokens: int = 1024) -> str:
     def attempt_with(model: str, has_alternative: bool) -> str:
         def ask_once():
             def make_request(m):
-                return client.chat.completions.create(
-                    model=model, max_tokens=_answer_space(max_tokens, m), temperature=TEMPERATURE,
+                return _client_for(model).chat.completions.create(
+                    model=split_model(model)[1], max_tokens=_answer_space(max_tokens, m), temperature=TEMPERATURE,
                     messages=[{"role": "user", "content": prompt}], **_thinking_options(m, model))
             response = _send(model, THINKING_MODE, make_request)
             text = response.choices[0].message.content or ""
