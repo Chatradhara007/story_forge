@@ -29,9 +29,22 @@ services:
       - key: CHAT_MODEL
         value: "nvidia/nemotron-3.5-lightning-30b-a3b,nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
       - key: JUDGE_MODEL
-        value: "nvidia/nemotron-3-ultra-550b-a55b,nvidia/nemotron-3.5-lightning-30b-a3b"
+        value: "nvidia/nemotron-3.5-lightning-30b-a3b"
       - key: CHAT_THINKING_JUDGING
-        value: "off"         # Ultra crashes when asked to think (docs/FINAL-CONFIGURATION.md)
+        value: "off"
+      # Measured 18 Oct 2026 on the free NVIDIA tier (eval/): the checks done in code catch the
+      # mistakes with no false alarms; the AI checker and AI name linking added false alarms
+      # and long timeouts. Switch CHECKER on later with a faster paid model for "Worth a look".
+      - key: CHECKER
+        value: "off"
+      - key: SAFETY_NET
+        value: "off"
+      - key: NAME_LINKING
+        value: "rules"
+      - key: AI_REQUEST_TIMEOUT
+        value: "60"
+      - key: AI_RETRY_ATTEMPTS
+        value: "3"
       - key: SMTP_HOST
         sync: false          # optional: send password-reset emails (else the link goes to the log)
       - key: SMTP_USER

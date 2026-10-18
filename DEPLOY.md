@@ -37,9 +37,10 @@ Time needed: about 20 minutes.
    - optional `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`: to email password-reset
      links (any SMTP provider: Gmail app password, Brevo, Postmark, SES...). Without them, the
      reset link is printed in Render's log and whoever runs the service passes it on.
-   - the AI models are already set in `render.yaml` (`CHAT_MODEL`, `JUDGE_MODEL`,
-     `CHAT_THINKING_JUDGING=off`, the configuration in `docs/FINAL-CONFIGURATION.md`). Run
-     `python check_models.py` in `backend/` locally first to confirm your key can use them.
+   - the AI models and checking settings are already set in `render.yaml`: Lightning for
+     reading, the checks done in code for warnings (`CHECKER=off`, `NAME_LINKING=rules`), the
+     setup measured with `eval/run_eval.py` on 18 Oct 2026. Run `python check_models.py` in
+     `backend/` locally first to confirm your key can use the models.
 3. Render generates `SECRET_KEY` for you. Sign-in is switched on (`AUTH_REQUIRED=true`), and
    `BEHIND_PROXY=true` so password-guessing limits use each visitor's real address.
 4. Wait for the build, then open the address Render gives you (for example
