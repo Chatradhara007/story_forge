@@ -27,7 +27,15 @@ os.environ.setdefault("AUTH_REQUIRED", "false")
 os.environ.setdefault("TRAIT_CHECKS", "off")   # most tests use eye colour as their AI-checker example; test_traits.py tests the rules directly
 # The tests are written for the default judging setting; a deployment .env may say "off".
 os.environ["CHAT_THINKING_JUDGING"] = "low"
-os.environ.setdefault("SAFETY_NET", "on")      # the tests cover the safety net; it is off by default in the app
+os.environ["SAFETY_NET"] = "on"          # the tests cover the safety net; it is off by default in the app
+# Your .env tunes the app for real runs (a different judge, the checker off, fewer retries).
+# The tests are written for the defaults, so those settings are pinned here and never leak in.
+os.environ["CHECKER"] = "on"
+os.environ["AI_RETRY_ATTEMPTS"] = "6"
+os.environ["CHAT_MODEL"] = "nvidia/nemotron-3.5-lightning-30b-a3b,nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
+os.environ["JUDGE_MODEL"] = "nvidia/nemotron-3-ultra-550b-a55b,nvidia/nemotron-3.5-lightning-30b-a3b"
+for _setting in ("CHAT_MODEL_READING", "CHAT_MODEL_JUDGING", "CHAT_MODEL_FALLBACKS", "CHAT_DISABLE_THINKING"):
+    os.environ[_setting] = ""             # empty, not removed: .env is loaded later and never overrides
 
 
 def _database_available() -> bool:
