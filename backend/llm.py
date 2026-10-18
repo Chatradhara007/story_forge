@@ -93,7 +93,12 @@ MAX_PARALLEL_AI_CALLS = max(1, int(os.getenv("MAX_PARALLEL_AI_CALLS", "4")))
 # requests an account may make in a period; going over gets every request refused with
 # "429 Too Many Requests" for a while. Pacing requests keeps us under the limit.
 # Raise it if your NVIDIA plan allows more.
-MAX_REQUESTS_PER_MINUTE = max(0, int(os.getenv("MAX_REQUESTS_PER_MINUTE", "30")))
+# A model served on your own computer (Ollama, LM Studio, vLLM...): AI_BASE_URL points at it,
+# e.g. http://localhost:11434/v1 for Ollama. No key, no rate limit, no NVIDIA-only options.
+AI_BASE_URL = os.getenv("AI_BASE_URL", "https://integrate.api.nvidia.com/v1").strip()
+LOCAL_AI = (os.getenv("AI_PROVIDER", "").strip().lower() == "local"
+            or any(h in AI_BASE_URL for h in ("localhost", "127.0.0.1", "0.0.0.0", "host.docker.internal", ":11434")))
+MAX_REQUESTS_PER_MINUTE = max(0, int(os.getenv("MAX_REQUESTS_PER_MINUTE", "0" if LOCAL_AI else "30")))
 
 # When NVIDIA says "too many requests", keep waiting (all requests pause together) for up
 # to this many seconds before giving up. Other errors use RETRY_ATTEMPTS instead.
@@ -105,18 +110,35 @@ RETRY_ATTEMPTS = max(1, int(os.getenv("AI_RETRY_ATTEMPTS", "6")))
 
 # A missing key must not crash the app on start-up (then even /health would fail). The
 # first AI request reports it clearly instead (see _permanent_problem).
-API_KEY = os.getenv("NVIDIA_API_KEY", "").strip()
-AI_CONFIGURED = bool(API_KEY) and API_KEY != "your_key_here"
+NVIDIA_KEY = os.getenv("NVIDIA_API_KEY", "").strip()
+API_KEY = os.getenv("AI_API_KEY", "").strip() or NVIDIA_KEY
+AI_CONFIGURED = LOCAL_AI or (bool(API_KEY) and API_KEY != "your_key_here")
 
 client = OpenAI(
-    base_url=os.getenv("AI_BASE_URL", "https://integrate.api.nvidia.com/v1"),
-    api_key=API_KEY or "missing-key",
+    base_url=AI_BASE_URL,
+    api_key=API_KEY or ("local" if LOCAL_AI else "missing-key"),
     timeout=REQUEST_TIMEOUT,
     # Retrying is done by with_retries below, which honours the shared pacing and cool-down.
     # The library's own hidden retries (2 by default) multiplied every try by 3 and ignored
     # the pacing, which made "Too Many Requests" worse.
     max_retries=0,
 )
+
+
+# Embeddings may come from a different server than the chat models: with a local Reader the
+# vectors can stay on NVIDIA (EMBED_MODEL nvidia/...), or come from the local server too
+# (EMBED_MODEL e.g. nomic-embed-text, then run reembed.py once). EMBED_BASE_URL overrides.
+EMBED_BASE_URL = os.getenv("EMBED_BASE_URL", "").strip() or (
+    "https://integrate.api.nvidia.com/v1" if LOCAL_AI and EMBED_MODEL.startswith("nvidia/") else AI_BASE_URL)
+EMBED_IS_NVIDIA = "nvidia.com" in EMBED_BASE_URL
+_separate_embed_client = None if EMBED_BASE_URL == AI_BASE_URL else OpenAI(
+    base_url=EMBED_BASE_URL, api_key=(NVIDIA_KEY if EMBED_IS_NVIDIA else API_KEY) or "local",
+    timeout=REQUEST_TIMEOUT, max_retries=0)
+
+
+def _embed_client():
+    """Looked up at call time, so the tests' fake client is used when it replaces `client`."""
+    return _separate_embed_client or client
 
 
 def _pause(seconds: float) -> None:
@@ -286,6 +308,12 @@ def _permanent_problem(error: Exception) -> str | None:
         return "No NVIDIA_API_KEY is set. Add it to backend/.env (or the host's environment settings)."
     if isinstance(error, openai.AuthenticationError) or isinstance(error, openai.PermissionDeniedError):
         return "NVIDIA rejected the API key. Check NVIDIA_API_KEY in backend/.env."
+    if LOCAL_AI and _is_model_gone(error):
+        return (f"The local AI server at {AI_BASE_URL} doesn't have that model. Download it first, e.g. "
+                f"`ollama pull {CHAT_MODEL}`, or set CHAT_MODEL / JUDGE_MODEL in backend/.env to one you have.")
+    if LOCAL_AI and isinstance(error, openai.APIConnectionError):
+        return (f"Nothing is answering at {AI_BASE_URL}. Start the local AI server (Ollama: open the Ollama "
+                f"app, or run `ollama serve`).")
     if _is_model_gone(error):
         # 410 Gone used to be retried 6 times (about a minute wasted per request).
         return ("NVIDIA doesn't recognise the model name; it may have been retired. "
@@ -419,6 +447,8 @@ def _thinking_options(mode: str | None = None, model: str | None = None) -> dict
     refused.
     """
     mode = _effective_mode(mode, model)
+    if LOCAL_AI:
+        return {}                 # a local server: pick a model that doesn't think (e.g. qwen2.5)
     family = _model_family(model or CHAT_MODEL)
     if family == "enable_thinking":
         kwargs = {"off": {"enable_thinking": False},
@@ -702,10 +732,10 @@ def embed_texts(texts: list[str], input_type: str = "passage") -> list[list[floa
     for start in range(0, len(texts), EMBED_BATCH_SIZE):
         batch = texts[start:start + EMBED_BATCH_SIZE]
         response = with_retries(
-            lambda: _call_api(lambda: client.embeddings.create(
+            lambda: _call_api(lambda: _embed_client().embeddings.create(
                 input=batch,
                 model=EMBED_MODEL,
-                extra_body={"input_type": input_type, "truncate": "END"},
+                **({"extra_body": {"input_type": input_type, "truncate": "END"}} if EMBED_IS_NVIDIA else {}),
             )),
             what="Embedding request",
         )

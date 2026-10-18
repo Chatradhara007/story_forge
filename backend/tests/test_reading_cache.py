@@ -24,3 +24,11 @@ def test_without_the_setting_nothing_is_saved(client, fake_ai, tmp_path):
     client.post("/chapters", json={"chapter_id": "b", "text": "[1]"})
     assert fake_ai.calls["record_facts"] >= 2
     assert not list(tmp_path.iterdir())
+
+
+def test_a_smaller_local_embedding_is_padded_to_the_stored_size():
+    import storage
+    stored = storage.EMBED_DIM
+    text = storage._to_vector([0.5, 0.25])
+    numbers = text.strip("[]").split(",")
+    assert len(numbers) == stored and numbers[:2] == ["0.5", "0.25"] and set(numbers[2:]) == {"0.0"}

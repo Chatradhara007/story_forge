@@ -155,7 +155,17 @@ def _dict_cursor(conn):
 
 
 def _to_vector(values: list[float]) -> str:
-    """Format a list of numbers the way the database's vector type expects: [0.1,0.2,...]"""
+    """
+    Format a list of numbers the way the database's vector type expects: [0.1,0.2,...]
+    A smaller embedding model (a local one: 768 or 1024 numbers) is padded with zeros to the
+    stored size; zeros change neither the cosine distance nor the search order.
+    """
+    values = list(values)
+    if len(values) < EMBED_DIM:
+        values += [0.0] * (EMBED_DIM - len(values))
+    elif len(values) > EMBED_DIM:
+        raise AIServiceError(f"The embedding model gives {len(values)} numbers per fact but the database stores "
+                             f"{EMBED_DIM}. Use an embedding model with at most {EMBED_DIM}.")
     return "[" + ",".join(str(v) for v in values) + "]"
 
 
