@@ -40,9 +40,14 @@ on the first run; about a minute after that.
 
 ## Step 2: Honest measurement that scales
 
-- **Automatic test cases:** plant changes (colours, numbers, weekdays, family words,
-  sides, objects coming back) into clean stories at random places: hundreds of cases across
-  every kind, with the answer key written automatically.
+- **Automatic test cases** (built 19 Oct): `python eval/make_cases.py --run` plants mistakes
+  (eye/hair colour, side of a scar, an age going down, the dead acting again, older/younger,
+  sister to cousin, counts, street names) into the stories with the answer key written
+  automatically, and reports recall per kind plus false alarms. Only plainly stated facts about a
+  named person anchor a case (a wrong answer key is worse than none).
+- **Real books as a base:** `python eval/add_book.py 1342 --name pride` adds the first chapters
+  of a public-domain novel. On its own it measures false alarms on real prose; with
+  `make_cases.py --stories pride --run` it gives many more planted cases.
 - **New held-out stories written by a teammate** (`eval/HOW-TO-WRITE-A-TEST-STORY.md`).
 - **Release gate in GitHub Actions:** tests plus the offline story replay on every push; fail if
   a catch is lost or a false alarm appears.

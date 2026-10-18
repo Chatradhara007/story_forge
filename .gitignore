@@ -8,3 +8,7 @@ eval/results/*.json
 # demo reading cache (READING_CACHE)
 reading-cache/
 backend/reading-cache/
+
+# generated test cases (eval/make_cases.py)
+eval/stories/gen-*/
+eval/cache/gen-*
