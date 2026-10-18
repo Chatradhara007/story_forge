@@ -16,7 +16,10 @@ How a name gets linked, cheapest first:
 We only accept an AI match when it is confident, because a WRONG merge is worse
 than a missed one: merging two different people creates fake "contradictions".
 """
+import os
 import re
+import threading
+import time
 from dataclasses import dataclass
 from models import Fact
 from llm import call_tool, run_in_parallel, JUDGING_THINKING_MODE, AIServiceError
@@ -26,6 +29,14 @@ from storage import find_entities_by_alias, get_all_entities_with_context
 MIN_CONFIDENCE_TO_MERGE = 0.7   # AI must be at least this sure to link to a known entity
 MAX_KNOWN_TO_SEND_ALL = 150      # small story: show the AI every known entity
 MAX_CANDIDATES = 60              # big story: show only the most plausible ones
+# NAME_LINKING=rules skips step 3 (the AI) entirely: names are linked by the name rules and by
+# names the story itself states ("his real name was Edwin Marsh"). Much faster on a slow API.
+NAME_LINKING = os.getenv("NAME_LINKING", "ai").strip().lower()
+# After the AI linking calls fail (an outage), don't ask again for this many seconds: on the free
+# tier one outage otherwise costs every following chapter ~10 minutes of timeouts.
+LINKING_PAUSE_SECONDS = float(os.getenv("NAME_LINKING_PAUSE", "900"))
+_paused_until = [0.0]
+_pause_lock = threading.Lock()
 NAMES_PER_CALL = 12              # new names per AI call; calls run in parallel (one 40-name call took ~20s on Ultra)
 
 # Small words that shouldn't count as a "shared word" between two names.
@@ -357,7 +368,11 @@ def _resolve_names(project_id: int, facts: list[Fact]) -> dict[str, Resolution]:
     if not unmatched:
         return results
 
-    # 3. Ask the AI about the rest.
+    # 3. Ask the AI about the rest (unless switched off, or paused after an outage).
+    if NAME_LINKING in ("rules", "off", "no", "false", "0") or time.monotonic() < _paused_until[0]:
+        for info in unmatched:
+            results[info["name"].lower()] = Resolution(info["name"], info["type"], None, info["name"], "new", 1.0)
+        return results
     candidates = _pick_candidates([u["name"] for u in unmatched], known)
     candidates_by_id = {e["id"]: e for e in candidates}
 
@@ -379,8 +394,15 @@ def _resolve_names(project_id: int, facts: list[Fact]) -> dict[str, Resolution]:
             text = str(error)
             if any(k in text for k in ("API key", "check_models", "reembed", "retired")):
                 raise                    # a setup problem, not an outage: stop with the clear message
+            with _pause_lock:
+                first = time.monotonic() >= _paused_until[0]
+                if LINKING_PAUSE_SECONDS > 0:
+                    _paused_until[0] = time.monotonic() + LINKING_PAUSE_SECONDS
             print(f"  [note] linking names without the AI this time ({len(batch)} names left unlinked): {text}",
                   flush=True)
+            if first and LINKING_PAUSE_SECONDS > 0:
+                print(f"  [note] the AI is struggling: names are linked by the name rules only for the next "
+                      f"{LINKING_PAUSE_SECONDS / 60:.0f} minutes (NAME_LINKING_PAUSE)", flush=True)
             return {"resolutions": []}
 
     answers = run_in_parallel(ask, batches)

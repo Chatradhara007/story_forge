@@ -48,6 +48,8 @@ os.environ["SAFETY_NET"] = "on"          # the tests cover the safety net; it is
 # Your .env tunes the app for real runs (a different judge, the checker off, fewer retries).
 # The tests are written for the defaults, so those settings are pinned here and never leak in.
 os.environ["CHECKER"] = "on"
+os.environ["NAME_LINKING"] = "ai"
+os.environ["NAME_LINKING_PAUSE"] = "0"   # each test starts with the AI available
 os.environ["AI_RETRY_ATTEMPTS"] = "6"
 os.environ["CHAT_MODEL"] = "nvidia/nemotron-3.5-lightning-30b-a3b,nvidia/nemotron-3-nano-omni-30b-a3b-reasoning"
 os.environ["JUDGE_MODEL"] = "nvidia/nemotron-3-ultra-550b-a55b,nvidia/nemotron-3.5-lightning-30b-a3b"
