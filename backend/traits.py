@@ -12,6 +12,10 @@ two claims about the same entity clash by a rule:
   handedness       left-handed vs signs with her right hand
   who is older     "her older brother Tobias" vs "Tobias, my younger brother"
   family tie       sister vs cousin                     (relationships.conflict)
+  height           a tall, stooping man vs the short captain
+  beard            a white beard vs his clean-shaven chin
+  boat colour      the red-painted launch vs its blue hull
+  where from       born in Varrow and never left vs came to Varrow at nineteen
 
 Claims are only made from clear wording; anything unclear makes no claim (a missed warning is
 cheaper than a false one, and the AI checker still sees every fact). Warnings found here go
@@ -37,6 +41,7 @@ _COLOURS = {
 _COLOUR = r"(?:grey|gray|green|blue|brown|hazel|amber|black|violet|golden|gold|chestnut|bay|white|red|roan|dun|silver|dappled|piebald|palomino|sorrel)"
 _COLOUR_GROUP = rf"(?:(?:dark|light|pale|deep|bright|steel|iron|ice|sea|storm|jet|coal|snow)[- ]?)?{_COLOUR}(?:[- ](?:and[- ])?{_COLOUR})*"
 _ANIMAL = r"(?:stallion|mare|horse|gelding|pony|colt|filly|mount|hound|dog|cat|mule|ox|bull|cow|wolfhound|mastiff|bitch|tomcat)"
+_VESSEL = r"(?:launch|boat|ship|skiff|barge|cutter|ketch|sloop|schooner|galley|dinghy|rowboat|ferry|hull|carriage|coach|wagon|cart)"
 _CHANGE = re.compile(r"\b(dyed|dye|painted|repainted|bleached|greying|graying|turned|turning|faded|fading|whitening|"
                      r"around the muzzle|at the muzzle|muzzle|grey coming|going grey|in the light|seemed|looked)\b", re.I)
 
@@ -79,7 +84,7 @@ def animal_colour_claims(entity: str, attribute: str, value: str) -> list[tuple[
     if _CHANGE.search(value or ""):
         return []
     claims = []
-    for m in re.finditer(rf"\b([A-Z][a-z]+),?\s+(?:the|a|an|his|her|their|my)\s+({_COLOUR_GROUP})\s+{_ANIMAL}\b", value or ""):
+    for m in re.finditer(rf"\b([A-Z][a-z]+),?\s+(?:the|a|an|his|her|their|my)\s+(?:[\w']+\s+){{0,3}}?({_COLOUR_GROUP})\s+{_ANIMAL}\b", value or ""):
         claims.append((m.group(1), _colours(m.group(2))))
     for m in re.finditer(rf"\b({_COLOUR_GROUP})\s+{_ANIMAL}\s+(?:called|named)\s+([A-Z][a-z]+)", value or ""):
         claims.append((m.group(2), _colours(m.group(1))))
@@ -88,6 +93,58 @@ def animal_colour_claims(entity: str, attribute: str, value: str) -> list[tuple[
         if m:
             claims.append((entity, _colours(m.group(1))))
     return [(name, colours) for name, colours in claims if colours]
+
+
+def vessel_colours(entity_type: str, value: str, quote: str) -> set[str]:
+    """
+    A boat's (or cart's) own colour, on its own entry: "blue hull freshly scrubbed",
+    "the harbour's little red-painted launch". Never on a person's entry (they may ride in it).
+    """
+    if (entity_type or "").lower() == "character":
+        return set()
+    for text in (value or "", quote or ""):
+        if re.search(r"\b(repaint\w*|new coat of paint|fresh(?:ly)? painted|painted (?:it|her|him|over))\b", text, re.I):
+            return set()
+        found = [m.group(1) for m in re.finditer(rf"\b({_COLOUR_GROUP})(?:-painted| painted)?\s+{_VESSEL}\b", text, re.I)]
+        colours = set().union(*(_colours(f) for f in found)) if found else set()
+        if colours:
+            return colours if len(found) == 1 else set()      # two boats in one sentence: unclear
+    return set()
+
+
+_DESCRIBES_BODY = re.compile(r"\b(physical|appearance|description|describ|build|height|looks?|figure|stature|body)", re.I)
+_STATURE = re.compile(r"\b(tall|short)\b(?![- ](?:of|time|while|walk|distance|story|notice|tempered|lived|haired|hair|"
+                      r"beard|sword|bow|glass|ships?|grass|tale|list|way|stop|breath|supply|step|steps|trip|reply|answer|"
+                      r"laugh|sleeves?|cloak|coat|skirt|knife|blade|staff|candle|order|work))", re.I)
+
+
+def stature(attribute: str, value: str) -> str | None:
+    """'tall, stooping man' -> 'tall'; 'short captain had to stand on his toes' -> 'short'. Grown-ups only."""
+    if not _DESCRIBES_BODY.search((attribute or "").replace("_", " ")):
+        return None
+    text = value or ""
+    if re.search(r"\b(not|neither|nor|boy|girl|child|lad|lass|baby|grew|grown|growing|shrunk|shrank|stooped with age)\b", text, re.I):
+        return None
+    found = {m.group(1).lower() for m in _STATURE.finditer(text)}
+    return found.pop() if len(found) == 1 else None
+
+
+_BEARDED = re.compile(r"\b(bearded|(?:with|has|had|wore|wears|his|a|an|long|white|grey|gray|black|red|brown|thick|full|"
+                      r"bushy|forked|short|neat|trimmed)\b[^.;]{0,25}?\bbeard)\b", re.I)
+_SHAVEN = re.compile(r"\b(clean[- ]shaven|beardless|smooth[- ]chinned|smooth[- ]shaven)\b", re.I)
+_BEARD_CHANGE = re.compile(r"\b(shaved|shaving|shave off|grew|grow|growing|grown|stubble|trimmed off|razor|"
+                           r"for the first time|no longer|used to)\b", re.I)
+
+
+def beard(attribute: str, value: str) -> str | None:
+    """'a broad man with a white beard' -> 'bearded'; 'rubbing his clean-shaven chin' -> 'clean-shaven'."""
+    text = value or ""
+    if _BEARD_CHANGE.search(text) or re.search(r"\b\w+'s\b[^.;]{0,15}\bbeard", text):
+        return None                                   # shaving it off, or someone else's beard
+    shaven, bearded = bool(_SHAVEN.search(text)), bool(_BEARDED.search(text))
+    if shaven != bearded:
+        return "clean-shaven" if shaven else "bearded"
+    return None
 
 
 # --------------------------------------------------------- sides and hands --
@@ -248,7 +305,7 @@ def _is_name(name: str) -> bool:
 
 # ------------------------------------------------------------------ check --
 def _claims(entity_id: int | None, name: str, attribute: str, value: str, quote: str, find,
-            specific_kin: str | None = None) -> list[tuple]:
+            specific_kin: str | None = None, entity_type: str = "") -> list[tuple]:
     """
     Every typed claim in one fact: (kind, key, value) where key names the entities involved.
     specific_kin: a kin word ("cousin") this entity's other facts in the same chapter give,
@@ -270,6 +327,13 @@ def _claims(entity_id: int | None, name: str, attribute: str, value: str, quote:
             if other_id is not None and other_id != entity_id:
                 a, b = sorted((entity_id, other_id))
                 out.append(("family", (a, b), (kind, forward == (a == entity_id))))
+    if entity_id is not None:
+        if height := stature(attribute, value):
+            out.append(("height", (entity_id,), height))
+        if has_beard := beard(attribute, value):
+            out.append(("beard", (entity_id,), has_beard))
+        if paint := vessel_colours(entity_type, value, quote):
+            out.append(("paint", (entity_id,), frozenset(paint)))
     for animal, colours in animal_colour_claims(name, attribute, value):
         animal_id = entity_id if animal == name else find(animal)
         if animal_id is not None:
@@ -286,7 +350,7 @@ def _claims(entity_id: int | None, name: str, attribute: str, value: str, quote:
 
 
 def _clash(kind: str, old, new) -> bool:
-    if kind in ("eyes", "coat"):
+    if kind in ("eyes", "coat", "paint"):
         return not (old & new)
     if kind == "family":
         (old_kind, old_dir), (new_kind, new_dir) = old, new
@@ -295,12 +359,13 @@ def _clash(kind: str, old, new) -> bool:
 
 
 _WHAT = {"eyes": "eye colour", "coat": "colour", "side": "side", "hand": "handedness",
-         "order": "older/younger order", "family": "family tie"}
+         "order": "older/younger order", "family": "family tie", "height": "height", "beard": "beard",
+         "paint": "colour"}
 
 
 def _say(kind: str, key: tuple, value, names: dict) -> str:
     """The claim in a few words: 'grey-green', 'left hand', 'Tobias is the older'."""
-    if kind in ("eyes", "coat"):
+    if kind in ("eyes", "coat", "paint"):
         return " / ".join(sorted(value))
     if kind == "side":
         return f"{value} {key[2]}"
@@ -377,10 +442,11 @@ def check_traits(
     new_claims = []
     for entity_id, canonical, fact, index in new_facts:
         for claim in _claims(entity_id, fact.entity, fact.attribute, fact.value, fact.source_quote, find_entity,
-                             specific.get(entity_id)):
+                             specific.get(entity_id), fact.entity_type):
             new_claims.append((claim, fact, index))
+    changes = check_changes(chapter_id, chapter_number, new_facts, earlier_facts_for)
     if not new_claims:
-        return []
+        return changes
 
     involved = {eid for (kind, key, _), _, _ in new_claims for eid in key if isinstance(eid, int)}
     earlier_claims = []
@@ -391,7 +457,7 @@ def check_traits(
                 continue
             seen_facts.add(f.get("fact_id"))
             for claim in _claims(f.get("entity_id", eid), f["entity"], f["attribute"], f["value"],
-                                 f.get("source_quote") or "", find_entity):
+                                 f.get("source_quote") or "", find_entity, None, f.get("entity_type") or ""):
                 earlier_claims.append((claim, f))
 
     found: list[Contradiction] = []
@@ -442,4 +508,87 @@ def check_traits(
             new_fact_index=index,
             conflicting_fact_id=old_fact.get("fact_id"),
         ))
+    taken = {c.new_fact_index for c in found}
+    return found + [c for c in changes if c.new_fact_index not in taken]
+
+
+# -------------------------------------------------- mended, and where from --
+_MENDED = re.compile(r"\b(whole (?:and seamless )?again|mended|repaired|made whole|seamless|good as new|"
+                     r"fixed|restored|sealed (?:together|whole))\b", re.I)
+_STILL_BROKEN = re.compile(r"\bstill (cracked|broken|shattered|split|in pieces|damaged|chipped)\b|"
+                           r"\b(cracked|broken|shattered)\b[^.]{0,40}\b(as it had been|ever since|since the)\b", re.I)
+_BROKE_AGAIN = re.compile(r"\b(broke|shattered|smashed|cracked|dropped|split)\b", re.I)
+_NEVER_LEFT = re.compile(r"\bnever (?:once |ever )?(?:left|been away from|set foot outside)\b", re.I)
+_BORN_IN = re.compile(r"\bborn (?:in|at) ([A-Z][\w'-]+(?: [A-Z][\w'-]+)?)")
+_CAME_TO = re.compile(r"\b(?:came|come|arrived|moved|went|travell?ed)\s+(?:back\s+)?(?:to|in|into)\s+([A-Z][\w'-]+(?: [A-Z][\w'-]+)?)")
+
+
+def _text(f) -> str:
+    if isinstance(f, Fact):
+        return f"{f.value} {f.source_quote}"
+    return f"{f.get('value') or ''} {f.get('source_quote') or ''}"
+
+
+def native_place(f) -> str | None:
+    """'Orla had been born in Varrow and had never once left it.' -> 'Varrow'."""
+    quote = f.source_quote if isinstance(f, Fact) else (f.get("source_quote") or "")
+    for sentence in re.split(r"(?<=[.!?])\s+", quote):
+        m = _BORN_IN.search(sentence)
+        if m and _NEVER_LEFT.search(sentence):
+            return m.group(1)
+    return None
+
+
+def arrival_place(f) -> str | None:
+    """'She had come to Varrow as a girl of nineteen' / 'arrival location | Varrow' -> 'Varrow'."""
+    attribute = f.attribute if isinstance(f, Fact) else (f.get("attribute") or "")
+    value = f.value if isinstance(f, Fact) else (f.get("value") or "")
+    if re.search(r"arriv|came to|moved to|origin of travel", attribute, re.I) and re.fullmatch(r"\s*[A-Z][\w' -]{1,40}", value or ""):
+        return value.strip()
+    m = _CAME_TO.search(_text(f))
+    return m.group(1) if m else None
+
+
+def check_changes(chapter_id: str, chapter_number: int, new_facts, earlier_facts_for) -> list[Contradiction]:
+    """Mended earlier but 'still cracked' now; born somewhere and never left, but 'came to' it later."""
+    found = []
+    reported = set()
+    for entity_id, canonical, fact, index in new_facts:
+        if entity_id is None or entity_id in reported:
+            continue
+        earlier = earlier_facts_for(entity_id)
+        if not earlier:
+            continue
+        if _STILL_BROKEN.search(fact.source_quote or "") or _STILL_BROKEN.search(fact.value or ""):
+            mends = [f for f in earlier if _MENDED.search(_text(f))]
+            if mends:
+                mend = mends[-1]
+                broke_since = [f for f in earlier if f["chapter_number"] > mend["chapter_number"]
+                               and _BROKE_AGAIN.search(_text(f)) and not _MENDED.search(_text(f))]
+                if not broke_since:
+                    reported.add(entity_id)
+                    found.append(_change(chapter_id, canonical, fact, index, mend, "status",
+                                         f"{canonical} was mended in chapter {mend['chapter_number']} "
+                                         f"(\"{(mend.get('source_quote') or mend['value'])[:160]}\"), but in chapter "
+                                         f"{chapter_number} it is still broken, with nothing breaking it again. (Checked in code.)"))
+                    continue
+        place = arrival_place(fact)
+        if place:
+            natives = [f for f in earlier if (native_place(f) or "").lower() == place.lower()]
+            if natives:
+                old = natives[-1]
+                reported.add(entity_id)
+                found.append(_change(chapter_id, canonical, fact, index, old, "attribute",
+                                     f"{canonical} was born in {place} and never left it (chapter "
+                                     f"{old['chapter_number']}), but in chapter {chapter_number} comes to {place} from "
+                                     f"somewhere else. (Checked in code.)"))
     return found
+
+
+def _change(chapter_id, canonical, fact, index, old, kind, explanation) -> Contradiction:
+    return Contradiction(
+        entity=canonical, new_chapter_id=chapter_id, new_attribute=fact.attribute, new_value=fact.value,
+        new_quote=fact.source_quote, conflicting_chapter_id=old["chapter_id"], conflicting_value=old["value"],
+        conflicting_quote=old.get("source_quote") or "", contradiction_type=kind, confidence=CONFIDENCE,
+        explanation=explanation, source="trait check", new_fact_index=index, conflicting_fact_id=old.get("fact_id"),
+    )

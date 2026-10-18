@@ -111,3 +111,54 @@ def test_a_family_tie_needs_a_family_word_in_the_quote():
     """The Reader filed 'Aurel | parent of Oren' from 'Her blind eyes looked somewhere past him'."""
     assert traits.family_tie("relationship", "parent of Oren", "Her blind eyes looked somewhere past him") is None
     assert traits.family_tie("relationship", "parent of Aurel", "Aurel's father, King Oren") is not None
+
+
+# --- 18 Oct 2026: general checks for misses in Glassmaker and Lighthouse -----------------
+def T(entity, attribute, value, quote="", entity_type="item"):
+    return Fact(entity=entity, entity_type=entity_type, attribute=attribute, value=value,
+                source_quote=quote or value, confidence=1.0)
+
+
+def test_tall_then_short_is_caught_but_short_hair_is_not_height():
+    crane = {"Captain Crane": 1, "Aldous Crane": 1}
+    earlier = [(1, "Aldous Crane", F("Aldous Crane", "physical_description", "tall, stooping man who seemed to apologise to every ceiling"))]
+    [w] = run(earlier, [("Captain Crane", F("Captain Crane", "physical_description",
+                                            "short captain had to stand on his toes to see over the crowd"))], crane)
+    assert "height" in w.explanation
+    assert run(earlier, [("Captain Crane", F("Captain Crane", "physical_description", "short hair, tall boots"))], crane) == []
+    assert run(earlier, [("Captain Crane", F("Captain Crane", "action", "took a short walk"))], crane) == []
+
+
+def test_a_beard_then_clean_shaven_is_caught_unless_he_shaved():
+    rudd = {"Silas Rudd": 1, "Harbourmaster Rudd": 1}
+    earlier = [(2, "Silas Rudd", F("Silas Rudd", "physical_description", "a broad man with a white beard that reached the second button of his coat"))]
+    [w] = run(earlier, [("Harbourmaster Rudd", F("Harbourmaster Rudd", "habit", "rubbing his clean-shaven chin when he is thinking"))], rudd)
+    assert "beard" in w.explanation
+    assert run(earlier, [("Silas Rudd", F("Silas Rudd", "change", "had shaved off his beard, clean-shaven now"))], rudd) == []
+
+
+def test_a_boat_painted_red_then_with_a_blue_hull_is_caught():
+    earlier = [(2, "Merrow", T("Merrow", "description", "the harbour", "the harbour's little red-painted launch", "location"))]
+    [w] = run(earlier, [("Merrow", T("Merrow", "description", "blue hull freshly scrubbed"))], {"Merrow": 1})
+    assert "colour" in w.explanation
+    assert run(earlier, [("Merrow", T("Merrow", "description", "repainted blue over the winter, a blue hull"))], {"Merrow": 1}) == []
+
+
+def test_mended_then_still_cracked_is_caught_but_broken_again_is_not():
+    mended = [(4, "Sunstone lens", T("Sunstone lens", "property", "whole and seamless again, without a line to show where it had broken"))]
+    still = [("Sunstone lens", T("Sunstone lens", "description", "cracked down the middle",
+                                 "It was still cracked down the middle, just as it had been since the fire"))]
+    [w] = run(mended, still, {"Sunstone lens": 1})
+    assert w.contradiction_type == "status" and "mended" in w.explanation
+    dropped = mended + [(5, "Sunstone lens", T("Sunstone lens", "event", "Crane dropped it on the flagstones"))]
+    assert run(dropped, still, {"Sunstone lens": 1}) == []
+
+
+def test_born_somewhere_and_never_left_then_coming_there_is_caught():
+    born = [(1, "Orla Venn", F("Orla Venn", "birthplace", "Varrow", "Orla had been born in Varrow and had never once left it."))]
+    [w] = run(born, [("Orla Venn", F("Orla Venn", "arrival location", "Varrow", "She had come to Varrow as a girl of nineteen"))],
+              {"Orla Venn": 1})
+    assert "never left" in w.explanation
+    born_only = [(1, "Orla Venn", F("Orla Venn", "birthplace", "Varrow", "Orla had been born in Varrow."))]
+    assert run(born_only, [("Orla Venn", F("Orla Venn", "arrival location", "Varrow", "She came back to Varrow"))],
+               {"Orla Venn": 1}) == []
