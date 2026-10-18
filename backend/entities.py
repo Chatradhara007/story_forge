@@ -19,7 +19,7 @@ than a missed one: merging two different people creates fake "contradictions".
 import re
 from dataclasses import dataclass
 from models import Fact
-from llm import call_tool, run_in_parallel, JUDGING_THINKING_MODE
+from llm import call_tool, run_in_parallel, JUDGING_THINKING_MODE, AIServiceError
 import storage
 from storage import find_entities_by_alias, get_all_entities_with_context
 
@@ -364,12 +364,26 @@ def _resolve_names(project_id: int, facts: list[Fact]) -> dict[str, Resolution]:
     # The answer is mostly output (one line per name), so smaller batches side by side
     # finish much sooner than one long answer.
     batches = [unmatched[start:start + NAMES_PER_CALL] for start in range(0, len(unmatched), NAMES_PER_CALL)]
-    answers = run_in_parallel(lambda batch: call_tool(
-        RESOLUTION_PROMPT.format(new_names=_format_new_names(batch), known_entities=_format_known(candidates)),
-        RESOLUTION_TOOL,
-        max_tokens=4096,
-        thinking=JUDGING_THINKING_MODE, role="judge",
-    ), batches)
+    def ask(batch):
+        # If every AI model is down, the chapter is NOT lost: the names that need the AI are
+        # treated as new for now (the name rules above already linked the easy ones), and the
+        # checks done in code still run. Linking can be fixed later with a merge.
+        try:
+            return call_tool(
+                RESOLUTION_PROMPT.format(new_names=_format_new_names(batch), known_entities=_format_known(candidates)),
+                RESOLUTION_TOOL,
+                max_tokens=4096,
+                thinking=JUDGING_THINKING_MODE, role="judge",
+            )
+        except AIServiceError as error:
+            text = str(error)
+            if any(k in text for k in ("API key", "check_models", "reembed", "retired")):
+                raise                    # a setup problem, not an outage: stop with the clear message
+            print(f"  [note] linking names without the AI this time ({len(batch)} names left unlinked): {text}",
+                  flush=True)
+            return {"resolutions": []}
+
+    answers = run_in_parallel(ask, batches)
 
     for batch, answer in zip(batches, answers):
         decisions: dict[str, tuple[int, str, float]] = {}
