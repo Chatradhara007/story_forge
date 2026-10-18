@@ -18,11 +18,25 @@ import pytest
 BACKEND = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BACKEND))
 
-from dotenv import load_dotenv
+from dotenv import dotenv_values, load_dotenv
+_FILE = {k: v for k, v in dotenv_values(BACKEND / ".env").items() if v}
+_SET_BEFORE = {k: os.environ[k] for k in ("DATABASE_URL", "TEST_DATABASE_URL") if os.environ.get(k)}
 load_dotenv(BACKEND / ".env")       # so DATABASE_URL (e.g. port 5433) comes from your .env
+
+
+def _where(name: str) -> str:
+    if name in _SET_BEFORE:
+        return (f"{name} is set in Windows or this PowerShell window ({_SET_BEFORE[name]}), and that beats "
+                f"backend/.env. Remove it: Remove-Item Env:{name}; "
+                f"[Environment]::SetEnvironmentVariable('{name}', $null, 'User')")
+    if name in _FILE:
+        return f"{name} comes from backend/.env"
+    return f"{name} is not set anywhere, so the default (port 5432) was used"
+
 
 MAIN_URL = os.environ.get("DATABASE_URL", "postgresql://storyforge:storyforge@localhost:5432/storyforge")
 TEST_URL = os.environ.get("TEST_DATABASE_URL") or urlunparse(urlparse(MAIN_URL)._replace(path="/storyforge_test"))
+URL_SOURCE = _where("TEST_DATABASE_URL") if os.environ.get("TEST_DATABASE_URL") else _where("DATABASE_URL")
 os.environ["DATABASE_URL"] = TEST_URL
 os.environ["NVIDIA_API_KEY"] = "fake-key-for-tests"
 os.environ["JOBS_INLINE"] = "true"          # background jobs run at once, so tests see their results
@@ -122,7 +136,7 @@ def fake_ai(monkeypatch):
     if not DB_OK:
         # A FAILURE, not a skip: a skipped suite looks green with zero tests run.
         # Set SKIP_DB_TESTS=1 to skip on purpose.
-        message = f"Test database not reachable at {TEST_URL}. Start it with: docker compose up -d"
+        message = f"Test database not reachable at {TEST_URL}. ({URL_SOURCE}.) If the address is right, start it with: docker compose up -d"
         if os.environ.get("SKIP_DB_TESTS") == "1":
             pytest.skip(message)
         pytest.fail(message)
