@@ -18,6 +18,9 @@ import pytest
 BACKEND = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BACKEND))
 
+from dotenv import load_dotenv
+load_dotenv(BACKEND / ".env")       # so DATABASE_URL (e.g. port 5433) comes from your .env
+
 MAIN_URL = os.environ.get("DATABASE_URL", "postgresql://storyforge:storyforge@localhost:5432/storyforge")
 TEST_URL = os.environ.get("TEST_DATABASE_URL") or urlunparse(urlparse(MAIN_URL)._replace(path="/storyforge_test"))
 os.environ["DATABASE_URL"] = TEST_URL
