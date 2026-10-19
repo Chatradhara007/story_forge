@@ -220,3 +220,18 @@ def test_named_only_as_someones_owner_is_not_acting():
 
 def test_colour_words_are_whole_words():
     assert traits.eye_colours("has", "tired brown eyes") == {"brown"}            # not 'red' in 'tired'
+
+
+def test_burn_and_scar_are_the_same_mark_for_sides():
+    from traits import mark_sides
+    assert mark_sides("scar", "left forearm")[0][0] == mark_sides("physical description", "old burn on her right forearm")[0][0]
+
+
+def test_body_part_entity_folds_into_its_owner():
+    from extract import _clean_facts
+    out = _clean_facts([{"entity": "Ana's right leg", "entity_type": "object", "attribute": "condition", "value": "broken",
+                         "source_quote": "Ana's right leg was broken", "confidence": 0.9},
+                        {"entity": "the captain's hand", "entity_type": "object", "attribute": "state", "value": "cold",
+                         "source_quote": "x", "confidence": 0.9}])
+    assert (out[0].entity, out[0].attribute) == ("Ana", "right leg condition")
+    assert out[1].entity == "the captain's hand"

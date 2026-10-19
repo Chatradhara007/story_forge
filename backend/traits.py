@@ -211,7 +211,7 @@ def mark_sides(attribute: str, value: str) -> list[tuple[str, str, str]]:
     if not marks or _NEGATED.search(text):
         return []
     mark = marks[0].lower()
-    mark = ("scar" if mark.startswith("scar") else "burn" if mark.startswith("burn") else
+    mark = ("scar" if mark.startswith(("scar", "burn")) else      # a burn scar is one mark, however it is worded
             "lost" if mark.startswith(("lost", "missing")) else mark.split()[0])
     found = []
     for m in _SIDE_PART.finditer(text):

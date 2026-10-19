@@ -270,6 +270,20 @@ def is_grounded(fact: dict, text: str) -> bool:
     return True
 
 
+_BODY_PART_OWNER = re.compile(
+    r"^([A-Z][\w.-]*(?: [A-Z][\w.-]*){0,2})['\u2019]s ((?:(?:left|right|upper|lower) )?"
+    r"(?:hand|arm|forearm|leg|foot|ankle|knee|wrist|shoulder|hip|eye|ear|face|hair|head|back|shin|thigh|finger|fingers))$")
+
+
+def _fold_body_part(fact: Fact) -> None:
+    """'Ana's right leg | condition | broken' is a fact about Ana, not about a separate thing called her leg."""
+    m = _BODY_PART_OWNER.match(fact.entity)
+    if m:
+        fact.entity, part = m.group(1), m.group(2).lower()
+        fact.entity_type = "character"
+        fact.attribute = f"{part} {fact.attribute}".strip()
+
+
 def _clean_facts(raw_facts: list) -> list[Fact]:
     """Keep only well-formed facts, tidy them up, and drop exact duplicates."""
     facts: list[Fact] = []
@@ -282,6 +296,7 @@ def _clean_facts(raw_facts: list) -> list[Fact]:
         fact.entity = " ".join(fact.entity.split())
         if not fact.entity or fact.entity.lower() in PRONOUNS:
             continue
+        _fold_body_part(fact)
         fact.confidence = min(max(fact.confidence, 0.0), 1.0)
         key = (fact.entity.lower(), fact.attribute.lower().strip(), fact.value.lower().strip())
         if key in seen:
