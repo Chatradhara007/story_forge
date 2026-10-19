@@ -473,7 +473,7 @@ def with_retries(action, what: str, attempts: int | None = None):
     while True:
         try:
             return action()
-        except ModelStrugglingError:
+        except (ModelStrugglingError, ModelUnavailableError):
             raise                                # hand over to the next model at once
         except Exception as error:
             if _is_context_too_long(error):
