@@ -168,6 +168,12 @@ def split_model(model: str) -> tuple[str | None, str]:
     return None, model
 
 
+def _is_local(model: str) -> bool:
+    """A model on your own computer: labelled 'ollama:', or unlabelled while AI_BASE_URL is local."""
+    provider, _ = split_model(model)
+    return provider == "ollama" or (provider is None and LOCAL_AI)
+
+
 def provider_key_missing(model: str) -> str | None:
     """The setting to fill in when a provider's key is missing (None: nothing missing)."""
     provider, _ = split_model(model)
@@ -824,6 +830,16 @@ def call_tool(prompt: str, tool: dict, max_tokens: int = 4096, thinking: str | N
             budget = state["budget"]
 
             def make_request(m):
+                if _is_local(model):
+                    # Local servers (Ollama) handle forced tool calls unreliably (empty answers):
+                    # ask for plain JSON in the tool's shape instead.
+                    schema = json.dumps(tool["function"].get("parameters", {}))
+                    return _client_for(model).chat.completions.create(
+                        model=split_model(model)[1], max_tokens=_answer_space(budget, m), temperature=temperature,
+                        response_format={"type": "json_object"},
+                        messages=[{"role": "user", "content":
+                                   f"{prompt}\n\nAnswer with ONE JSON object only, no other text, matching this "
+                                   f"JSON schema:\n{schema}"}])
                 return _client_for(model).chat.completions.create(
                     model=split_model(model)[1], max_tokens=_answer_space(budget, m), temperature=temperature,
                     tools=[tool], tool_choice={"type": "function", "function": {"name": tool_name}},

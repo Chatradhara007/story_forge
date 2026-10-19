@@ -372,7 +372,11 @@ def save_readings(story: str, data: dict) -> None:
 
 def saved_reading(data: dict, reader: str, chapter_id: str, text: str):
     from models import ExtractionResult
-    entry = data["readings"].get(_reading_key(reader, chapter_id, text)) or data["legacy"].get(chapter_id)
+    entry = data["readings"].get(_reading_key(reader, chapter_id, text))
+    # Old saved readings (before 12 Oct) don't record their model or text: only reuse them for
+    # the NVIDIA reader they were made with, never for another model.
+    if entry is None and "/" in reader and ":" not in reader:
+        entry = data["legacy"].get(chapter_id)
     if not entry:
         return None
     result = ExtractionResult(chapter_id=chapter_id, facts=entry["facts"], relationships=entry.get("relationships", []))
