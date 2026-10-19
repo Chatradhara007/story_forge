@@ -168,6 +168,23 @@ def split_model(model: str) -> tuple[str | None, str]:
     return None, model
 
 
+def _json_mode(model: str) -> bool:
+    """Local models and every labelled provider except NVIDIA get plain-JSON requests: their forced
+    tool calls fail often (malformed arguments, schema errors, 'tool choice required')."""
+    provider, _ = split_model(model)
+    return _is_local(model) or provider not in (None, "nvidia")
+
+
+# Free plans count the room reserved for the answer against a per-minute token limit
+# (Groq: 8,000 a minute), so a request asking for 8,000 answer tokens is refused outright.
+_PROVIDER_OUTPUT_CAP = {"groq": int(os.getenv("GROQ_MAX_OUTPUT_TOKENS", "2500"))}
+
+
+def _cap_output(model: str, tokens: int) -> int:
+    provider, _ = split_model(model)
+    return min(tokens, _PROVIDER_OUTPUT_CAP.get(provider, tokens))
+
+
 def _is_local(model: str) -> bool:
     """A model on your own computer: labelled 'ollama:', or unlabelled while AI_BASE_URL is local."""
     provider, _ = split_model(model)
@@ -492,12 +509,12 @@ def with_retries(action, what: str, attempts: int | None = None):
                 waited = time.monotonic() - refused_since
                 if waited >= RATE_LIMIT_PATIENCE_SECONDS or refusals >= RATE_LIMIT_MAX_TRIES:
                     raise AIServiceError(
-                        f"{what} failed: NVIDIA kept refusing with 'Too Many Requests' for "
-                        f"{waited / 60:.0f} minutes. Your NVIDIA usage limit is probably used up for "
+                        f"{what} failed: the AI service kept refusing with 'Too Many Requests' for "
+                        f"{waited / 60:.0f} minutes. Your free usage limit is probably used up for "
                         f"now. Wait a while and try again, or lower MAX_REQUESTS_PER_MINUTE in backend/.env."
                     ) from error
                 pause = _start_cooldown(error)
-                print(f"  [waiting] {what}: NVIDIA says too many requests; all requests pause "
+                print(f"  [waiting] {what}: the AI service says too many requests; all requests pause "
                       f"{pause:.0f}s (waited {waited:.0f}s so far)", flush=True)
                 _wait_for_cooldown()
                 continue
@@ -840,19 +857,19 @@ def call_tool(prompt: str, tool: dict, max_tokens: int = 4096, thinking: str | N
             budget = state["budget"]
 
             def make_request(m):
-                if _is_local(model):
-                    # Local servers (Ollama) handle forced tool calls unreliably (empty answers):
-                    # ask for plain JSON in the tool's shape instead.
+                if _json_mode(model):
+                    # Local servers (Ollama) and free providers handle forced tool calls unreliably
+                    # (empty answers, malformed arguments): ask for plain JSON in the tool's shape instead.
                     schema = json.dumps(tool["function"].get("parameters", {}))
                     return _client_for(model).chat.completions.create(
-                        model=split_model(model)[1], max_tokens=_answer_space(budget, m), temperature=temperature,
-                        response_format={"type": "json_object"},
+                        model=split_model(model)[1], max_tokens=_cap_output(model, _answer_space(budget, m)),
+                        temperature=temperature, response_format={"type": "json_object"},
                         messages=[{"role": "user", "content":
                                    f"{prompt}\n\nAnswer with ONE JSON object only, no other text, matching this "
                                    f"JSON schema:\n{schema}"}])
                 return _client_for(model).chat.completions.create(
-                    model=split_model(model)[1], max_tokens=_answer_space(budget, m), temperature=temperature,
-                    tools=[tool], tool_choice={"type": "function", "function": {"name": tool_name}},
+                    model=split_model(model)[1], max_tokens=_cap_output(model, _answer_space(budget, m)),
+                    temperature=temperature, tools=[tool], tool_choice={"type": "function", "function": {"name": tool_name}},
                     messages=[{"role": "user", "content": prompt}], **_thinking_options(m, model))
 
             response = _send(model, mode, make_request)

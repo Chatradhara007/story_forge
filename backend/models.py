@@ -1,5 +1,15 @@
-from pydantic import BaseModel
+import re
+from pydantic import BaseModel, field_validator, model_validator
 from typing import Literal
+
+_TYPE_WORDS = {"character": "character", "person": "character", "people": "character", "human": "character",
+               "animal": "character", "location": "location", "place": "location", "setting": "location",
+               "item": "item", "object": "item", "thing": "item", "vehicle": "item", "event": "event",
+               "time": "event", "other": "other"}
+_BODY_PART_OWNER = re.compile(
+    r"^([A-Z][\w.-]*(?: [A-Z][\w.-]*){0,2})['\u2019]s ((?:(?:left|right|upper|lower) )?"
+    r"(?:hand|arm|forearm|leg|foot|ankle|knee|wrist|shoulder|hip|eye|ear|face|hair|head|back|shin|thigh|finger|fingers))$")
+
 
 class Fact(BaseModel):
     entity: str          # e.g. "Marcus"
@@ -8,6 +18,22 @@ class Fact(BaseModel):
     value: str             # e.g. "blue", "alive", "the tavern"
     source_quote: str      # short quote from the text supporting this fact
     confidence: float      # 0.0-1.0, how certain the model is
+
+    @field_validator("entity_type", mode="before")
+    @classmethod
+    def _tolerant_type(cls, value):
+        # Some models write "person" or "object": keep the fact instead of losing it.
+        return _TYPE_WORDS.get(str(value).strip().lower(), "other") if isinstance(value, str) else value
+
+    @model_validator(mode="after")
+    def _fold_body_part(self):
+        """'Ana's right leg | condition | broken' is a fact about Ana, not about a separate thing."""
+        m = _BODY_PART_OWNER.match(self.entity or "")
+        if m:
+            part = m.group(2).lower()
+            self.entity, self.entity_type = m.group(1), "character"
+            self.attribute = f"{part} {self.attribute}".strip()
+        return self
 
 class Relationship(BaseModel):
     """One relationship the text states, normalised: "Edmund | parent | Ines" = Edmund is Ines's parent."""

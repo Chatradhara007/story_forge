@@ -42,3 +42,20 @@ def test_missing_key_is_skipped_and_free_limit_hands_over(fake_ai, monkeypatch):
     assert llm.call_tool("x", tool) == {"from": "default"}
     assert calls[0][:2] == ("ollama", "qwen2.5:7b-instruct") and calls[0][2] is False   # no NVIDIA options
     assert calls[-1][0] == "default" and len([c for c in calls if c[0] == "ollama"]) == 1
+
+
+def test_free_providers_use_json_mode_and_capped_answer_room():
+    assert llm._json_mode("groq:openai/gpt-oss-20b") and llm._json_mode("ollama:qwen2.5:7b-instruct")
+    assert not llm._json_mode("nvidia:nvidia/nemotron-3.5-lightning-30b-a3b")
+    assert not llm._json_mode("nvidia/nemotron-3.5-lightning-30b-a3b")
+    assert llm._cap_output("groq:openai/gpt-oss-20b", 8192) <= 2500     # Groq's free plan: 8,000 tokens a minute
+    assert llm._cap_output("nvidia/nemotron-3.5-lightning-30b-a3b", 8192) == 8192
+
+
+def test_fact_types_are_forgiven_and_body_parts_fold_into_the_owner():
+    from models import Fact
+    f = Fact(entity="Ana's right leg", entity_type="object", attribute="condition", value="broken",
+             source_quote="q", confidence=0.9)
+    assert (f.entity, f.attribute, f.entity_type) == ("Ana", "right leg condition", "character")
+    assert Fact(entity="Venn", entity_type="person", attribute="a", value="v", source_quote="q",
+                confidence=1).entity_type == "character"
