@@ -4,6 +4,13 @@
 facts", story-clock rules and evaluation tools from 4–5 October (section 14), plus finished
 accounts and audit fixes (section 13). See section 15 for what the merge changed.)
 
+> **Final state (19 October 2026).** Development is paused here. Final setup: one free NVIDIA
+> model (Nemotron 3.5 Lightning) reads and judges; contradictions are confirmed by checks in code;
+> `CHECKER=off`, `SAFETY_NET=off`, `NAME_LINKING=rules`. Every warning cites both quotes, with
+> 0 false alarms in every measured run; recall on unseen stories is the known limit. What we
+> tried and why: section 20 and [docs/FREE-SETUP.md](docs/FREE-SETUP.md). How to pick it up
+> again: [docs/ROADMAP.md](docs/ROADMAP.md). Demo: [docs/DEMO.md](docs/DEMO.md).
+
 A continuity-tracking system for long-form fiction. Writers ingest chapters; the system extracts
 structured facts (characters, locations, items, events), builds up a persistent "story memory,"
 and automatically flags contradictions when new content conflicts with something already
