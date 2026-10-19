@@ -23,6 +23,71 @@ http://127.0.0.1:8000 for the website. To put it online, follow [DEPLOY.md](DEPL
 
 ---
 
+## 🔍 Reality check (October 2026)
+
+**What works well**
+- **Precise warnings.** Every warning raised in measured runs was a real mistake (0 false
+  alarms), and each one shows both quotes, the chapters and the rule that was broken.
+- **Kinds it checks reliably in code:** fixed traits (eye/hair colour, height, beard, scars and
+  their side), ages against a story clock (flashbacks and time skips understood), the dead
+  acting again, objects destroyed or given away and then used, injuries used too soon, family
+  ties and older/younger order, "born here and never left".
+- **A complete product around it:** multiple books per account, email/password and optional
+  Google sign-in, per-user limits, a character map, chapter re-checks, a demo account
+  (`backend/seed_demo.py`), Docker and Render deployment files, and an evaluation harness with
+  five test stories and a test-case generator.
+
+**What doesn't (yet)**
+- **It misses many mistakes on stories it wasn't tuned on.** Tuned stories: 21 of 36 caught.
+  Stories written afterwards: about 2-4 of 9 (Kestrel) and ~4 of 10 (Night Shift). Treat it as a
+  careful second reader, not a full proofreader.
+- **The reading is the weak link.** The free AI model that turns prose into facts misses or
+  mislabels details, and reads the same chapter slightly differently from run to run, so scores
+  move by 1-2 catches between runs.
+- **Some mistake kinds aren't checked:** wrong counts ("all six of us" when there were four),
+  events renamed or redated, objects that were lost without the word "lost", mistakes within a
+  single chapter, and anything that needs whole-story reasoning (motives, plot logic).
+- **Speed on the free tier:** about 20-25 seconds per short chapter, with occasional timeouts;
+  a 4,000-word chapter takes minutes. Fine for a demo with saved readings; too slow for real users.
+- **Free AI is fragile.** Free plans change model names and limits without notice (one Groq
+  model was retired mid-test; another allows only 8,000 tokens a minute).
+- **Test set is small:** five short stories written by the team, so the numbers are indicative,
+  not statistically strong.
+
+**Honest one-line pitch:** *StoryForge reliably flags a growing set of continuity mistakes with
+proof and no false alarms; catching more of them needs a better reader and more mistake kinds,
+both of which are clear, scoped next steps.*
+
+## 🚀 Future scope
+
+**Next (weeks)**
+1. **Measure honestly at scale:** generated test cases (`eval/make_cases.py`) and real
+   public-domain books (`eval/add_book.py`), plus a CI gate that fails if a catch is lost or a
+   false alarm appears.
+2. **One general fact format:** the reader labels each fact as permanent / changing state /
+   event, with when it holds; one comparison in code handles all of them, so new mistake kinds
+   (counts, dates of events, renamed things) become labels instead of new code.
+3. **A "Worth a look" catch-all:** a small local contradiction model (NLI) for kinds no rule
+   covers, shown separately from "Confirmed".
+
+**With funding (months)**
+4. **A paid, faster reader** (a hosted open model that doesn't train on user data): minutes per
+   book instead of tens of minutes, and steadier readings.
+5. **Production deployment:** separate background worker and queue, staging and production
+   databases, error tracking, backups, privacy page, Google sign-in published for everyone.
+6. **Writer workflow:** a feedback button on each warning (confirm / dismiss) that also improves
+   the evaluation set; export of a continuity report; a series bible across books.
+
+**Longer term**
+7. Series support (sequels checked against earlier books), collaboration on one book, editor
+   plug-ins (Google Docs, Scrivener, Word), and tone/voice consistency.
+8. Other long-form domains with the same need: screenplays, game lore, TV writers' rooms,
+   long technical manuals.
+
+The step-by-step plan with checkpoints is in [docs/ROADMAP.md](docs/ROADMAP.md).
+
+---
+
 ## ✅ What's done
 
 ### 1. Extraction pipeline
