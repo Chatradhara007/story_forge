@@ -649,7 +649,7 @@ def _mark_retired(model: str, error: Exception) -> None:
         if model in _retired:
             return
         _retired[model] = str(error)[:300]
-    if "in backend/.env, so this model is skipped" in str(error):
+    if "so this model is skipped" in str(error):
         _note(str(error))
         return
     _note(f"'{model}' is not available any more; it won't be asked again. "
@@ -783,6 +783,16 @@ def _attempts(what: str, model: str, has_alternative: bool, ask_once):
     missing = provider_key_missing(model)
     if missing:
         raise ModelUnavailableError(f"{model}: no {missing} in backend/.env, so this model is skipped")
+    provider = split_model(model)[0]
+    if provider is not None:
+        def ask_once_checked(inner=ask_once):
+            try:
+                return inner()
+            except (openai.AuthenticationError, openai.PermissionDeniedError) as error:
+                key = PROVIDERS[provider][1] or "the key"
+                raise ModelUnavailableError(f"{model}: {provider} rejected {key} in backend/.env, so this model "
+                                            f"is skipped ({str(error)[:100]})") from error
+        ask_once = ask_once_checked
     if split_model(model)[0] is not None and has_alternative:
         def ask_once_or_hand_over(inner=ask_once):
             try:
