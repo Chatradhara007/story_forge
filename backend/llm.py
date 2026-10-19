@@ -150,7 +150,7 @@ def _embed_client():
 PROVIDERS = {
     #  name        base address                                              key setting           requests/min
     "nvidia":     ("https://integrate.api.nvidia.com/v1",                     "NVIDIA_API_KEY",     30),
-    "ollama":     (os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1"), None,                 0),
+    "ollama":     (os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434/v1"), None,                 0),
     "groq":       ("https://api.groq.com/openai/v1",                          "GROQ_API_KEY",       30),
     "cerebras":   ("https://api.cerebras.ai/v1",                              "CEREBRAS_API_KEY",   30),
     "openrouter": ("https://openrouter.ai/api/v1",                            "OPENROUTER_API_KEY", 20),
@@ -424,7 +424,8 @@ def _permanent_problem(error: Exception) -> str | None:
     if LOCAL_AI and _is_model_gone(error):
         return (f"The local AI server at {AI_BASE_URL} doesn't have that model. Download it first, e.g. "
                 f"`ollama pull {CHAT_MODEL}`, or set CHAT_MODEL / JUDGE_MODEL in backend/.env to one you have.")
-    if LOCAL_AI and isinstance(error, openai.APIConnectionError):
+    if (LOCAL_AI and isinstance(error, openai.APIConnectionError)
+            and not isinstance(error, openai.APITimeoutError)):      # a timeout is retried (model still loading)
         return (f"Nothing is answering at {AI_BASE_URL}. Start the local AI server (Ollama: open the Ollama "
                 f"app, or run `ollama serve`).")
     if _is_model_gone(error):

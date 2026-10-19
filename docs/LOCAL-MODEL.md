@@ -24,7 +24,7 @@ settings change.
 ## 2. Point StoryForge at it (`backend/.env`)
 
 ```
-AI_BASE_URL=http://localhost:11434/v1
+AI_BASE_URL=http://127.0.0.1:11434/v1
 CHAT_MODEL=qwen2.5:14b-instruct
 JUDGE_MODEL=qwen2.5:14b-instruct
 MAX_PARALLEL_AI_CALLS=2
@@ -32,6 +32,7 @@ AI_REQUEST_TIMEOUT=300
 AI_RETRY_ATTEMPTS=2
 ```
 
+- Use `127.0.0.1`, not `localhost`: on Windows `localhost` can go to IPv6, where Ollama doesn't listen.
 - No key and no pacing are needed for a local server (`MAX_REQUESTS_PER_MINUTE` is off).
 - **Embeddings** stay on NVIDIA by default (`EMBED_MODEL` unchanged: no re-indexing). To be
   fully local: `ollama pull nomic-embed-text`, set `EMBED_MODEL=nomic-embed-text`, then run
