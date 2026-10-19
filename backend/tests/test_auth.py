@@ -205,3 +205,23 @@ def test_busy_book_refuses_quick_changes(accounts, monkeypatch):
     finally:
         release.set(); t.join()
     assert accounts.delete(f"/projects/{book['id']}").status_code == 200
+
+
+def test_google_sign_in_creates_then_reuses_the_account(accounts, monkeypatch):
+    monkeypatch.setattr(auth, "GOOGLE_CLIENT_ID", "client-123.apps.googleusercontent.com")
+    claims = {"email": "Mara@Gull.io", "name": "Mara Calloway"}
+    monkeypatch.setattr(auth, "_google_identity", lambda credential: claims)
+    r = accounts.post("/auth/google", json={"credential": "x" * 40})
+    assert r.status_code == 200 and r.json()["user"]["email"] == "mara@gull.io"
+    assert r.json()["user"]["display_name"] == "Mara Calloway"
+    again = accounts.post("/auth/google", json={"credential": "y" * 40})
+    assert again.json()["user"]["id"] == r.json()["user"]["id"]
+    # A Google-only account has no usable password.
+    assert accounts.post("/auth/login", json={"email": "mara@gull.io", "password": "google"}).status_code == 401
+    assert "accounts.google.com" in accounts.get("/").headers.get("content-security-policy", "")
+
+
+def test_google_sign_in_is_off_without_a_client_id(accounts, monkeypatch):
+    monkeypatch.setattr(auth, "GOOGLE_CLIENT_ID", "")
+    assert accounts.post("/auth/google", json={"credential": "x" * 40}).status_code == 404
+    assert accounts.get("/auth/config").json()["google_client_id"] is None

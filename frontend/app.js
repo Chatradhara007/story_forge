@@ -171,6 +171,41 @@ async function busy(button, label, msgBox, action) {
   finally { if (button.isConnected) { button.disabled = false; button.textContent = original; } }
 }
 
+// Google sign-in (only when the server has GOOGLE_CLIENT_ID): Google's own button, whose
+// credential the server checks with Google before signing in or creating the account.
+let googleScript = null;
+function loadGoogleScript() {
+  googleScript = googleScript || new Promise((resolve, reject) => {
+    const tag = document.createElement("script");
+    tag.src = "https://accounts.google.com/gsi/client";
+    tag.async = true;
+    tag.onload = resolve;
+    tag.onerror = () => { googleScript = null; reject(new Error("Google sign-in couldn't load. Check your connection.")); };
+    document.head.appendChild(tag);
+  });
+  return googleScript;
+}
+
+async function showGoogleButton(slot, msg) {
+  try { await loadGoogleScript(); }
+  catch (err) { msg.innerHTML = errorBox(err.message); return; }
+  if (!slot.isConnected) return;
+  window.google.accounts.id.initialize({
+    client_id: state.config.google_client_id,
+    callback: async (answer) => {
+      msg.innerHTML = "";
+      try {
+        const r = await api("/auth/google", { method: "POST",
+          body: { credential: answer.credential, invite_code: $("#a-invite")?.value.trim() || null } });
+        state.token = r.token; state.user = r.user; save("storyforge-token", r.token);
+        location.hash = "#/shelf";
+        await startApp();
+      } catch (err) { msg.innerHTML = errorBox(err); }
+    },
+  });
+  window.google.accounts.id.renderButton(slot, { theme: "outline", size: "large", text: "continue_with", shape: "pill" });
+}
+
 function showSignIn(mode = "signin", resetToken = null) {
   showOnly("signin");
   const copy = AUTH_COPY[mode];
@@ -201,10 +236,12 @@ function showSignIn(mode = "signin", resetToken = null) {
       ${fields}
       <div id="auth-msg" aria-live="polite"></div>
       <div class="actions"><button class="btn" type="submit" id="auth-submit">${copy.button}</button>${switcher}</div>
+      ${c.google_client_id && (mode === "signin" || mode === "register") ? `<div class="google-signin"><span class="hint">or</span><div id="g-btn"></div></div>` : ""}
       <p class="signin-foot"><a href="#" data-mode="welcome">Back to the welcome page</a></p>
     </form>`;
   const form = $("#auth-form"), msg = $("#auth-msg"), submit = $("#auth-submit");
   bindPasswordToggles(form);
+  if ($("#g-btn")) showGoogleButton($("#g-btn"), msg);
   (form.querySelector("input") || submit).focus();
   form.querySelectorAll("[data-mode]").forEach(el => el.onclick = (e) => {
     e.preventDefault();

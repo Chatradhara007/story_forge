@@ -18,6 +18,8 @@ services:
         value: "40"          # chapter checks per user per day (0 = unlimited)
       - key: ALLOW_REGISTRATION
         value: "true"        # set "false" once everyone who needs an account has one
+      - key: GOOGLE_CLIENT_ID
+        sync: false          # optional: "Continue with Google" (docs/GOOGLE-SIGN-IN.md)
       - key: INVITE_CODE
         sync: false          # optional: only people with this code can create accounts
       - key: MAX_REQUESTS_PER_MINUTE

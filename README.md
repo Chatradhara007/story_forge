@@ -9,7 +9,9 @@ accounts and audit fixes (section 13). See section 15 for what the merge changed
 > `CHECKER=off`, `SAFETY_NET=off`, `NAME_LINKING=rules`. Every warning cites both quotes, with
 > 0 false alarms in every measured run; recall on unseen stories is the known limit. What we
 > tried and why: section 20 and [docs/FREE-SETUP.md](docs/FREE-SETUP.md). How to pick it up
-> again: [docs/ROADMAP.md](docs/ROADMAP.md). Demo: [docs/DEMO.md](docs/DEMO.md).
+> again: [docs/ROADMAP.md](docs/ROADMAP.md). Demo: [docs/DEMO.md](docs/DEMO.md) (`backend/seed_demo.py`
+> makes a demo account with two finished books). Sign-in: email and password, plus optional
+> "Continue with Google" ([docs/GOOGLE-SIGN-IN.md](docs/GOOGLE-SIGN-IN.md)).
 
 A continuity-tracking system for long-form fiction. Writers ingest chapters; the system extracts
 structured facts (characters, locations, items, events), builds up a persistent "story memory,"
@@ -743,6 +745,15 @@ Shift, Kestrel): 1/10 and 1/9; after general fixes Kestrel 2-4 of 9, Night Shift
 false alarms. Precision is the strength; recall on unseen stories is the open problem (the
 reading differs from run to run, and some mistake kinds, such as counts and event names, need
 the typed-fact step in the roadmap).
+
+**For presenting.**
+6. **Google sign-in** (`POST /auth/google`, `GOOGLE_CLIENT_ID`): Google's own button on the
+   sign-in and create-account screens; the server checks each credential with Google (right
+   client, verified email) and signs into the account with that email or creates one under the
+   usual registration rules. Off unless configured. Guide: `docs/GOOGLE-SIGN-IN.md`.
+7. **Demo account** (`backend/seed_demo.py`): one command makes an account with two finished
+   books (The Fallen King, Kestrel) through the normal pipeline, reusing the evaluation's saved
+   readings. Run sheet: `docs/DEMO.md`.
 
 **Lessons.** Never let a local agent edit code files (it left the repo behind the pushed
 commits). A key in `backend/.env` is ignored if the same name is set in Windows or PowerShell.

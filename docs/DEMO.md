@@ -5,6 +5,21 @@ depend on it, so: **rehearse once with the reading cache on; on the day, the sam
 checked in seconds with no AI request for reading.** Everything else (name linking, the
 checks, the warnings) runs live, exactly as for any user.
 
+## The quickest way: a demo account with two finished books
+
+From `backend/` (database running, `NVIDIA_API_KEY` set):
+```
+python seed_demo.py --email demo@storyforge.app --password "pick-a-demo-password"
+```
+It creates the account and adds **The Fallen King** (fantasy) and **Kestrel** (science fiction)
+through the normal pipeline, so the warnings shown are real results. Readings saved by the
+evaluation are reused (about a minute); otherwise each chapter is read by the AI (several
+minutes). Then set `AUTH_REQUIRED=true` and a `SECRET_KEY` in `backend/.env`, restart, and sign
+in as the demo account: the shelf shows both books. `--fresh` adds them again;
+`--stories fallenking,glassmaker` picks others.
+
+To also show adding a chapter live, use the reading cache below.
+
 ## Once, the day before
 
 1. In `backend/.env` add:

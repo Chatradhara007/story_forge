@@ -73,11 +73,18 @@ async def security_headers(request: Request, call_next):
     response = await call_next(request)
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
     response.headers.setdefault("X-Frame-Options", "DENY")
-    response.headers.setdefault("Referrer-Policy", "no-referrer")
+    # Google's sign-in button needs to see which site it is on, and opens a pop-up.
+    response.headers.setdefault("Referrer-Policy",
+                                "strict-origin-when-cross-origin" if auth.GOOGLE_CLIENT_ID else "no-referrer")
+    if auth.GOOGLE_CLIENT_ID:
+        response.headers.setdefault("Cross-Origin-Opener-Policy", "same-origin-allow-popups")
     if request.url.path.startswith("/app") or request.url.path == "/":
+        google = " https://accounts.google.com" if auth.GOOGLE_CLIENT_ID else ""   # the Google sign-in button
+        frames = google or " 'none'"
         response.headers.setdefault(
             "Content-Security-Policy",
-            "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+            f"default-src 'self'; script-src 'self'{google}; style-src 'self' 'unsafe-inline'{google}; "
+            f"img-src 'self' data:{' https:' if google else ''}; frame-src{frames}; "
             "font-src 'self'; connect-src 'self' https:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'")
     if request.url.path.startswith("/auth"):
         response.headers["Cache-Control"] = "no-store"
@@ -240,7 +247,8 @@ def auth_config():
     """What the sign-in screen needs to know (public)."""
     return {"auth_required": auth.AUTH_REQUIRED, "registration_open": auth.ALLOW_REGISTRATION,
             "invite_required": bool(auth.INVITE_CODE), "daily_chapter_limit": auth.DAILY_CHAPTER_LIMIT,
-            "password_reset": auth.reset_delivery(), "min_password_length": 8}
+            "password_reset": auth.reset_delivery(), "min_password_length": 8,
+            "google_client_id": auth.GOOGLE_CLIENT_ID or None}
 
 
 @app.post("/auth/register", status_code=201)
@@ -252,6 +260,17 @@ def register(body: RegisterInput, request: Request):
 @app.post("/auth/login")
 def login(body: LoginInput, request: Request):
     return auth.session_for(auth.login(body.email, body.password, auth.client_ip(request)))
+
+
+class GoogleInput(BaseModel):
+    credential: str = Field(min_length=20, max_length=5000)
+    invite_code: str | None = Field(default=None, max_length=200)
+
+
+@app.post("/auth/google")
+def google_login(body: GoogleInput, request: Request):
+    """Sign in (or create an account) with a Google sign-in credential."""
+    return auth.session_for(auth.google_sign_in(body.credential, body.invite_code, auth.client_ip(request)))
 
 
 @app.get("/auth/me")

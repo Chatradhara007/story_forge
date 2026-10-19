@@ -65,6 +65,11 @@ elif AUTH_REQUIRED and len(_secret) < 32:
     print("  [warning] SECRET_KEY is short; use at least 32 random characters.", flush=True)
 SECRET = _secret.encode()
 
+# Google sign-in: set GOOGLE_CLIENT_ID (a "Web application" OAuth client from Google Cloud
+# console, with this site's address as an authorised JavaScript origin). Empty = no Google button.
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "").strip()
+_GOOGLE_ISSUERS = {"accounts.google.com", "https://accounts.google.com"}
+
 COMMON_PASSWORDS = {"password", "password1", "password123", "12345678", "123456789", "1234567890",
                     "qwerty123", "qwertyuiop", "iloveyou", "11111111", "00000000", "abcd1234",
                     "letmein1", "welcome1", "storyforge", "admin123", "passw0rd"}
@@ -253,6 +258,64 @@ def login(email: str, password: str, ip: str) -> dict:
         raise HTTPException(status_code=401, detail="Email or password is wrong.")
     with _hits_lock:
         _hits.pop(("login-email", email), None)
+    with storage.db() as conn, conn.cursor() as cur:
+        cur.execute("UPDATE users SET last_login_at = now() WHERE id = %s", (user["id"],))
+    return user
+
+
+def _google_identity(credential: str) -> dict:
+    """Check a Google sign-in credential (an ID token) with Google and return its claims."""
+    import json
+    import urllib.parse
+    import urllib.request
+    url = "https://oauth2.googleapis.com/tokeninfo?" + urllib.parse.urlencode({"id_token": credential})
+    try:
+        with urllib.request.urlopen(url, timeout=10) as reply:
+            claims = json.loads(reply.read().decode())
+    except Exception:  # noqa: BLE001 - any failure means "not verified"
+        raise HTTPException(status_code=401, detail="Google couldn't confirm that sign-in. Try again.")
+    if (claims.get("aud") != GOOGLE_CLIENT_ID or claims.get("iss") not in _GOOGLE_ISSUERS
+            or str(claims.get("email_verified")).lower() != "true" or not claims.get("email")
+            or int(claims.get("exp", 0)) < time.time()):
+        raise HTTPException(status_code=401, detail="That Google sign-in isn't valid for this StoryForge.")
+    return claims
+
+
+def google_sign_in(credential: str, invite_code: str | None, ip: str, verify=None) -> dict:
+    """
+    Sign in with Google. An existing account with the same (Google-verified) email is used;
+    otherwise a new account is made, under the same rules as registering (registration open,
+    invite code if one is set). Such an account has no password until one is set with
+    "Forgot your password?".
+    """
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(status_code=404, detail="Google sign-in isn't set up on this StoryForge.")
+    _limit("login-ip", ip, 20, 900, TOO_MANY_SIGNINS, record=False)
+    claims = (verify or _google_identity)(credential)
+    email = claims["email"].strip().lower()
+    with storage.db() as conn, storage._dict_cursor(conn) as cur:
+        cur.execute(f"SELECT {_USER_COLUMNS} FROM users WHERE lower(email) = %s", (email,))
+        user = cur.fetchone()
+    if user is None:
+        if not ALLOW_REGISTRATION:
+            raise HTTPException(status_code=403, detail="New accounts are switched off on this StoryForge.")
+        if INVITE_CODE and not hmac.compare_digest((invite_code or "").strip().encode(), INVITE_CODE.encode()):
+            raise HTTPException(status_code=403, detail="Enter the invite code first, then sign in with Google.")
+        _limit("register", ip, max_hits=10, window=3600,
+               message="Too many new accounts from your network. Try again in an hour.")
+        try:
+            with storage.db() as conn, storage._dict_cursor(conn) as cur:
+                cur.execute("SELECT pg_advisory_xact_lock(724001)")
+                cur.execute(f"INSERT INTO users (email, password_hash, display_name) VALUES (%s, %s, %s) "
+                            f"RETURNING {_USER_COLUMNS}",
+                            (email, "google$" + secrets.token_hex(16),          # no usable password
+                             (claims.get("name") or "").strip()[:80] or email.split("@")[0]))
+                user = cur.fetchone()
+                cur.execute("SELECT COUNT(*) AS n FROM users")
+                if cur.fetchone()["n"] == 1:
+                    cur.execute("UPDATE projects SET owner_id = %s WHERE owner_id IS NULL", (user["id"],))
+        except psycopg2.errors.UniqueViolation:
+            raise HTTPException(status_code=409, detail="That account was just created. Try again.")
     with storage.db() as conn, conn.cursor() as cur:
         cur.execute("UPDATE users SET last_login_at = now() WHERE id = %s", (user["id"],))
     return user
