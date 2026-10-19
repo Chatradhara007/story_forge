@@ -34,16 +34,13 @@ STORIES = ["fallenking", "glassmaker", "lighthouse", "nightshift", "kestrel"]
 # Free candidates (19 Oct 2026). Model names on free tiers change: check each provider's model
 # list and pass --readers to try others. Prefixes: see PROVIDERS in backend/llm.py.
 CANDIDATES = [
-    "ollama:qwen2.5:7b-instruct",
-    "ollama:qwen2.5:14b-instruct",
-    "ollama:llama3.1:8b",
-    "groq:llama-3.3-70b-versatile",
-    "groq:llama-3.1-8b-instant",
-    "cerebras:llama-3.3-70b",
+    "groq:openai/gpt-oss-20b",
+    "groq:openai/gpt-oss-120b",
+    "groq:qwen/qwen3.8-27b",
     "nvidia:nvidia/nemotron-3.5-lightning-30b-a3b",
-    "openrouter:meta-llama/llama-3.3-70b-instruct:free",
-    "gemini:gemini-2.5-flash",          # free tier may use prompts for training: test stories only
 ]
+# Add others with --readers (e.g. "ollama:qwen2.5:7b-instruct" once the local GPU is fixed,
+# "cerebras:...", "gemini:gemini-2.5-flash"); providers without a key in backend/.env are skipped.
 
 KEYS = {"groq": "GROQ_API_KEY", "cerebras": "CEREBRAS_API_KEY", "nvidia": "NVIDIA_API_KEY",
         "openrouter": "OPENROUTER_API_KEY", "gemini": "GEMINI_API_KEY", "github": "GITHUB_TOKEN",
