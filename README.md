@@ -1,6 +1,6 @@
 # StoryForge AI — Project Status & Setup
 
-**Last updated:** 16 October 2026 (story clock with ranges, fixed traits checked in code, `eval/stage_eval.py`: section 18). Before that, 12 October 2026 (two branches merged: the measured model setup, "lasting
+**Last updated:** 19 October 2026 (free-AI decision closed, generated test cases, general fixes: section 20). Before that, 16 October 2026 (story clock with ranges, fixed traits checked in code, `eval/stage_eval.py`: section 18), and 12 October 2026 (two branches merged: the measured model setup, "lasting
 facts", story-clock rules and evaluation tools from 4–5 October (section 14), plus finished
 accounts and audit fixes (section 13). See section 15 for what the merge changed.)
 
@@ -707,21 +707,52 @@ safety net (6), which caught nothing and took ~7 of the 35 minutes.
 Fallen King 5 → **8**/11, Glassmaker 4 → **5**/13, Lighthouse 3 → **5**/12 (**18/36** in total).
 Re-scored, the 16 Oct run's "Confirmed" level was precision 100%, recall 45%, F1 0.62.
 
+### 20. Free-AI decision, test-case generator and general fixes (17-19 October 2026)
+
+**Decision.** One free NVIDIA model (Nemotron 3.5 Lightning) reads and judges; the checks run in
+code; `CHECKER=off`, `SAFETY_NET=off`, `NAME_LINKING=rules`. Local Ollama (5-12 min per chapter),
+Groq (retired model; 8,000 tokens/minute; `gpt-oss` breaks forced tool calls) and mixed chains
+(the reading changes between runs, so scores can't be compared) were tried and dropped. Full
+table with reasons: [docs/FREE-SETUP.md](docs/FREE-SETUP.md).
+
+**Built.**
+1. **Providers chain** (`backend/llm.py`): `provider:model` labels (nvidia, ollama, groq,
+   cerebras, openrouter, gemini, github, mistral), per-provider keys and pacing, a missing or
+   rejected key skips that model at once, a rate limit hands over to the next. Non-NVIDIA
+   providers get plain-JSON requests; Groq's answer room is capped.
+2. **Tolerant facts** (`backend/models.py`): "person"/"object" accepted as fact types; "Ana's
+   right leg | broken" is read as a fact about Ana (works on saved readings too).
+3. **General checks** (not tuned to one story): hair, beard, height, boat colour, mended-then-
+   broken, born-and-never-left, acting after death (any verb), figurative ages, broken limb used
+   within ~5 weeks, burn and scar on one body part are one mark, ages cite the main timeline.
+4. **Evaluation tools:** `eval/make_cases.py` (plants mistakes with an automatic answer key),
+   `eval/add_book.py` (real books as a base), `eval/reader_sweep.py`, `eval/try_model.py`,
+   `run_eval.py --reread`, `eval/HOW-TO-WRITE-A-TEST-STORY.md`.
+5. **Docs:** `docs/ROADMAP.md` (steps and checkpoints), `docs/FREE-SETUP.md`, `docs/DEMO.md`,
+   `docs/LOCAL-MODEL.md`.
+
+**Measured (honest).** Tuned stories: 21/36 caught, 0 false alarms. First held-out run (Night
+Shift, Kestrel): 1/10 and 1/9; after general fixes Kestrel 2-4 of 9, Night Shift ~4/10, always 0
+false alarms. Precision is the strength; recall on unseen stories is the open problem (the
+reading differs from run to run, and some mistake kinds, such as counts and event names, need
+the typed-fact step in the roadmap).
+
+**Lessons.** Never let a local agent edit code files (it left the repo behind the pushed
+commits). A key in `backend/.env` is ignored if the same name is set in Windows or PowerShell.
+No quotes around keys. Free tiers change names and limits: list a key's models before choosing.
+
 ## 🚧 What's left
 
-0. **The held-out test:** `cd eval`, `python analyze_without_ai.py --story fallenking` (free),
-   then `python run_eval.py --story fallenking --judges "nvidia/nemotron-3-ultra-550b-a55b" --runs 1`.
-   Record the numbers here and in `docs/FINAL-CONFIGURATION.md` without tuning on them.
-1. **Re-run the evaluation with the real AI** on both tuning stories, 3 runs each
-   (`python eval/run_eval.py --runs 3` and `--story glassmaker --runs 3`). The last saved numbers
-   predate the double-check, the story clock and the bug fixes. Record the scores here.
-2. **A third test story with realistic ~4,000-word chapters**, to prove the Phase 4 scale work
-   end to end (the review's "done when" for Phase 4).
-3. **Contradictions within a single chapter** (review Phase 3) are still not checked.
-4. **Permanent-state ledger** (review Phase 5): permanent states are always shown to the checker
-   now (bug 7 fix), but reversals aren't yet caught by a rule in code the way ages are.
-5. **Series** (books that share characters, so a sequel is checked against book one).
-6. **Deploy** following [DEPLOY.md](DEPLOY.md).
+The ordered plan with checkpoints is in [docs/ROADMAP.md](docs/ROADMAP.md). In short:
+1. **Honest measurement:** run `python eval/make_cases.py --run` and `eval/add_book.py` for real
+   prose; CI release gate (tests plus offline story replay).
+2. **General checking:** one typed fact format and one comparison (counts, event names,
+   family ties) instead of one rule per mistake kind.
+3. **Catch-all:** a local NLI model for "Worth a look".
+4. **Speed:** read chapters in parallel, whole-chapter calls, local search vectors.
+5. **Beta deployment** (DEPLOY.md, `render.yaml`) with **Google sign-in**, then a paid model
+   when funded.
+6. Series (shared characters across books) and contradictions within a single chapter.
 
 ### Future work / explicitly out of scope for now
 - Multi-author collaboration mode (accounts exist, but a book belongs to one account)

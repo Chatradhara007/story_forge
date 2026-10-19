@@ -1,6 +1,6 @@
 # StoryForge roadmap and checkpoints
 
-Updated 19 Oct 2026. Each step has a **checkpoint**: what must be true before moving on.
+Updated 19 Oct 2026 (Step 1 closed). Each step has a **checkpoint**: what must be true before moving on.
 Numbers come from `eval/run_eval.py`; "held-out" means a story nobody tuning the checks has seen.
 
 ## Where we are (19 Oct 2026)
@@ -17,26 +17,15 @@ tier is ~95% of the time.
 
 ---
 
-## Step 1: Reader on your own GPU (now)
+## Step 1: Choose the free reader (CLOSED, 19 Oct 2026)
 
-Guide: `docs/LOCAL-MODEL.md`.
-1. Install Ollama, open a NEW PowerShell window, `ollama --version`.
-2. `nvidia-smi` (GPU memory), then `ollama pull qwen2.5:7b-instruct` (8 GB) or
-   `qwen2.5:14b-instruct` (12 GB+).
-3. `backend/.env`: `AI_BASE_URL=http://localhost:11434/v1`, `CHAT_MODEL` / `JUDGE_MODEL` = that
-   model, `MAX_PARALLEL_AI_CALLS=2`, `AI_REQUEST_TIMEOUT=300`, `AI_RETRY_ATTEMPTS=2`.
-   Keep `NVIDIA_API_KEY` (search vectors), `CHECKER=off`, `SAFETY_NET=off`, `NAME_LINKING=rules`.
-4. `python eval/run_eval.py --story kestrel --reuse-reading`, then `--story fallenking`.
+**Decision:** one free NVIDIA model (Nemotron 3.5 Lightning) reads and judges; checks in code;
+AI checker, safety net and AI name linking off. Everything else we tried (local Ollama, Groq,
+mixed chains) is recorded with the reasons in `docs/FREE-SETUP.md`. Not re-opened unless a new
+provider beats NVIDIA on all stories (`eval/try_model.py`, `eval/reader_sweep.py`).
 
-Then the free-setup search (`docs/FREE-SETUP.md`): add any free keys you have (Groq, Cerebras,
-Gemini for test stories only...) and run `python eval/reader_sweep.py`; it ranks every free reader
-on all five stories and suggests a chain (best first, reliable fallbacks after it).
-
-**Checkpoint 1:** local reading is within ~1 catch of NVIDIA Lightning (Fallen King 8/11,
-Kestrel 3/9) with no new false alarms. Expected time: Kestrel 1-3 min, Fallen King 5-12 min
-on the first run; about a minute after that.
-- Pass: use the local model for all development and evaluation runs; run the other 3 stories.
-- Fail: try the 14B model; otherwise keep NVIDIA for final readings.
+Honest numbers: precise (0 false alarms in every run), but recall on stories nobody tuned for is
+low (Kestrel 2-4 of 9 depending on the reading). That is the problem Steps 3 and 4 address.
 
 ## Step 2: Honest measurement that scales
 
