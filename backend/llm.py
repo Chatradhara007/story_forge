@@ -430,10 +430,6 @@ def _permanent_problem(error: Exception) -> str | None:
     if LOCAL_AI and _is_model_gone(error):
         return (f"The local AI server at {AI_BASE_URL} doesn't have that model. Download it first, e.g. "
                 f"`ollama pull {CHAT_MODEL}`, or set CHAT_MODEL / JUDGE_MODEL in backend/.env to one you have.")
-    if (LOCAL_AI and isinstance(error, openai.APIConnectionError)
-            and not isinstance(error, openai.APITimeoutError)):      # a timeout is retried (model still loading)
-        return (f"Nothing is answering at {AI_BASE_URL}. Start the local AI server (Ollama: open the Ollama "
-                f"app, or run `ollama serve`).")
     if _is_model_gone(error):
         # 410 Gone used to be retried 6 times (about a minute wasted per request).
         return ("NVIDIA doesn't recognise the model name; it may have been retired. "
@@ -512,7 +508,11 @@ def with_retries(action, what: str, attempts: int | None = None):
             print(f"  [retry] {what}: attempt {failures} failed ({str(error)[:120]}); "
                   f"trying again in {wait:.0f}s", flush=True)
             _pause(wait)
-    raise AIServiceError(f"{what} failed after {attempts} tries: {last_error}") from last_error
+    hint = ""
+    if isinstance(last_error, openai.APIConnectionError) and (LOCAL_AI or "ollama" in what):
+        hint = (" (the local AI server dropped or refused the connection: check the Ollama app is running, "
+                "`ollama ps`, and try MAX_PARALLEL_AI_CALLS=1 if the GPU runs out of memory)")
+    raise AIServiceError(f"{what} failed after {attempts} tries: {last_error}{hint}") from last_error
 
 
 # How much the model "thinks" before answering:

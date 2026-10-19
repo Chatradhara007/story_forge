@@ -387,6 +387,9 @@ def saved_reading(data: dict, reader: str, chapter_id: str, text: str):
 STORIES = HERE / "stories"
 
 
+_ARGS = None
+
+
 def parse_args():
     import argparse
     parser = argparse.ArgumentParser(description="Score StoryForge against a test story with planted mistakes.")
@@ -394,6 +397,9 @@ def parse_args():
     parser.add_argument("--list", action="store_true", help="list the available stories and exit")
     parser.add_argument("--runs", type=int, default=1,
                         help="run the whole story this many times and report how consistently each mistake is caught")
+    parser.add_argument("--reread", action="store_true",
+                        help="read every chapter again with the current model and replace its saved reading "
+                             "(other models' readings are kept)")
     parser.add_argument("--reuse-reading", action="store_true",
                         help="use the reading saved in eval/cache (reads and saves it first if there is none): "
                              "only judging is measured")
@@ -433,7 +439,9 @@ def main() -> None:
         print(f"Pacing AI requests at up to {MAX_REQUESTS_PER_MINUTE} per minute (MAX_REQUESTS_PER_MINUTE).")
 
     judges = [j.strip() for j in args.judges.split(",") if j.strip()]
-    reuse = args.reuse_reading or bool(judges)
+    global _ARGS
+    _ARGS = args
+    reuse = args.reuse_reading or args.reread or bool(judges)
     readings = load_readings(args.story) if reuse else None
     reader = llm.CHAT_MODELS[0]
     if not judges:
@@ -590,11 +598,12 @@ def run_once(story_dir: Path, truth: dict, storage, app_main, readings: dict | N
         text = (story_dir / f"{chapter_id}.txt").read_text(encoding="utf-8")
         print(f"Chapter {number} ({chapter_id})…", end=" ", flush=True)
         t0 = time.time()
-        saved = saved_reading(readings, reader, chapter_id, text) if readings is not None else None
+        saved = (saved_reading(readings, reader, chapter_id, text)
+                 if readings is not None and not getattr(_ARGS, "reread", False) else None)
         # chapters go in order: nothing to re-check
         result, _later = pipeline.ingest(project_id, chapter_id, text, number, reading=saved)
         key = _reading_key(reader, chapter_id, text)
-        if readings is not None and key not in readings["readings"]:   # new, or from an old-format file
+        if readings is not None and (key not in readings["readings"] or getattr(_ARGS, "reread", False)):
             readings["readings"][key] = {
                 "chapter_id": chapter_id, "time_note": result.time_note,
                 "facts": [f.model_dump() for f in result.facts],
