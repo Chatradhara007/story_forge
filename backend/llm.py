@@ -436,7 +436,7 @@ def _permanent_problem(error: Exception) -> str | None:
                 "Run python check_models.py (in backend/) to see the live models, then set "
                 "CHAT_MODEL / JUDGE_MODEL / EMBED_MODEL in backend/.env.")
     if isinstance(error, openai.BadRequestError):
-        return f"NVIDIA refused the request as invalid: {str(error)[:200]}"
+        return f"the AI provider refused the request as invalid: {str(error)[:500]}"
     return None
 
 
